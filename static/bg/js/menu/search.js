@@ -34,24 +34,6 @@ function initializeSearch() {
     const suggestionsContainer = document.getElementById('searchSuggestions');
     const clearButton = document.getElementById('clearSearch');
 
-    console.log('Search initialization:', {
-        isMonsterPage,
-        searchInput: !!searchInput,
-        suggestionsContainer: !!suggestionsContainer,
-        clearButton: !!clearButton
-    });
-
-    if (!searchInput || !suggestionsContainer || !clearButton) {
-        console.error('Required search elements not found');
-        return;
-    }
-
-    // Проверяем наличие данных
-    if (!app?.stateManager?.getState('cachedData')) {
-        console.error('No cached data available');
-        return;
-    }
-
     let searchDebounceTimer;
 
     searchInput.addEventListener('input', (e) => {
@@ -81,21 +63,6 @@ function initializeSearch() {
 // Единая функция для поиска предложений
 function findSuggestions(searchTerm, isMonsterPage) {
     const cachedData = app?.stateManager?.getState('cachedData');
-    
-    // Отладка состояния кэша
-    console.log('Cache state:', {
-        stateManager: !!app?.stateManager,
-        cachedData: cachedData ? Object.keys(cachedData) : null,
-        monsters: cachedData?.monsters?.length || 0,
-        items: cachedData?.items?.length || 0,
-        isMonsterPage
-    });
-
-    if (!cachedData) {
-        console.warn('No cached data available');
-        return [];
-    }
-
     const items = isMonsterPage ? cachedData.monsters : cachedData.items;
     
     if (!items) {
@@ -112,32 +79,12 @@ function findSuggestions(searchTerm, isMonsterPage) {
             return matchesId || matchesName;
         })
         .slice(0, 8);
-
-    // Отладка результатов
-    console.log('Search results:', {
-        searchTerm,
-        resultsCount: results.length,
-        firstResult: results[0],
-        isMonsterPage
-    });
-
     return results;
 }
 
 // Модифицируем displaySuggestions для отладки
 function displaySuggestions(suggestions, searchTerm, isMonsterPage) {
     const suggestionsContainer = document.getElementById('searchSuggestions');
-    if (!suggestionsContainer) {
-        console.error('Suggestions container not found');
-        return;
-    }
-    
-    console.log('Display Debug:', {
-        suggestionsCount: suggestions.length,
-        searchTerm,
-        isMonsterPage,
-        containerExists: !!suggestionsContainer
-    });
 
     if (!suggestions.length) {
         suggestionsContainer.innerHTML = '<div class="no-results">Нет результатов</div>';

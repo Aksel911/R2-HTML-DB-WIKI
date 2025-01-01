@@ -154,34 +154,6 @@
     }
 }
 
-/* Стилизованный скроллбар */
-#searchSuggestions::-webkit-scrollbar {
-    width: 8px;
-}
-
-#searchSuggestions::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 4px;
-}
-
-#searchSuggestions::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    transition: background 0.3s ease;
-}
-
-#searchSuggestions::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.dark-theme #searchSuggestions::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.dark-theme #searchSuggestions::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
 /* Подсветка поискового запроса */
 .highlight {
     padding: 0.2em 0.4em;

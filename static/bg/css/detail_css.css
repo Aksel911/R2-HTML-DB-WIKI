@@ -579,7 +579,6 @@ body.dark-theme {
 
 .dark-theme .monster-viewer-container {
     border-radius: 8px;
-    padding: 10px;
 }
 
 .dark-theme p[style*="display: flex"] {
