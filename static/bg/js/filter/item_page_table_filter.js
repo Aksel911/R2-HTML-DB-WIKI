@@ -642,6 +642,7 @@ class ItemUIManager {
 			.map(this._createFilterCard)
 			.join('');
 	}
+
 	// ! Создание HTML для доп фильтров
 	_createFilterCard(filter) {
 		return `
@@ -669,6 +670,11 @@ class ItemUIManager {
             `;
 	}
 
+
+
+
+
+	
 	// Инициализация кнопок перехода по страницам таблицы
 	initializePerPageSelect() {
 		const perPageSelect = document.getElementById('perPageSelect');

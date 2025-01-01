@@ -1,0 +1,230 @@
+/* Основные стили контейнера поиска с продвинутыми анимациями */
+.search-container {
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.input-group {
+    position: relative;
+    z-index: 2;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.input-group:focus-within {
+    transform: translateY(-2px) scale(1.01);
+}
+
+/* Контейнер результатов с 3D эффектами */
+#searchSuggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 16px;
+    margin-top: 12px;
+    padding: 12px 0;
+    box-shadow:
+        0 10px 30px -5px rgba(0, 0, 0, 0.1),
+        0 5px 15px -3px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(-20px) rotateX(-10deg);
+    transform-origin: top center;
+    transition:
+        transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.4s ease,
+        box-shadow 0.4s ease;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    overflow-y: auto;
+    will-change: transform, opacity;
+}
+
+/* Анимированное появление результатов */
+#searchSuggestions[style*="display: contents"] {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+    animation: suggestionsAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Темная тема с продвинутыми эффектами */
+.dark-theme #searchSuggestions {
+    background: linear-gradient(
+        145deg,
+        rgba(30, 32, 35, 0.98),
+        rgba(25, 27, 30, 0.95)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 10px 30px -5px rgba(0, 0, 0, 0.3),
+        0 5px 15px -3px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Стильные результаты поиска */
+.search-suggestion {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #333;
+    text-decoration: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.search-suggestion::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: translateX(-100%) skewX(-15deg);
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.search-suggestion:hover::before {
+    transform: translateX(100%) skewX(-15deg);
+}
+
+/* Эффект приподнятия и тени при ховере */
+.search-suggestion:hover {
+    transform: translateY(-2px) scale(1.01);
+    background-color: rgba(66, 153, 225, 0.05);
+    box-shadow:
+        0 4px 12px rgba(66, 153, 225, 0.1),
+        0 2px 4px rgba(66, 153, 225, 0.05);
+}
+
+/* Анимация появления каждого результата */
+.search-suggestion {
+    animation: resultAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: calc(var(--index) * 0.08s + 0.1s);
+}
+
+/* Изображения с продвинутыми эффектами */
+.search-suggestion img {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    margin-right: 16px;
+    object-fit: cover;
+    transform: scale(1) rotate(0);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    filter: brightness(1);
+}
+
+.search-suggestion:hover img {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    filter: brightness(1.1);
+}
+
+/* Анимации */
+@keyframes suggestionsAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) rotateX(-10deg) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) rotateX(0) scale(1);
+    }
+}
+
+@keyframes resultAppear {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Стилизованный скроллбар */
+#searchSuggestions::-webkit-scrollbar {
+    width: 8px;
+}
+
+#searchSuggestions::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+#searchSuggestions::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+#searchSuggestions::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme #searchSuggestions::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dark-theme #searchSuggestions::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Подсветка поискового запроса */
+.highlight {
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    background: linear-gradient(45deg, rgba(0, 123, 255, 0.5), rgba(0, 102, 204, 0.1));
+    animation: pulseEffectLight 1.5s ease-in-out infinite;
+    box-shadow: 0 4px 10px rgba(0, 102, 204, 0.3);
+}
+
+@keyframes pulseEffectLight {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 10px rgba(0, 102, 204, 0.3);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 8px 20px rgba(0, 102, 204, 0.5);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 10px rgba(0, 102, 204, 0.3);
+    }
+}
+
+.dark-theme .highlight {
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    background: linear-gradient(45deg, rgba(0, 123, 255, 0.5), rgba(0, 102, 204, 0.1));
+    animation: pulseEffectDark 1.5s ease-in-out infinite;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+@keyframes pulseEffectDark {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 8px 20px rgba(0, 123, 255, 0.5);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    }
+}

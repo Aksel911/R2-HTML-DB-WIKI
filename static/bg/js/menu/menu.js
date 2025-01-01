@@ -1,3 +1,44 @@
+// Dropdown menu functionality
+function initializeDropdownMenu() {
+    let timeout;
+    const DELAY = 300;
+
+    $('.nav-item.dropdown').hover(
+        function() {
+            clearTimeout(timeout);
+            const $dropdown = $(this);
+            $('.nav-item.dropdown').not($dropdown).find('.dropdown-menu').hide();
+            $dropdown.find('.dropdown-menu').show();
+        },
+        function() {
+            const $dropdown = $(this);
+            timeout = setTimeout(function() {
+                if (!$dropdown.find('.dropdown-menu:hover').length) {
+                    $dropdown.find('.dropdown-menu').hide();
+                }
+            }, DELAY);
+        }
+    );
+
+    $('.dropdown-menu').hover(
+        function() { clearTimeout(timeout); },
+        function() {
+            const $menu = $(this);
+            timeout = setTimeout(function() {
+                $menu.hide();
+            }, DELAY);
+        }
+    );
+
+    $('.dropdown-item').click(function(e) {
+        const href = $(this).attr('href');
+        if (href) {
+            window.location.href = href;
+        }
+    });
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const navbarToggler = document.querySelector('.navbar-toggler');
     const navbarCollapse = document.querySelector('.navbar-collapse');

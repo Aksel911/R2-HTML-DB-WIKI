@@ -419,6 +419,8 @@ h1 {
     border-radius: 12px
 }
 
+
+
 .filter-card {
     background: rgba(255,255,255,.05);
     border-radius: 12px;
@@ -756,98 +758,6 @@ body.dark-theme .theme-toggle:hover {
 }
 
 
-.search-container {
-    margin-bottom: 1rem
-}
-
-.search-suggestion {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    gap: 8px
-}
-
-.search-suggestion:hover {
-    background-color: #f8f9fa
-}
-
-.search-suggestion img {
-    width: 24px;
-    height: 24px;
-    object-fit: contain
-}
-
-.highlight {
-    background-color: #fff3cd;
-    padding: 0 2px;
-    border-radius: 2px
-}
-
-#searchSuggestions {
-    box-shadow: 0 4px 6px rgba(0,0,0,.1)
-}
-
-.dark-theme .search-container {
-    margin-bottom: 1rem
-}
-
-.dark-theme .search-suggestion {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #34495e;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #2c3e50;
-    color: #fff
-}
-
-.dark-theme .search-suggestion:hover {
-    background-color: #34495e
-}
-
-.dark-theme .search-suggestion img {
-    width: 24px;
-    height: 24px;
-    object-fit: contain
-}
-
-.dark-theme .highlight {
-    background-color: #3498db;
-    padding: 0 2px;
-    border-radius: 2px;
-    color: #fff
-}
-
-.dark-theme #searchSuggestions {
-    box-shadow: 0 4px 6px rgba(0,0,0,.5);
-    background-color: #2c3e50
-}
-
-.search-suggestion {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    color: inherit
-}
-
-.dark-theme .search-suggestion {
-    padding: 8px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #34495e;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background-color: #2c3e50;
-    color: #fff;
-    text-decoration: none
-}
 
 .loading-overlay {
     position: fixed;
@@ -3321,3 +3231,7 @@ body.dark-theme .theme-toggle:hover {
 .dark-theme #classFilter option[value]:not([value=""]) {
     filter: brightness(1.2) saturate(1.2);
 }
+
+
+
+

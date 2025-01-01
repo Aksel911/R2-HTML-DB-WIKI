@@ -30,8 +30,9 @@
                         </button>
                     </div>
                 </div>
-                <div id="searchSuggestions" class="position-absolute w-100 bg-white border rounded-bottom shadow-sm" 
-                    style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto;"></div>
+                <div id="searchSuggestions">
+                    <!-- Suggestions will be dynamically added here -->
+                </div>
             </div>
         </div>
 
@@ -221,7 +222,11 @@
 </div>
 <div id="errorMessage" class="message-container error-message"></div>
 
-<!-- ГЛАВНЫЕ СКРИПТЫ ФИЛЬТРА -->
+
+
+<!-- Скрипты -->
 <script src="/static/bg/js/filter/monster_page_table_filter.js"></script>
+<script src="/static/bg/js/menu/search.js"></script>
 
-
+<!-- Стили -->
+<link rel="stylesheet" href="/static/bg/css/menu/search.css">
