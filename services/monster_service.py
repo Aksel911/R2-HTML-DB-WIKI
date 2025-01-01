@@ -107,7 +107,7 @@ def monster_to_dict(monster: Monster) -> dict:
    """Convert monster object to dictionary for JSON response"""
    return {
        'MID': monster.MID,
-       'MName': monster.MName, 
+       'MName': monster.MName.replace('/n', ' '), 
        'mLevel': monster.mLevel,
        'MClass': monster.MClass,
        'MExp': monster.MExp,

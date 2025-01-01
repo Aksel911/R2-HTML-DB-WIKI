@@ -179,7 +179,7 @@ def monster_detail(monster_id: int):
         'mDetectTransP': int(monster.mDetectTransP),
         'mDetectChao': int(monster.mDetectChao),
         'mAiEx': monster.mAiEx,
-        'mIsResistTransF': bool(monster.mIsResistTransF),
+        'mIsResistTransF': int(monster.mIsResistTransF),
         'mHPNew': monster.mHPNew,
         'mMPNew': monster.mMPNew,
         'mBuyMerchanID': monster.mBuyMerchanID,

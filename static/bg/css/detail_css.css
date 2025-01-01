@@ -15,7 +15,6 @@
     --text-dark: #000000;
     --text-muted: #666;
     --border-color: rgba(30, 60, 114, 0.1);
-    --transition-speed: 0.3s;
 
     --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.2);
     --transition-base: all 0.3s ease;
@@ -37,23 +36,26 @@ body {
 }
 
 /* Fixed position containers */
-.back-button-container {
+.back-button-container,
+.theme-toggle-container {
     position: -webkit-sticky;
     position: sticky;
     left: 20px;
     z-index: 9999;
     width: fit-content;
-    top: 105px;
+}
+
+.back-button-container {
+    top: 20px;
     display: flex;
     gap: 10px;
     align-items: center;
     margin-bottom: -60px;
 }
 
-@media (max-width: 768px) {
-    .back-button-container {
-        display: none;
-    }
+.theme-toggle-container {
+    bottom: 20px;
+    margin-top: auto;
 }
 
 /* Buttons */
@@ -173,6 +175,10 @@ img:hover {
     overflow: hidden;
     color: black;
     font-weight: bold;
+}
+
+.progress {
+    margin-top: -32px;
 }
 
 .exp-bar { background-color: var(--success-color); }
@@ -530,6 +536,12 @@ body.dark-theme {
     background-image: url('https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/refs/heads/main/static/bg/BG_black.jpg') !important;
     color: var(--text-dark);
 }
+
+.dark-theme h1 {
+    color: #fff5e6!important;
+    text-decoration: none!important
+}
+
 .dark-theme h1,
 .dark-theme h2,
 .dark-theme p {
@@ -558,13 +570,11 @@ body.dark-theme {
 }
 
 .dark-theme a {
-    color: #FFF5E6 !important;
-    text-decoration: none !important;
+    color: #fff5e6!important
 }
 
 .dark-theme a:hover {
-    color: #FFE4B5 !important;
-    text-decoration: underline !important;
+    color: #ffe4b5!important;
 }
 
 .dark-theme .monster-viewer-container {
@@ -1183,17 +1193,23 @@ body.dark-theme {
 /* ---------  */
 
 
-/* ---------  */
-
-.skill-abnormal-picture {
-    padding: 30px;
-}
-.skill-abnormal-picture:hover {
-    filter: brightness(1) saturate(1);
-}   
 
 
-/* ---------  */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -92,6 +92,34 @@ h1 {
         transition: background-color 0.3s;
         cursor: pointer;
     }
+/* Responsive Styles */
+/* Для экранов до 960px показываем первые три столбца */
+@media (max-width: 960px) {
+    .table {
+        table-layout: auto;
+    }
+    .table th:nth-child(n+4),
+    .table td:nth-child(n+4) {
+        display: none;
+    }
+
+    /* Растягиваем 3-ю ячейку под текст */
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: auto;
+        text-align: left; /* Для улучшения читаемости длинного текста */
+        word-wrap: break-word; /* Перенос длинных слов */
+    }
+}
+
+
+/* Для экранов до 768px показываем только первые два столбца */
+@media (max-width: 768px) {
+    .table th:nth-child(n+3),
+    .table td:nth-child(n+3) {
+        display: none;
+    }
+}
 
 
 

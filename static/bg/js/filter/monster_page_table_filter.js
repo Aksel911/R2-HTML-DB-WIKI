@@ -1,11 +1,22 @@
-// Constants and configurations
+// ! Constants and configurations
 const CONSTANTS = {
     DEBOUNCE_DELAY: 300,
     DEFAULT_PER_PAGE: 25,
     FALLBACK_IMAGE: 'https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png',
     PAGINATION_RADIUS: 2,
-    ERROR_DISPLAY_TIME: 5000
+    ERROR_DISPLAY_TIME: 5000,
+    PAGINATION_RADIUS: 2,
+	FALLBACK_IMAGE: 'https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png',
+	TABLE_FADE_DURATION: 300,
+	BUTTON_ANIMATION_DURATION: 200,
+	ANIMATION_CLASSES: {
+		FADE_ENTER: 'table-fade-enter',
+		FADE_ENTER_ACTIVE: 'table-fade-enter-active'
+	},
+	PER_PAGE_OPTIONS: [10, 25, 50, 75, 100, 150, 200, 500, 1000]
 };
+
+
 
 const MONSTER_CLASS_DESCRIPTIONS = {
     1: 'A класс',
@@ -57,10 +68,19 @@ const MONSTER_TYPE_MAPPINGS = {
 };
 
 const RACE_TYPES = {
-    1: 'Человек',
-    2: 'Нежить',
-    3: 'Демон',
-    4: 'Животное'
+    1: 'Нежить',
+    2: 'Дракон',
+    3: 'Животное',
+    4: 'Насекомое',
+    5: 'Машина',
+    6: 'Человек',
+    7: 'Эльф',
+    8: 'Прочие',
+    9: 'Демон',
+    10: 'Ангел',
+    11: 'Дьявол',
+    12: 'Оборотень',
+    13: 'Все, кроме человека'
 };
 
 const ADVANCED_FILTERS = [{
@@ -140,18 +160,45 @@ const ADVANCED_FILTERS = [{
     }
 ];
 
-// State Management
-class StateManager {
+
+// ! Base Class for Event Handling
+class EventEmitter {
     constructor() {
+        this.events = {};
+    }
+
+    on(event, callback) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(callback);
+        return () => this.off(event, callback);
+    }
+
+    off(event, callback) {
+        if (!this.events[event]) return;
+        this.events[event] = this.events[event].filter(cb => cb !== callback);
+    }
+
+    emit(event, data) {
+        if (!this.events[event]) return;
+        this.events[event].forEach(callback => callback(data));
+    }
+}
+
+// ! State Management
+class StateManager extends EventEmitter {
+    constructor() {
+        super();
         this._state = {
             currentPage: 1,
             cachedData: null,
             debounceTimer: null,
             isLoading: false,
-            error: null
+            error: null,
+            filters: {},
+            perPage: CONSTANTS.DEFAULT_PER_PAGE
         };
-
-        this._subscribers = new Set();
     }
 
     setState(key, value) {
@@ -159,26 +206,20 @@ class StateManager {
         this._state[key] = value;
 
         if (oldValue !== value) {
-            this._notifySubscribers(key, value, oldValue);
+            this.emit('stateChange', {
+                key,
+                value,
+                oldValue
+            });
         }
     }
 
     getState(key) {
         return this._state[key];
     }
-
-    subscribe(callback) {
-        this._subscribers.add(callback);
-        return () => this._subscribers.delete(callback);
-    }
-
-    _notifySubscribers(key, newValue, oldValue) {
-        this._subscribers.forEach(callback =>
-            callback(key, newValue, oldValue));
-    }
 }
 
-// Data Service
+// ! Data Service
 class DataService {
     constructor(stateManager) {
         this.stateManager = stateManager;
@@ -220,7 +261,7 @@ class DataService {
     }
 }
 
-// Filter Logic
+// ! Filter Logic
 class FilterManager {
     static collectFilters() {
         const filters = {};
@@ -322,23 +363,52 @@ class FilterManager {
                 return Boolean(monster.mIsEvent);
             case 'testMonsterFilter':
                 return Boolean(monster.mIsTest);
+            case 'testMonsterFilter':
+                return Boolean(monster.mIsTest);
             case 'showHpFilter':
                 return Boolean(monster.mIsShowHp);
+            case 'showAgressiveFilter':
+                return Boolean(monster.mIsResistTransF);
+            case 'showAgressiveVoplotFilter':
+                return Boolean(monster.mDetectTransP);
+            case 'showAgressiveInvisFilter':
+                return Boolean(monster.mDetectTransF);
             default:
                 return true;
         }
     }
 }
 
-// UI Management
+// ! UI Management
 class UIManager {
     constructor(stateManager) {
         this.stateManager = stateManager;
         this.setupStateSubscriptions();
+        this.initializeAtropos();
+        this.setupThemeChangeListener();
+    }
+
+    initializeAtropos() {
+        if (!window.Atropos) {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/atropos@2.0.2/atropos.js';
+            script.onload = () => {
+                this.atroposLoaded = true;
+                this.reinitializeCards();
+            };
+            document.head.appendChild(script);
+
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/atropos@2.0.2/atropos.css';
+            document.head.appendChild(link);
+        } else {
+            this.atroposLoaded = true;
+        }
     }
 
     setupStateSubscriptions() {
-        this.stateManager.subscribe((key, value) => {
+        this.stateManager.on('stateChange', ({key, value}) => {
             switch (key) {
                 case 'isLoading':
                     this.toggleLoadingState(value);
@@ -350,19 +420,93 @@ class UIManager {
         });
     }
 
+    setupThemeChangeListener() {
+        const themeToggle = document.querySelector('.theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                setTimeout(() => {
+                    this.reinitializeCards();
+                }, 50);
+            });
+        }
+    }
+
     initializeUI() {
-        this.initializeAdvancedFilters();
-        this.initializePerPageSelect();
+        this.initializeFilters();
         this.setupEventListeners();
-        this.initializeTypeFilter();
+    }
+
+    initializeFilters() {
+        // Инициализация фильтра типа монстров (расы)
+        const raceFilter = document.getElementById('raceFilter');
+        if (raceFilter) {
+            raceFilter.innerHTML = '<option value="">Все типы</option>' + 
+                Object.entries(RACE_TYPES)
+                    .map(([value, label]) => 
+                        `<option value="${value}">${label}</option>`)
+                    .join('');
+        }
+    
+        // Получаем разрешенные классы для текущей страницы
+        const allowedTypes = MONSTER_TYPE_MAPPINGS[window.location.pathname] || [];
+    
+        // Инициализация фильтра классов монстров
+        const classFilter = document.getElementById('classFilter');
+        if (classFilter) {
+            classFilter.innerHTML = '<option value="">Все классы</option>' + 
+                Object.entries(MONSTER_CLASS_DESCRIPTIONS)
+                    .filter(([value]) => allowedTypes.includes(Number(value))) // Фильтруем только разрешенные классы
+                    .map(([value, label]) => 
+                        `<option value="${value}">${label}</option>`)
+                    .join('');
+        }
+    
+        // Инициализация продвинутых фильтров
+        this.initializeAdvancedFilters();
+        
+        // Инициализация выбора количества элементов на странице
+        this.initializePerPageSelect();
+    }
+
+    initializePerPageSelect() {
+        const perPageSelect = document.getElementById('perPageSelect');
+        if (!perPageSelect) return;
+
+        perPageSelect.innerHTML = CONSTANTS.PER_PAGE_OPTIONS
+            .map(n => `<option value="${n}">${n} на странице</option>`)
+            .join('');
+
+        perPageSelect.value = this.stateManager.getState('perPage');
     }
 
     initializeAdvancedFilters() {
         const container = document.querySelector('.advanced-filters-grid');
         if (!container) return;
-
+    
         container.innerHTML = ADVANCED_FILTERS
-            .map(this.createFilterCard)
+            .map(filter => `
+                <div class="filter-card" data-filter="${filter.id}">
+                    <div class="filter-card-header">
+                        <span class="filter-icon">${filter.icon}</span>
+                        <span class="filter-label">${filter.label}</span>
+                    </div>
+                    <div class="filter-inputs">
+                        <div class="input-group">
+                            <input type="number" 
+                                class="form-control" 
+                                id="${filter.id}Min" 
+                                placeholder="Мин" 
+                                step="any">
+                            <div class="input-group-text">-</div>
+                            <input type="number" 
+                                class="form-control" 
+                                id="${filter.id}Max" 
+                                placeholder="Макс" 
+                                step="any">
+                        </div>
+                    </div>
+                </div>
+            `)
             .join('');
     }
 
@@ -407,24 +551,21 @@ class UIManager {
         if (perPageSelect) {
             perPageSelect.addEventListener('change', () => {
                 this.stateManager.setState('currentPage', 1);
+                this.stateManager.setState('perPage', Number(perPageSelect.value));
                 this._triggerFiltersUpdate();
             });
         }
     }
 
-    _handleFilterInput(event) {
-        if (event.target.classList.contains('form-control') ||
-            event.target.classList.contains('custom-control-input')) {
+    _handleFilterInput() {
+        clearTimeout(this.stateManager.getState('debounceTimer'));
 
-            clearTimeout(this.stateManager.getState('debounceTimer'));
+        const timer = setTimeout(
+            () => this._triggerFiltersUpdate(),
+            CONSTANTS.DEBOUNCE_DELAY
+        );
 
-            const timer = setTimeout(
-                () => this._triggerFiltersUpdate(),
-                CONSTANTS.DEBOUNCE_DELAY
-            );
-
-            this.stateManager.setState('debounceTimer', timer);
-        }
+        this.stateManager.setState('debounceTimer', timer);
     }
 
     _handleResetFilters() {
@@ -441,86 +582,192 @@ class UIManager {
     }
 
     _triggerFiltersUpdate() {
-        const event = new CustomEvent('filtersUpdated');
-        document.dispatchEvent(event);
+        document.dispatchEvent(new CustomEvent('filtersUpdated'));
     }
 
-    initializeTypeFilter() {
-        const typeFilter = document.getElementById('classFilter');
-        if (!typeFilter) return;
+    _animateTableUpdate(tableBody, updateFn) {
+        tableBody.classList.add(CONSTANTS.ANIMATION_CLASSES.FADE_ENTER);
 
-        const allowedTypes = this._getAllowedTypes();
-        typeFilter.innerHTML = '<option value="">Все</option>';
+        requestAnimationFrame(() => {
+            updateFn();
 
-        (allowedTypes.length ? allowedTypes : Object.keys(MONSTER_CLASS_DESCRIPTIONS))
-        .forEach(type => {
-            const option = document.createElement('option');
-            option.value = type;
-            option.textContent = MONSTER_CLASS_DESCRIPTIONS[type] || `Класс ${type}`;
-            typeFilter.appendChild(option);
+            tableBody.classList.remove(CONSTANTS.ANIMATION_CLASSES.FADE_ENTER);
+            tableBody.classList.add(CONSTANTS.ANIMATION_CLASSES.FADE_ENTER_ACTIVE);
+
+            setTimeout(() => {
+                tableBody.classList.remove(
+                    CONSTANTS.ANIMATION_CLASSES.FADE_ENTER_ACTIVE
+                );
+            }, CONSTANTS.TABLE_FADE_DURATION);
         });
     }
+
 
     _getAllowedTypes() {
         return MONSTER_TYPE_MAPPINGS[window.location.pathname] || [];
     }
 
-    initializePerPageSelect() {
-        const perPageSelect = document.getElementById('perPageSelect');
-        if (!perPageSelect) return;
-
-        const options = [10, 25, 50, 75, 100];
-        perPageSelect.innerHTML = options
-            .map(n => `<option value="${n}">${n} на странице</option>`)
-            .join('');
-
-        perPageSelect.value = CONSTANTS.DEFAULT_PER_PAGE.toString();
+    reinitializeCards() {
+        document.querySelectorAll('.atropos').forEach(el => {
+            if (el.atroposInstance) {
+                el.atroposInstance.destroy();
+            }
+        });
+    
+        requestAnimationFrame(() => {
+            this._initializeAtroposCards();
+        });
     }
 
+    // !
     renderMonsters(monsters) {
-        const tableBody = document.querySelector('table tbody');
-        if (!tableBody) return;
-        const cachedData = this.stateManager.getState('cachedData');
-
-        const monstersHTML_table_headers = '<th>🖼️</th>\n\t<th>Название</th>\n\t<th>Уровень</th>\n\t<th>Класс</th>\n\t<th>MExp</th>\n\t<th>MHP</th>\n\t<th>MRaceType</th>';
-
-        const monstersHTML = monsters
-            .map(monster => this._createMonsterRow(monster, cachedData.resources))
-            .join('');
-
-        tableBody.innerHTML = monstersHTML_table_headers + monstersHTML;
+        const tableWrapper = document.querySelector('.table-wrapper');
+        if (!tableWrapper) return;
+    
+        this._animateTableUpdate(tableWrapper, () => {
+            const oldTable = tableWrapper.querySelector('table');
+            if (oldTable) {
+                oldTable.remove();
+            }
+    
+            const gridHtml = monsters.map((monster, index) => `
+            <div class="atropos" data-index="${index}">
+                <a href="/monster/${monster.MID}" class="card-link">
+                    <div class="atropos-scale">
+                        <div class="atropos-rotate">
+                            <div class="atropos-inner" data-monster-type="${monster.MClass}">
+                                <div class="item-card-id" data-atropos-offset="5">
+                                    #${monster.MID}
+                                </div>
+                        
+                                <div class="monster-image" data-atropos-offset="8" data-monster-type="${monster.MClass}">
+                                    <img src="${this._getMonsterImage(monster)}"
+                                        alt="${monster.MName}"
+                                        loading="lazy"
+                                        class="monster-image"
+                                        onerror="this.src='${CONSTANTS.FALLBACK_IMAGE}';">
+                                </div>
+                                
+                                <div class="monster-card-title" data-atropos-offset="6">
+                                    <span class="monster-name-link">${monster.MName}</span>
+                                </div>
+        
+                                <div class="stat-badges" data-atropos-offset="4">
+                                    ${this._generateMonsterStatBadges(monster)}
+                                </div>
+                            </div>
+                            <div class="atropos-shadow"></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        `).join('');
+        
+    
+            tableWrapper.innerHTML = `<div class="monsters-grid">${gridHtml}</div>`;
+    
+            requestAnimationFrame(() => {
+                this._initializeAtroposCards();
+            });
+        });
     }
 
-    _createMonsterRow(monster, resources) {
-        return `
-                <tr>
-                    <td>
-                        <div class="hover-text-wrapper">
-                            <a href="/monster/${monster.MID}">
-                                <img src="${resources[monster.MID] || CONSTANTS.FALLBACK_IMAGE}"
-                                    alt="${monster.MName}"
-                                    title="${monster.MName}"
-                                    width="48"
-                                    height="48"
-                                    loading="lazy"
-                                    class="monster-image"
-                                    onerror="this.src='${CONSTANTS.FALLBACK_IMAGE}';">
-                            </a>
-                            <div class="hover-text">[${monster.MID}] ${monster.MName}</div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="monster-name">
-                            <a href="/monster/${monster.MID}">${monster.MName}</a>
-                        </div>
-                    </td>
-                    <td>${monster.mLevel || '0'}</td>
-                    <td>${MONSTER_CLASS_DESCRIPTIONS[monster.MClass] || 'N/A'}</td>
-                    <td>${monster.MExp || '0'}</td>
-                    <td>${monster.MHP || 'N/A'}</td>
-                    <td>${RACE_TYPES[monster.MRaceType] || 'N/A'}</td>
-                </tr>
-            `;
+    //!
+    _generateMonsterStatBadges(monster) {
+        const badges = [];
+
+        if (monster.mLevel) {
+            badges.push(`
+                <div class="stat-badge" data-atropos-offset="3">
+                    <i class="fa-solid fa-star"></i>
+                    <span>Ур. ${monster.mLevel}</span>
+                </div>
+            `);
+        }
+
+        if (monster.MHP) {
+            badges.push(`
+                <div class="stat-badge" data-atropos-offset="3">
+                    <i class="fa-solid fa-heart"></i>
+                    <span>HP: ${monster.MHP.toLocaleString()}</span>
+                </div>
+            `);
+        }
+
+        if (monster.MMP) {
+            badges.push(`
+                <div class="stat-badge" data-atropos-offset="3">
+                    <i class="fa-solid fa-droplet"></i>
+                    <span>MP: ${monster.MMP.toLocaleString()}</span>
+                </div>
+            `);
+        }
+
+        if (monster.MExp) {
+            badges.push(`
+                <div class="stat-badge" data-atropos-offset="3">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span>Опыт: ${monster.MExp.toLocaleString()}</span>
+                </div>
+            `);
+        }
+
+        if (monster.MMinD && monster.MMaxD) {
+            badges.push(`
+                <div class="stat-badge" data-atropos-offset="3">
+                    <i class="fa-solid fa-gavel"></i>
+                    <span>Урон: ${monster.MMinD}-${monster.MMaxD}</span>
+                </div>
+            `);
+        }
+
+        if (monster.MMoveRateOrg) {
+            badges.push(`
+                <div class="stat-badge" data-atropos-offset="3">
+                    <i class="fa-solid fa-person-running"></i>
+                    <span>Скорость: ${monster.MMoveRateOrg}</span>
+                </div>
+            `);
+        }
+
+        return badges.join('');
+    }
+
+    // !
+    _initializeAtroposCards() {
+        if (!window.Atropos) {
+            setTimeout(() => this._initializeAtroposCards(), 100);
+            return;
+        }
+
+        document.querySelectorAll('.atropos').forEach((el, index) => {
+            if (el.atroposInstance) {
+                el.atroposInstance.destroy();
+            }
+
+            el.style.setProperty('--index', index);
+
+            const atroposInstance = Atropos({
+                el: el,
+                activeOffset: 20,
+                shadowScale: 1.05,
+                rotateXMax: 8,
+                rotateYMax: 8,
+                duration: 400,
+                shadow: true,
+                shadowOffset: 50,
+                highlight: false,
+                debounceDuration: 10
+            });
+
+            el.atroposInstance = atroposInstance;
+        });
+    }
+
+
+    _getMonsterImage(monster) {
+        const cachedData = this.stateManager.getState('cachedData');
+        return cachedData?.resources[monster.MID] || CONSTANTS.FALLBACK_IMAGE;
     }
 
     createPagination(total, currentPage, perPage) {
@@ -528,56 +775,57 @@ class UIManager {
         if (!paginationContainer) return;
 
         const totalPages = Math.ceil(total / perPage);
-        const paginationHTML = [];
+        paginationContainer.innerHTML = this._generatePaginationHTML(totalPages, currentPage);
+    }
 
-        // Previous button
-        paginationHTML.push(this._createPaginationButton(
+    _generatePaginationHTML(totalPages, currentPage) {
+        const buttons = [];
+
+        buttons.push(this._createPaginationButton(
             'Предыдущая',
             currentPage - 1,
             currentPage === 1
         ));
 
-        // Page numbers
         for (let i = 1; i <= totalPages; i++) {
             if (this._shouldShowPageNumber(i, currentPage, totalPages)) {
-                paginationHTML.push(this._createPaginationButton(
+                buttons.push(this._createPaginationButton(
                     i.toString(),
                     i,
                     false,
                     i === currentPage
                 ));
             } else if (i === currentPage - 3 || i === currentPage + 3) {
-                paginationHTML.push('<span class="pagination-ellipsis">...</span>');
+                buttons.push('<span class="pagination-ellipsis">...</span>');
             }
         }
 
-        // Next button
-        paginationHTML.push(this._createPaginationButton(
+        buttons.push(this._createPaginationButton(
             'Следующая',
             currentPage + 1,
             currentPage === totalPages
         ));
 
-        paginationContainer.innerHTML = paginationHTML.join('');
+        return buttons.join('');
     }
+
 
     _shouldShowPageNumber(pageNum, currentPage, totalPages) {
         return pageNum === 1 ||
             pageNum === totalPages ||
-            (pageNum >= currentPage - CONSTANTS.PAGINATION_RADIUS &&
-                pageNum <= currentPage + CONSTANTS.PAGINATION_RADIUS);
+            (pageNum >= currentPage - 2 && pageNum <= currentPage + 2);
     }
 
     _createPaginationButton(text, pageNum, isDisabled, isActive = false) {
         const className = isActive ? 'btn-primary' : 'btn-secondary';
         const disabled = isDisabled ? 'disabled' : '';
         return `
-                <button class="btn ${className} ${disabled}"
-                        onclick="app.applyFilters(${pageNum})"
-                        ${disabled}>
-                    ${text}
-                </button>
-            `;
+            <button class="btn ${className} ${disabled}"
+                    onclick="app.applyFilters(${pageNum})"
+                    ${disabled}>
+                ${text}
+            </button>
+        `;
     }
 
     updateTotalCount(count) {
@@ -602,7 +850,7 @@ class UIManager {
         } else {
             setTimeout(() => {
                 loadingOverlay.classList.remove('show');
-            }, 500);
+            }, CONSTANTS.LOADING_FADE_DELAY);
         }
     }
 
@@ -617,9 +865,10 @@ class UIManager {
             errorMessage.classList.remove('show');
         }, CONSTANTS.ERROR_DISPLAY_TIME);
     }
+
 }
 
-// Main Application Class
+// ! Main Application Class
 class MonsterFilterApp {
     constructor() {
         this.stateManager = new StateManager();
@@ -634,7 +883,6 @@ class MonsterFilterApp {
         this.applyFilters(1);
         initializeSearch();
     }
-
     setupEventListeners() {
         document.addEventListener('filtersUpdated', () => {
             this.applyFilters(1);
@@ -643,18 +891,14 @@ class MonsterFilterApp {
 
     async applyFilters(page = 1) {
         const cachedData = this.stateManager.getState('cachedData');
-
-
         if (!cachedData) return;
 
         const filters = FilterManager.collectFilters();
         const filteredData = FilterManager.filterData(cachedData.monsters, filters);
-        const perPage = this._getPerPage();
-
-        this.stateManager.setState('currentPage', page);
-
+        const perPage = this.stateManager.getState('perPage');
         const paginatedData = this._paginateData(filteredData, page, perPage);
 
+        this.stateManager.setState('currentPage', page);
         this.uiManager.updateTotalCount(filteredData.length);
         this.uiManager.renderMonsters(paginatedData);
         this.uiManager.createPagination(filteredData.length, page, perPage);
@@ -673,7 +917,7 @@ class MonsterFilterApp {
 }
 
 
-// Filter Manager with search support
+// ! Filter Manager with search support
 FilterManager.filterData = function(data, filters) {
     const isMonsterPage = $('.monster-image').length > 0;
     const searchId = isMonsterPage ? '#monsterSearch' : '#itemSearch';
@@ -699,7 +943,7 @@ FilterManager.filterData = function(data, filters) {
 
 
 
-// Initialize application
+// ! Initialize application
 let app;
 document.addEventListener('DOMContentLoaded', () => {
     app = new MonsterFilterApp();
