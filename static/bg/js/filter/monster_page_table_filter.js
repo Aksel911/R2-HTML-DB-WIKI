@@ -5,8 +5,6 @@ const CONSTANTS = {
     FALLBACK_IMAGE: 'https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png',
     PAGINATION_RADIUS: 2,
     ERROR_DISPLAY_TIME: 5000,
-    PAGINATION_RADIUS: 2,
-	FALLBACK_IMAGE: 'https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png',
 	TABLE_FADE_DURATION: 300,
 	BUTTON_ANIMATION_DURATION: 200,
 	ANIMATION_CLASSES: {
@@ -59,6 +57,7 @@ const MONSTER_CLASS_DESCRIPTIONS = {
 };
 
 const MONSTER_TYPE_MAPPINGS = {
+    '/monster_all': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39],
     '/monster_regular': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
     '/monster_boss': [29, 38, 37, 36, 34],
     '/monster_raidboss': [26],
@@ -840,6 +839,10 @@ class UIManager {
         url.search = new URLSearchParams(params).toString();
         history.pushState({}, '', url);
     }
+    // updateURL() {
+    //     history.pushState(url);
+    // }
+    
 
     toggleLoadingState(isLoading) {
         const loadingOverlay = document.getElementById('loadingOverlay');
@@ -903,6 +906,7 @@ class MonsterFilterApp {
         this.uiManager.renderMonsters(paginatedData);
         this.uiManager.createPagination(filteredData.length, page, perPage);
         this.uiManager.updateURL(filters);
+        //this.uiManager.updateURL();
     }
 
     _getPerPage() {

@@ -2,10 +2,9 @@
 
 // Keyboard navigation
 function initializeKeyboardNavigation() {
-    $(document).keydown(function(e) {
-        const isMonsterPage = $('#monsterSearch').length > 0;
-        const searchId = isMonsterPage ? '#monsterSearch' : '#itemSearch';
-        
+    $(document).keydown(function (e) {
+        const searchId = getSearchId();
+
         // Ctrl+F to focus search
         if (e.ctrlKey && e.keyCode === 70) {
             e.preventDefault();
@@ -28,9 +27,7 @@ function initializeKeyboardNavigation() {
 }
 
 function initializeSearch() {
-    // Надежная проверка типа страницы
-    const isMonsterPage = window.location.pathname.includes('/monster');
-    const searchInput = document.getElementById(isMonsterPage ? 'monsterSearch' : 'itemSearch');
+    const searchInput = document.getElementById(getSearchId().replace('#', ''));
     const suggestionsContainer = document.getElementById('searchSuggestions');
     const clearButton = document.getElementById('clearSearch');
 
@@ -47,8 +44,8 @@ function initializeSearch() {
         }
 
         searchDebounceTimer = setTimeout(() => {
-            const suggestions = findSuggestions(searchTerm, isMonsterPage);
-            displaySuggestions(suggestions, searchTerm, isMonsterPage);
+            const suggestions = findSuggestions(searchTerm);
+            displaySuggestions(suggestions, searchTerm);
             app.applyFilters(1);
         }, 300);
     });
@@ -60,18 +57,38 @@ function initializeSearch() {
     });
 }
 
-// Единая функция для поиска предложений
-function findSuggestions(searchTerm, isMonsterPage) {
+// Determine current search input
+function getSearchId() {
+    if (window.location.pathname.includes('/monster')) return '#monsterSearch';
+    if (window.location.pathname.includes('/merchant')) return '#merchantSearch';
+    return '#itemSearch';
+}
+
+// Unified function for finding suggestions
+function findSuggestions(searchTerm) {
+    const isMonsterPage = window.location.pathname.includes('/monster');
+    const isMerchantPage = window.location.pathname.includes('/merchants');
     const cachedData = app?.stateManager?.getState('cachedData');
-    const items = isMonsterPage ? cachedData.monsters : cachedData.items;
-    
+    const items = isMonsterPage
+        ? cachedData.monsters
+        : isMerchantPage
+        ? cachedData.merchants
+        : cachedData.items;
+
     if (!items) {
-        console.warn(`No ${isMonsterPage ? 'monsters' : 'items'} data available`);
+        console.warn(`No data available for the current page`);
         return [];
     }
 
     const results = items
         .filter(item => {
+            // Для торговцев используем ListID и MName
+            if (isMerchantPage) {
+                const matchesId = item.ListID.toString().toLowerCase().includes(searchTerm);
+                const matchesName = item.MName.toLowerCase().includes(searchTerm);
+                return matchesId || matchesName;
+            }
+            // Для монстров и предметов оставляем как есть
             const id = isMonsterPage ? item.MID : item.IID;
             const name = isMonsterPage ? item.MName : item.IName;
             const matchesId = id.toString().toLowerCase().includes(searchTerm);
@@ -82,8 +99,8 @@ function findSuggestions(searchTerm, isMonsterPage) {
     return results;
 }
 
-// Модифицируем displaySuggestions для отладки
-function displaySuggestions(suggestions, searchTerm, isMonsterPage) {
+// Updated displaySuggestions
+function displaySuggestions(suggestions, searchTerm) {
     const suggestionsContainer = document.getElementById('searchSuggestions');
 
     if (!suggestions.length) {
@@ -92,18 +109,36 @@ function displaySuggestions(suggestions, searchTerm, isMonsterPage) {
         return;
     }
 
+    const isMonsterPage = window.location.pathname.includes('/monster');
+    const isMerchantPage = window.location.pathname.includes('/merchants');
     const resources = app?.stateManager?.getState('cachedData')?.resources || {};
-    
+
     const suggestionsHtml = suggestions.map((item, index) => {
-        const id = isMonsterPage ? item.MID : item.IID;
-        const name = isMonsterPage ? item.MName : item.IName;
+        // Определяем ID, имя и тип страницы
+        let id, linkId, name, type;
+        if (isMerchantPage) {
+            id = item.ListID;        // для отображения в поиске
+            linkId = item.MID;       // для ссылки
+            name = item.MName;
+            type = 'monster';
+        } else if (isMonsterPage) {
+            id = item.MID;
+            linkId = item.MID;
+            name = item.MName;
+            type = 'monster';
+        } else {
+            id = item.IID;
+            linkId = item.IID;
+            name = item.IName;
+            type = 'item';
+        }
+
         const itemName = highlightMatch(name, searchTerm);
         const itemId = highlightMatch(id.toString(), searchTerm);
         const imageUrl = resources[id] || CONSTANTS.FALLBACK_IMAGE;
-        const type = isMonsterPage ? 'monster' : 'item';
-        
+
         return `
-            <a href="/${type}/${id}" 
+            <a href="/${type}/${linkId}" 
                class="search-suggestion" 
                data-id="${id}"
                style="--index: ${index}">
@@ -118,5 +153,3 @@ function displaySuggestions(suggestions, searchTerm, isMonsterPage) {
     suggestionsContainer.innerHTML = suggestionsHtml;
     suggestionsContainer.style.display = 'contents';
 }
-
-

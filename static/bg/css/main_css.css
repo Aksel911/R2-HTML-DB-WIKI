@@ -17,61 +17,12 @@
     --glow-opacity: 0.4;
     
 
-    --monster-undead-color: rgba(71, 71, 71, 0.4);    /* Тип 1: Нежить */
-    --monster-dragon-color: rgba(255, 0, 0, 0.4);     /* Тип 2: Дракон */
-    --monster-animal-color: rgba(139, 69, 19, 0.4);   /* Тип 3: Животное */
-    --monster-bug-color: rgba(154, 205, 50, 0.4);     /* Тип 4: Насекомое */
-    --monster-machine-color: rgba(192, 192, 192, 0.4); /* Тип 5: Машина */
-    --monster-human-color: rgba(255, 218, 185, 0.4);  /* Тип 6: Человек */
-    --monster-elf-color: rgba(173, 216, 230, 0.4);    /* Тип 7: Эльф */
-    --monster-etc-color: rgba(255, 255, 255, 0.4);    /* Тип 8: Прочие */
-    --monster-daemon-color: rgba(138, 43, 226, 0.4);  /* Тип 9: Демон */
-    --monster-angel-color: rgba(255, 223, 186, 0.4);  /* Тип 10: Ангел */
-    --monster-devil-color: rgba(139, 0, 0, 0.4);      /* Тип 11: Дьявол */
-    --monster-moon-color: rgba(25, 25, 112, 0.4);     /* Тип 12: Оборотень */
-    --monster-nonhuman-color: rgba(0, 128, 128, 0.4); /* Тип 13: Не-человек */
 
+    --payment-silver-color: rgba(255, 215, 0, 0.4);
+    --payment-honorpoint-color: rgba(0, 191, 255, 0.4);
+    --payment-chaospoint-color: rgba(148, 0, 211, 0.4);
+    --payment-chaossilver-color: rgba(255, 69, 0, 0.4);
 
-    /* Базовые типы монстров (от легких к тяжелым) */
-    --monster-a-color: linear-gradient(45deg, #99FF99, #CCFFCC); /* Светло-зеленый - самые легкие */
-    --monster-b-color: linear-gradient(45deg, #99FFCC, #CCFFE6);
-    --monster-c-color: linear-gradient(45deg, #99FFFF, #CCFFFF);
-    --monster-d-color: linear-gradient(45deg, #99CCFF, #CCE6FF);
-    --monster-e-color: linear-gradient(45deg, #9999FF, #CCCCFF);
-    --monster-f-color: linear-gradient(45deg, #CC99FF, #E6CCFF);
-    --monster-g-color: linear-gradient(45deg, #FF99FF, #FFCCFF);
-    --monster-h-color: linear-gradient(45deg, #FF99CC, #FFCCEE);
-    --monster-i-color: linear-gradient(45deg, #FF9999, #FFCCCC);
-    --monster-j-color: linear-gradient(45deg, #FFCC99, #FFE6CC);
-    --monster-k-color: linear-gradient(45deg, #FFB366, #FFD699);
-    --monster-l-color: linear-gradient(45deg, #FF9966, #FFCC99);
-    --monster-m-color: linear-gradient(45deg, #FF6666, #FF9999);
-    --monster-n-color: linear-gradient(45deg, #FF3366, #FF99AA);
-    --monster-o-color: linear-gradient(45deg, #FF0066, #FF66AA);
-    --monster-p-color: linear-gradient(45deg, #CC0066, #FF339A);
-    --monster-q-color: linear-gradient(45deg, #990066, #CC338A);
-    --monster-r-color: linear-gradient(45deg, #660066, #993399);
-    --monster-s-color: linear-gradient(45deg, #330066, #663399);
-    --monster-t-color: linear-gradient(45deg, #000066, #333399);
-    --monster-u-color: linear-gradient(45deg, #000033, #1A1A66);
-    --monster-v-color: linear-gradient(45deg, #1A0033, #331A66);
-    --monster-w-color: linear-gradient(45deg, #330033, #661A66);
-    --monster-x-color: linear-gradient(45deg, #330000, #661A1A); /* Темно-красный - самые сильные */
-
-    /* Специальные типы */
-    --monster-npc-color: linear-gradient(45deg, #808080, #A6A6A6); /* Серый для NPC */
-    --monster-special-color: linear-gradient(45deg, #FFD700, #FFF0AA); /* Золотой для особых */
-    --monster-event-color: linear-gradient(45deg, #00FFFF, #99FFFF); /* Бирюзовый для событийных */
-    --monster-named-color: linear-gradient(45deg, #FF1493, #FF69B4); /* Розовый для именованных */
-    --monster-boss-color: linear-gradient(45deg, #FF0000, #FF4D4D); /* Красный для боссов */
-    --monster-s-alt-color: linear-gradient(45deg, #4B0082, #8B008B); /* Индиго для альтернативных */
-    --monster-raiders-color: linear-gradient(45deg, #8B0000, #B22222); /* Темно-красный для рейдеров */
-    --monster-epic-mob-color: linear-gradient(45deg, #9400D3, #BA55D3); /* Фиолетовый для эпических мобов */
-    --monster-epic-boss-color: linear-gradient(45deg, #4B0082, #800080); /* Темно-фиолетовый для эпических боссов */
-    --monster-statue-color: linear-gradient(45deg, #708090, #A9A9A9); /* Серый для статуй */
-    --monster-follower-color: linear-gradient(45deg, #DAA520, #FFD700); /* Золотой для последователей */
-    --monster-enraged-boss-color: linear-gradient(45deg, #FF4500, #FF6347); /* Ярко-красный для разъяренных боссов */
-    --monster-fallen-boss-color: linear-gradient(45deg, #800000, #A52A2A); /* Бордовый для падших боссов */
 }
 
 script {
@@ -1215,18 +1166,16 @@ body.dark-theme .theme-toggle:hover {
 .atropos-inner .item-card-image {
     width: 48px;
     height: 48px;
-    transform: translateZ(10px) rotateX(0deg) rotateY(0deg) scale(1); /* Начальные параметры */
+    transform: translateZ(0px) rotateX(0deg) rotateY(0deg) scale(1); /* Начальные параметры */
     transition: transform 0.3s ease-out, filter 0.3s ease-out;
     will-change: transform, filter; /* Оптимизация производительности */
 }
 
 .atropos-inner:hover .monster-image,
 .atropos-inner:hover .item-card-image {
-    transform: translateZ(30px) scale(1.05);
+    transform: translateZ(0px) scale(1.05);
     filter: brightness(1.2) saturate(1.2);
 }   
-
-
 
 /* Основные стили для hover */
 .atropos-inner:hover {
@@ -1475,16 +1424,10 @@ body.dark-theme .theme-toggle:hover {
 }
 
 
-/* Улучшенные hover эффекты */
-.atropos-inner:hover {
-    --blur-strength: 20px;
-    transform: translateY(-5px) scale(1.02);
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
 
 
 /* Улучшаем качество текста при трансформациях */
+.merchant-card-title,
 .monster-card-title,
 .item-card-title,
 .item-card-description,
@@ -1701,6 +1644,7 @@ body.dark-theme .theme-toggle:hover {
 }
 
 /* Название предмета */
+.merchant-card-title,
 .monster-card-title,
 .item-card-title {
     text-align: center;
@@ -1794,6 +1738,7 @@ body.dark-theme .theme-toggle:hover {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
+.dark-theme .merchant-card-title a,
 .dark-theme .monster-card-title a,
 .dark-theme .item-card-title a {
     color: #90caf9;
@@ -1886,6 +1831,7 @@ body.dark-theme .theme-toggle:hover {
 }
 
 /* Динамический текст */
+.merchant-card-title a,
 .monster-card-title a,
 .item-card-title a {
     background-image: linear-gradient(
@@ -1912,6 +1858,7 @@ body.dark-theme .theme-toggle:hover {
     pointer-events: all;
 }
 
+.merchant-card-title a:hover,
 .monster-card-title a:hover,
 .item-card-title a:hover {
     background-position: 0%;
@@ -1921,6 +1868,7 @@ body.dark-theme .theme-toggle:hover {
 
 
 /* Темная тема */
+.dark-theme .merchant-card-title a:hover,
 .dark-theme .monster-card-title a:hover,
 .dark-theme .item-card-title a:hover {
     background-position: 0%;
@@ -2260,6 +2208,7 @@ body.dark-theme .theme-toggle:hover {
 }
 
 /* Улучшаем видимость контента в темной теме */
+.dark-theme .merchant-card-title a,
 .dark-theme .monster-card-title a,
 .dark-theme .item-card-title a,
 .dark-theme .item-card-description,
@@ -2331,9 +2280,10 @@ body.dark-theme .theme-toggle:hover {
 /* Monster Type-Specific Styles */
 /* Базовые классы (от легких к тяжелым) */
 /* A класс (1) */
-.atropos-inner[data-monster-type="1"] {
-    border-image: var(--monster-a-color) 1;
- }
+
+.atropos-inner[data-monster-type="1"]:hover {
+    box-shadow: 0 4px 20px #99FF99;
+}
  .atropos-inner[data-monster-type="1"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2349,8 +2299,8 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* B класс (2) */
- .atropos-inner[data-monster-type="2"] {
-    border-image: var(--monster-b-color) 1;
+ .atropos-inner[data-monster-type="2"]:hover {
+    box-shadow: 0 4px 20px #99FFCC;
  }
  .atropos-inner[data-monster-type="2"]::after {
     background: conic-gradient(
@@ -2367,9 +2317,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* C класс (3) */
- .atropos-inner[data-monster-type="3"] {
-    border-image: var(--monster-c-color) 1;
- }
+ .atropos-inner[data-monster-type="3"]:hover {
+    box-shadow: 0 4px 20px #99FFFF;
+}
  .atropos-inner[data-monster-type="3"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2385,9 +2335,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* D класс (4) */
- .atropos-inner[data-monster-type="4"] {
-    border-image: var(--monster-d-color) 1;
- }
+ .atropos-inner[data-monster-type="4"]:hover {
+    box-shadow: 0 4px 20px #99CCFF;
+}
  .atropos-inner[data-monster-type="4"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2401,11 +2351,11 @@ body.dark-theme .theme-toggle:hover {
  .monster-image[data-monster-type="4"] {
     box-shadow: 0 4px 20px #99CCFF;
  }
- 
+
  /* E класс (5) */
- .atropos-inner[data-monster-type="5"] {
-    border-image: var(--monster-e-color) 1;
- }
+ .atropos-inner[data-monster-type="5"]:hover {
+    box-shadow: 0 4px 20px #9999FF;
+}
  .atropos-inner[data-monster-type="5"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2421,9 +2371,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* F класс (6) */
- .atropos-inner[data-monster-type="6"] {
-    border-image: var(--monster-f-color) 1;
- }
+ .atropos-inner[data-monster-type="6"]:hover {
+    box-shadow: 0 4px 20px #CC99FF;
+}
  .atropos-inner[data-monster-type="6"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2439,9 +2389,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* G класс (7) */
- .atropos-inner[data-monster-type="7"] {
-    border-image: var(--monster-g-color) 1;
- }
+ .atropos-inner[data-monster-type="7"]:hover {
+    box-shadow: 0 4px 20px #FF99FF;
+}
  .atropos-inner[data-monster-type="7"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2457,9 +2407,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* H класс (8) */
- .atropos-inner[data-monster-type="8"] {
-    border-image: var(--monster-h-color) 1;
- }
+ .atropos-inner[data-monster-type="8"]:hover {
+    box-shadow: 0 4px 20px #FF99CC;
+}
  .atropos-inner[data-monster-type="8"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2475,9 +2425,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* I класс (9) */
- .atropos-inner[data-monster-type="9"] {
-    border-image: var(--monster-i-color) 1;
- }
+ .atropos-inner[data-monster-type="9"]:hover {
+    box-shadow: 0 4px 20px #FF9999;
+}
  .atropos-inner[data-monster-type="9"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2493,9 +2443,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* J класс (10) */
- .atropos-inner[data-monster-type="10"] {
-    border-image: var(--monster-j-color) 1;
- }
+ .atropos-inner[data-monster-type="10"]:hover {
+    box-shadow: 0 4px 20px #FFCC99;
+}
  .atropos-inner[data-monster-type="10"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2511,9 +2461,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* K класс (11) */
- .atropos-inner[data-monster-type="11"] {
-    border-image: var(--monster-k-color) 1;
- }
+ .atropos-inner[data-monster-type="11"]:hover {
+    box-shadow: 0 4px 20px #FFB366;
+}
  .atropos-inner[data-monster-type="11"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2529,9 +2479,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* L класс (12) */
- .atropos-inner[data-monster-type="12"] {
-    border-image: var(--monster-l-color) 1;
- }
+ .atropos-inner[data-monster-type="12"]:hover {
+    box-shadow: 0 4px 20px #FF9966;
+}
  .atropos-inner[data-monster-type="12"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2547,9 +2497,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* M класс (13) */
- .atropos-inner[data-monster-type="13"] {
-    border-image: var(--monster-m-color) 1;
- }
+ .atropos-inner[data-monster-type="13"]:hover {
+    box-shadow: 0 4px 20px #FF6666;
+}
  .atropos-inner[data-monster-type="13"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2565,9 +2515,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* N класс (14) */
- .atropos-inner[data-monster-type="14"] {
-    border-image: var(--monster-n-color) 1;
- }
+ .atropos-inner[data-monster-type="14"]:hover {
+    box-shadow: 0 4px 20px #FF3366;
+}
  .atropos-inner[data-monster-type="14"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2583,9 +2533,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* O класс (15) */
- .atropos-inner[data-monster-type="15"] {
-    border-image: var(--monster-o-color) 1;
- }
+ .atropos-inner[data-monster-type="15"]:hover {
+    box-shadow: 0 4px 20px #FF0066;
+}
  .atropos-inner[data-monster-type="15"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2601,9 +2551,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* P класс (16) */
- .atropos-inner[data-monster-type="16"] {
-    border-image: var(--monster-p-color) 1;
- }
+ .atropos-inner[data-monster-type="16"]:hover {
+    box-shadow: 0 4px 20px #CC0066;
+}
  .atropos-inner[data-monster-type="16"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2619,9 +2569,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Q класс (17) */
- .atropos-inner[data-monster-type="17"] {
-    border-image: var(--monster-q-color) 1;
- }
+ .atropos-inner[data-monster-type="17"]:hover {
+    box-shadow: 0 4px 20px #990066;
+}
  .atropos-inner[data-monster-type="17"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2637,9 +2587,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* R класс (18) */
- .atropos-inner[data-monster-type="18"] {
-    border-image: var(--monster-r-color) 1;
- }
+ .atropos-inner[data-monster-type="18"]:hover {
+    box-shadow: 0 4px 20px #660066;
+}
  .atropos-inner[data-monster-type="18"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2655,9 +2605,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* S класс (19) */
- .atropos-inner[data-monster-type="19"] {
-    border-image: var(--monster-s-color) 1;
- }
+ .atropos-inner[data-monster-type="19"]:hover {
+    box-shadow: 0 4px 20px #330066;
+}
  .atropos-inner[data-monster-type="19"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2671,9 +2621,9 @@ body.dark-theme .theme-toggle:hover {
 
  
  /* T класс (20) */
- .atropos-inner[data-monster-type="20"] {
-    border-image: var(--monster-t-color) 1;
- }
+ .atropos-inner[data-monster-type="20"]:hover {
+    box-shadow: 0 4px 20px #000066;
+}
  .atropos-inner[data-monster-type="20"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2689,9 +2639,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* U класс (21) */
- .atropos-inner[data-monster-type="21"] {
-    border-image: var(--monster-u-color) 1;
- }
+ .atropos-inner[data-monster-type="21"]:hover {
+    box-shadow: 0 4px 20px #000033;
+}
  .atropos-inner[data-monster-type="21"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2707,9 +2657,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* V класс (22) */
- .atropos-inner[data-monster-type="22"] {
-    border-image: var(--monster-v-color) 1;
- }
+ .atropos-inner[data-monster-type="22"]:hover {
+    box-shadow: 0 4px 20px #1A0033;
+}
  .atropos-inner[data-monster-type="22"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2725,9 +2675,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* W класс (24) */
- .atropos-inner[data-monster-type="24"] {
-    border-image: var(--monster-w-color) 1;
- }
+ .atropos-inner[data-monster-type="24"]:hover {
+    box-shadow: 0 4px 20px #330033;
+}
  .atropos-inner[data-monster-type="24"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2743,9 +2693,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* X класс (25) */
- .atropos-inner[data-monster-type="25"] {
-    border-image: var(--monster-x-color) 1;
- }
+ .atropos-inner[data-monster-type="25"]:hover {
+    box-shadow: 0 4px 20px #330000;
+}
  .atropos-inner[data-monster-type="25"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2762,9 +2712,9 @@ body.dark-theme .theme-toggle:hover {
  
  /* Специальные классы */
  /* NPC (23) */
- .atropos-inner[data-monster-type="23"] {
-    border-image: var(--monster-npc-color) 1;
- }
+ .atropos-inner[data-monster-type="23"]:hover {
+    box-shadow: 0 4px 20px #808080;
+}
  .atropos-inner[data-monster-type="23"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2780,9 +2730,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Особый Монстр (26) */
- .atropos-inner[data-monster-type="26"] {
-    border-image: var(--monster-special-color) 1;
- }
+ .atropos-inner[data-monster-type="26"]:hover {
+    box-shadow: 0 4px 20px #FFD700;
+}
  .atropos-inner[data-monster-type="26"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2798,9 +2748,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Событие (27) */
- .atropos-inner[data-monster-type="27"] {
-    border-image: var(--monster-event-color) 1;
- }
+ .atropos-inner[data-monster-type="27"]:hover {
+    box-shadow: 0 4px 20px #00FFFF;
+}
  .atropos-inner[data-monster-type="27"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2816,9 +2766,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Именной (28) */
- .atropos-inner[data-monster-type="28"] {
-    border-image: var(--monster-named-color) 1;
- }
+ .atropos-inner[data-monster-type="28"]:hover {
+    box-shadow: 0 4px 20px #FF1493;
+}
  .atropos-inner[data-monster-type="28"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2834,9 +2784,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Босс (29) */
- .atropos-inner[data-monster-type="29"] {
-    border-image: var(--monster-boss-color) 1;
- }
+ .atropos-inner[data-monster-type="29"]:hover {
+    box-shadow: 0 4px 20px #FF0000;
+}
  .atropos-inner[data-monster-type="29"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2852,9 +2802,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* S альтернативный (31) */
- .atropos-inner[data-monster-type="31"] {
-    border-image: var(--monster-s-alt-color) 1;
- }
+ .atropos-inner[data-monster-type="31"]:hover {
+    box-shadow: 0 4px 20px #4B0082;
+}
  .atropos-inner[data-monster-type="31"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2870,9 +2820,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Налетчики (32) */
- .atropos-inner[data-monster-type="32"] {
-    border-image: var(--monster-raiders-color) 1;
- }
+ .atropos-inner[data-monster-type="32"]:hover {
+    box-shadow: 0 4px 20px #8B0000;
+}
  .atropos-inner[data-monster-type="32"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2888,9 +2838,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Эпик Мобы (33) */
- .atropos-inner[data-monster-type="33"] {
-    border-image: var(--monster-epic-mob-color) 1;
- }
+ .atropos-inner[data-monster-type="33"]:hover {
+    box-shadow: 0 4px 20px #9400D3;
+}
  .atropos-inner[data-monster-type="33"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2906,9 +2856,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Эпик Боссы (34) */
- .atropos-inner[data-monster-type="34"] {
-    border-image: var(--monster-epic-boss-color) 1;
- }
+ .atropos-inner[data-monster-type="34"]:hover {
+    box-shadow: 0 4px 20px #4B0082;
+}
  .atropos-inner[data-monster-type="34"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2924,9 +2874,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Статуя (35) */
- .atropos-inner[data-monster-type="35"] {
-    border-image: var(--monster-statue-color) 1;
- }
+ .atropos-inner[data-monster-type="35"]:hover {
+    box-shadow: 0 4px 20px #708090;
+}
  .atropos-inner[data-monster-type="35"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2942,9 +2892,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Последователи (36) */
- .atropos-inner[data-monster-type="36"] {
-    border-image: var(--monster-follower-color) 1;
- }
+ .atropos-inner[data-monster-type="36"]:hover {
+    box-shadow: 0 4px 20px #DAA520;
+}
  .atropos-inner[data-monster-type="36"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2960,9 +2910,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Разъяренные Боссы (37) */
- .atropos-inner[data-monster-type="37"] {
-    border-image: var(--monster-enraged-boss-color) 1;
- }
+ .atropos-inner[data-monster-type="37"]:hover {
+    box-shadow: 0 4px 20px #FF4500;
+}
  .atropos-inner[data-monster-type="37"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -2978,9 +2928,9 @@ body.dark-theme .theme-toggle:hover {
  }
  
  /* Падшие Боссы (38) */
- .atropos-inner[data-monster-type="38"] {
-    border-image: var(--monster-fallen-boss-color) 1;
- }
+ .atropos-inner[data-monster-type="38"]:hover {
+    box-shadow: 0 4px 20px #800000;
+}
  .atropos-inner[data-monster-type="38"]::after {
     background: conic-gradient(
         from var(--angle),
@@ -3204,3 +3154,444 @@ body.dark-theme .theme-toggle:hover {
 
 
 
+
+
+
+
+
+
+
+
+
+
+/* ! Merchant СТИЛИ ПРОДАВЦОВ */
+/* Grid layout */
+.merchants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1.5rem;
+}
+
+
+/* Merchant Card Base */
+.atropos-inner[data-merchant-type] {
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(250, 250, 250, 0.95));
+    padding: 2rem;
+    border: 1px solid rgba(230, 230, 230, 0.5);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+    will-change: transform;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    position: relative;
+    overflow: visible !important;
+}
+
+/* Payment Type-Specific Glows */
+.atropos-inner[data-merchant-type]::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    animation: rotate 6s linear infinite;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+}
+
+.atropos-inner[data-merchant-type]:hover::after {
+    opacity: 1;
+}
+
+/* Payment Type-Specific Styles */
+/* Silver */
+.atropos-inner[data-merchant-type="0"]:hover {
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+}
+.atropos-inner[data-merchant-type="0"]::after {
+    background: conic-gradient(
+        from var(--angle),
+        rgba(255, 215, 0, 0),
+        rgba(255, 215, 0, 0.2) 25%,
+        rgba(255, 215, 0, 0.4) 50%,
+        rgba(255, 215, 0, 0.2) 75%,
+        rgba(255, 215, 0, 0)
+    );
+}
+.merchant-image[data-merchant-type="0"] {
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+}
+
+/* Honor Point */
+.atropos-inner[data-merchant-type="1"]:hover {
+    box-shadow: 0 4px 20px rgba(0, 191, 255, 0.4);
+}
+.atropos-inner[data-merchant-type="1"]::after {
+    background: conic-gradient(
+        from var(--angle),
+        rgba(0, 191, 255, 0),
+        rgba(0, 191, 255, 0.2) 25%,
+        rgba(0, 191, 255, 0.4) 50%,
+        rgba(0, 191, 255, 0.2) 75%,
+        rgba(0, 191, 255, 0)
+    );
+}
+.merchant-image[data-merchant-type="1"] {
+    box-shadow: 0 4px 20px rgba(0, 191, 255, 0.4);
+}
+
+/* Chaos Points */
+.atropos-inner[data-merchant-type="2"]:hover {
+    box-shadow: 0 4px 20px rgba(148, 0, 211, 0.4);
+}
+.atropos-inner[data-merchant-type="2"]::after {
+    background: conic-gradient(
+        from var(--angle),
+        rgba(148, 0, 211, 0),
+        rgba(148, 0, 211, 0.2) 25%,
+        rgba(148, 0, 211, 0.4) 50%,
+        rgba(148, 0, 211, 0.2) 75%,
+        rgba(148, 0, 211, 0)
+    );
+}
+.merchant-image[data-merchant-type="2"] {
+    box-shadow: 0 4px 20px rgba(148, 0, 211, 0.4);
+}
+
+/* Chaos Silver */
+.atropos-inner[data-merchant-type="3"]:hover {
+    box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4);
+}
+.atropos-inner[data-merchant-type="3"]::after {
+    background: conic-gradient(
+        from var(--angle),
+        rgba(255, 69, 0, 0),
+        rgba(255, 69, 0, 0.2) 25%,
+        rgba(255, 69, 0, 0.4) 50%,
+        rgba(255, 69, 0, 0.2) 75%,
+        rgba(255, 69, 0, 0)
+    );
+}
+.merchant-image[data-merchant-type="3"] {
+    box-shadow: 0 4px 20px rgba(255, 69, 0, 0.4);
+}
+
+/* Merchant Card Components */
+.merchant-card-id {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: linear-gradient(135deg, rgba(74, 158, 255, 0.15), rgba(74, 158, 255, 0.1));
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #2c5282;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(74, 158, 255, 0.2);
+}
+
+
+
+
+/* Merchant Image */
+.merchant-image {
+    width: 48px;
+    height: 48px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    padding: 0;
+    margin: 0 auto;
+    transform: translateZ(20px);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.merchant-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Stats Display */
+.stat-badges {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+}
+
+.stat-badge {
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #4a5568;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    transition: all 0.3s cubic-bezier(0.1, 0, 0.2, 1);
+}
+
+.stat-badge:hover {
+    transform: translateY(-2px);
+    background: rgba(74, 158, 255, 0.15);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Merchant Items List */
+.merchant-items {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.merchant-item {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.merchant-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.merchant-item-image {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.merchant-item-info {
+    flex: 1;
+}
+
+.merchant-item-name {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.merchant-item-price {
+    font-size: 0.875rem;
+    color: #718096;
+}
+
+/* Dark Theme Adjustments */
+.dark-theme .merchant-card-id {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.05));
+    color: #bbdefb;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+
+
+.dark-theme .stat-badge {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .merchant-item {
+    background: rgba(30, 41, 59, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .merchant-item-name {
+    color: #e2e8f0;
+}
+
+.dark-theme .merchant-item-price {
+    color: #a0aec0;
+}
+
+.dark-theme .atropos-inner[data-merchant-type] {
+    background: linear-gradient(145deg, rgba(30, 30, 30, 0.97), rgba(40, 40, 40, 0.95));
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.dark-theme .atropos-inner[data-merchant-type="0"]::after {
+    background: conic-gradient(
+        from var(--angle),
+        rgba(255, 215, 0, 0),
+        rgba(255, 215, 0, 0.1) 25%,
+        rgba(255, 215, 0, 0.2) 50%,
+        rgba(255, 215, 0, 0.1) 75%,
+        rgba(255, 215, 0, 0)
+    );
+}
+
+
+.dark-theme .merchant-image {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .merchant-items {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.merchant-animate-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .merchants-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+
+    .merchant-items {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-badges {
+        grid-template-columns: 1fr;
+    }
+
+    .merchant-card-id {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+    }
+}
+
+/* Filter Styles */
+.merchant-filter-group {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.merchant-filter-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+}
+
+.merchant-filter-select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+    color: #4a5568;
+    transition: all 0.3s ease;
+}
+
+.merchant-filter-select:hover {
+    border-color: #cbd5e0;
+}
+
+.merchant-filter-select:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    outline: none;
+}
+
+/* Price Range Input Styles */
+.price-range-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.price-range-input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.price-range-input:hover {
+    border-color: #cbd5e0;
+}
+
+.price-range-input:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+    outline: none;
+}
+
+/* Search Bar Styles */
+.merchant-search {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.merchant-search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-left: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.merchant-search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+}
+
+/* Payment Type Indicators */
+.payment-type-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.payment-gold {
+    background-color: rgba(255, 215, 0, 0.1);
+    color: #b7791f;
+}
+
+.payment-honorpoint {
+    background-color: rgba(0, 191, 255, 0.1);
+    color: #2b6cb0;
+}
+
+.payment-chaospoint {
+    background-color: rgba(148, 0, 211, 0.1);
+    color: #6b46c1;
+}
+
+.payment-chaosssilver {
+    background-color: rgba(255, 69, 0, 0.1);
+    color: #c53030;
+}

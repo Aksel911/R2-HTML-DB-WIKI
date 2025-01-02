@@ -39,6 +39,14 @@
             {% elif not monstermodelno_result %}
                 <p class="fadeIn">🏳️</p>
             {% endif %}
+            
+            <!-- Заголовок Mobile -->
+            <div class="detail-title-mobile">
+                <h1 class="monster-title-mobile fadeIn">
+                    <span class="monster-title-text-mobile">{{ item.MName }}</span>
+                    <div class="monster-title-glow-mobile"></div>
+                </h1>
+            </div>
 
             <div class="row">
                 <div class="col-12 col-md-6">
@@ -57,13 +65,17 @@
 
                 </div>
                 
+
+
                 <!-- Второй блок -->
                 <div class="col-12 col-md-6">
                     <!-- Заголовок -->
-                    <h1 class="monster-title fadeIn">
-                        <span class="monster-title-text">{{ item.MName }}</span>
-                        <div class="monster-title-glow"></div>
-                    </h1>
+                    <div class="detail-title-desktop">
+                        <h1 class="monster-title fadeIn">
+                            <span class="monster-title-text">{{ item.MName }}</span>
+                            <div class="monster-title-glow"></div>
+                        </h1>
+                    </div>
 
                     <!-- Статистика -->
                     {% include 'monster_core/detail/monster_page_detail_stats.html' %}
@@ -101,6 +113,7 @@
 
         <!-- Скрипты -->
         <script src="/static/bg/js/main_js.js"></script>
+        <script src="/static/bg/js/detail/spoiler.js"></script>
     {% endblock %}
 
 </body>

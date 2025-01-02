@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    {% include "favicon.html" %}
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/bg/css/detail_css.css">
+</head>
+<body>
+    <div class="back-button-container">
+        <button class="back-button" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i> Назад
+        </button>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Переключить тему">
+            <i class="fas fa-adjust"></i>
+        </button>
+    </div>
+
+    <main>
+    {% include 'main_page_menu.html' %}
+    <div class="container text-center">
+	
+      {% for merchant_instance in merchant %}
+      <div class="detail-block fadeIn">
+        <div class="detail-title">{{ merchant_instance.MName }} ({{ merchant_instance.MID }})</div>
+
+        <div class="detail-content">
+          <!-- Изображение монстра -->
+          <div class="monster-image-container">
+            {% set monster_image = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/monsters/" ~ merchant_instance.MID ~ ".png" %}
+            
+			<img src="{{ monster_image }}" alt="Monster Image" class="monster-image">
+          </div>
+			
+          <!-- Слайдер с обычными предметами -->
+          <div class="swiper normal-items-slider">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide">
+                <img src="{{ merchant_instance.ItemPicture }}" alt="{{ merchant_instance.ItemName }}" class="item-image">
+                <div class="item-name">{{ merchant_instance.ItemName }}</div>
+                <div class="item-price">
+                  <span class="price-amount">{{ merchant_instance.Price }}</span>
+                  <span class="price-type">({{ merchant_instance.PaymentType }})</span>
+                </div>
+              </div>
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+          </div>
+
+          <!-- Слайдер с ивентовыми предметами -->
+          {% set event_items = merchant_instance.merchant_items | selectattr('mIsEvent', '==', 1) | list %}
+          {% if event_items %}
+          <div class="swiper event-items-slider">
+            <div class="swiper-wrapper">
+              {% for item in event_items %}
+              <div class="swiper-slide">
+                <img src="{{ item.ItemPicture }}" alt="{{ item.ItemName }}" class="item-image">
+                <div class="item-name">{{ item.ItemName }}</div>
+                <div class="item-price">
+                  <span class="price-amount">{{ item.Price }}</span>  
+                  <span class="price-type">({{ item.PaymentType }})</span>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </main>
+
+    {% block scripts %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="/static/bg/js/main_js.js"></script>
+    <script src="/static/bg/js/detail/spoiler.js"></script>
+    {% endblock %}
+</body>
+
+<style>
+.swiper {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 30px;
+    }
+    .swiper-slide {
+      text-align: center;
+    }
+    .swiper-button-next, .swiper-button-prev {
+      color: #fff;
+    }
+
+.spoiler-header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 1px;
+}
+
+.spoiler-header:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.spoiler-header i {
+    margin-right: 0.5rem;
+}
+
+.spoiler-header i:last-child {
+    margin-left: auto;
+    margin-right: 0;
+    transition: transform 0.3s ease;
+}
+
+.spoiler-header.active i:last-child {
+    transform: rotate(180deg);
+}
+
+.item-count {
+    margin-left: 0.5rem;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+.spoiler-content {
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0 0 8px 8px;
+}
+
+.items-grid {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.merchant-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.merchant-item:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.item-info {
+    margin-left: 1rem;
+    flex-grow: 1;
+}
+
+.item-name {
+    display: block;
+    color: #e2e8f0;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.item-name:hover {
+    color: #60a5fa;
+}
+
+.item-price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.price-amount {
+    color: #fbbf24;
+    font-weight: bold;
+}
+
+.price-type {
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+/* Dark theme */
+.dark-theme .spoiler-header {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .spoiler-header:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dark-theme .merchant-item {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .merchant-item:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.merchant-detail {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.merchant-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.merchant-label {
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+.merchant-value {
+    color: #e2e8f0;
+    font-weight: bold;
+}
+</style>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+  <script>
+    var normalSlider = new Swiper(".normal-items-slider", {
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      slidesPerView: 3,
+      spaceBetween: 10
+    });
+    var eventSlider = new Swiper(".event-items-slider", {
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      slidesPerView: 3,  
+      spaceBetween: 10
+    });
+  </script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <script src="/static/bg/js/main_js.js"></script>
+
+</html>

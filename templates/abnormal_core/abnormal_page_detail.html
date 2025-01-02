@@ -24,6 +24,15 @@
     <main>
         {% include 'main_page_menu.html' %}
         <div class="container text-center">
+
+             <!-- Заголовок Mobile -->
+             <div class="detail-title-mobile">
+                <h1 class="monster-title-mobile fadeIn">
+                    <span class="monster-title-text-mobile">{{ abnormal.abnormal_data.AName }}</span>
+                    <div class="monster-title-glow-mobile"></div>
+                </h1>
+            </div>
+            
             <!-- Первый блок -->
             <div class="row">
 
@@ -38,40 +47,13 @@
 
                 <!-- Второй блок -->
                 <div class="col-12 col-md-6">
-                    <h1 class="monster-title fadeIn" style="
-                        font-size: 3rem;
-                        font-weight: 800;
-                        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-                        -webkit-background-clip: text;
-                        background-clip: text;
-                        color: transparent;
-                        padding: 20px 30px;
-                        margin: 20px 0;
-                        position: relative;
-                        text-transform: uppercase;
-                        letter-spacing: 2px;
-                        display: inline-block;
-                        font-family: 'Segoe UI', Arial, sans-serif;
-                    ">
-                        <span style="
-                            position: relative;
-                            z-index: 1;
-                            text-shadow:
-                                2px 2px 0px rgba(0,0,0,0.1),
-                                -1px -1px 0px rgba(255,255,255,0.1);
-                        ">{{ abnormal.abnormal_data.AName }}</span>
-                        <div style="
-                            position: absolute;
-                            top: 50%;
-                            left: 50%;
-                            transform: translate(-50%, -50%);
-                            width: 110%;
-                            height: 110%;
-                            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-                            filter: blur(5px);
-                            z-index: 0;
-                        "></div>
-                    </h1>
+                    <!-- Заголовок -->
+                    <div class="detail-title-desktop">
+                        <h1 class="monster-title fadeIn">
+                            <span class="monster-title-text">{{ abnormal.abnormal_data.AName }}</span>
+                            <div class="monster-title-glow"></div>
+                        </h1>
+                    </div>
                     
                     <!-- Связанные скиллы -->
                     {% include 'abnormal_core/detail/abnormal_page_linked_skills.html' %}

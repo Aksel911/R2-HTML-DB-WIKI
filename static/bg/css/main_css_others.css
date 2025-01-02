@@ -18,15 +18,14 @@ body {
     justify-content: flex-start;
     min-height: 100vh;
     margin: 0;
-    background-image: url('https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/refs/heads/main/static/bg/BG.jpg');
+    font-family: "Didact Gothic",sans-serif;
+    background-image: url(https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/refs/heads/main/static/bg/BG.jpg);
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center;
     background-size: cover;
-    font-family: "Didact Gothic",sans-serif;
     color: var(--text-color);
-    background-color: var(--primary-color);
-    transition: background-color var(--transition-speed);
+    transition: background-color var(--transition-speed)
 }
 
 
@@ -148,11 +147,11 @@ h1 {
         box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
         outline: none;
     }
-
+    
 /* Image zoom */
-    .item-image {
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
+.item-image {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
 
 .item-image:hover {
         transform: scale(2);

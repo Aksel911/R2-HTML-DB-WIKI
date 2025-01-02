@@ -1334,6 +1334,9 @@ class ItemUIManager {
 		url.search = new URLSearchParams(params).toString();
 		history.pushState({}, '', url);
 	}
+	// updateURL() {
+	// 	history.pushState(url);
+	// }
 
 	// Управляет отображением индикатора загрузки
 	toggleLoadingState(isLoading) {
@@ -1407,6 +1410,7 @@ class ItemFilterApp {
 		this.uiManager.renderItems(paginatedData, cachedData.resources);
 		this.uiManager.createPagination(filteredData.length, page, perPage);
 		this.uiManager.updateURL(filters);
+		//this.uiManager.updateURL();
 	}
 
 	// Пагинация отфильтрованных данных

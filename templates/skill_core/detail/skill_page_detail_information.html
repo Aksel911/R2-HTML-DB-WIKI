@@ -9,11 +9,12 @@
 	<div class="skill-content">
 		
 		<div class="stat-grid fadeIn">
+			{% if skill.type_desc != None %}
 			<div class="stat-row">
 				<span class="stat-label">Тип скилла</span>
 				<span class="stat-value">{{ skill.type_desc }}</span>
 			</div>
-
+			{% endif %}
 			{% if skill.mp_per_use != 0 %}
 				<div class="stat-row">
 					<span class="stat-label">MP</span>

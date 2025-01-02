@@ -232,7 +232,42 @@ def item_to_dict(item):
 
 
 
-
+# ! Загрузка предметов (ГЛАВНАЯ СТРАНИЦА ПО /items/)
+def get_items_by_type(item_types: List[int], search_term: str = '') -> Tuple[List[DT_Item], Dict[int, str]]:
+    """Generic function to fetch items by type with optional search"""
+    # Используем параметризованный запрос для безопасности
+    placeholders = ','.join('?' * len(item_types))
+    
+    query = f"""
+    SELECT IID
+    FROM DT_ITem
+    WHERE IType IN ({placeholders})
+    AND IName LIKE ?
+    ORDER BY IID
+    """
+    
+    # Создаем список параметров: сначала item_types, затем search_term
+    params = item_types + [f'%{search_term}%']
+    
+    rows = execute_query(query, params, fetch_one=False)
+    item_ids = [row.IID for row in rows]
+    
+    if not item_ids:
+        return [], {}
+        
+    # Получаем все предметы и ресурсы одним запросом для всех ID
+    items = get_item_by_id(item_ids)
+    resources = get_item_resource(item_ids)
+   
+    # Формируем словарь путей к файлам
+    file_paths = {}
+    for item_id in item_ids:
+        if item_id in resources:
+            file_paths[item_id] = resources[item_id].file_path
+        else:
+            file_paths[item_id] = f"{current_app.config['GITHUB_URL']}no_item_image.png"
+               
+    return items, file_paths
 
 #@lru_cache(maxsize=10000)
 def get_item_by_id(item_ids: Union[int, List[int]]) -> Union[Optional[DT_Item], List[Optional[DT_Item]]]:
@@ -366,47 +401,6 @@ def get_item_by_id(item_ids: Union[int, List[int]]) -> Union[Optional[DT_Item], 
         return items_dict.get(item_ids)
     return [items_dict.get(item_id) for item_id in ids]
 
-# ! Загрузка предметов (ГЛАВНАЯ СТРАНИЦА ПО /items/)
-def get_items_by_type(item_types: List[int], search_term: str = '') -> Tuple[List[DT_Item], Dict[int, str]]:
-    """Generic function to fetch items by type with optional search"""
-    # Используем параметризованный запрос для безопасности
-    placeholders = ','.join('?' * len(item_types))
-    
-    query = f"""
-    SELECT IID
-    FROM DT_ITem
-    WHERE IType IN ({placeholders})
-    AND IName LIKE ?
-    ORDER BY IID
-    """
-    
-    # Создаем список параметров: сначала item_types, затем search_term
-    params = item_types + [f'%{search_term}%']
-    
-    rows = execute_query(query, params, fetch_one=False)
-    item_ids = [row.IID for row in rows]
-    
-    if not item_ids:
-        return [], {}
-        
-    # Получаем все предметы и ресурсы одним запросом для всех ID
-    items = get_item_by_id(item_ids)
-    resources = get_item_resource(item_ids)
-   
-    # Формируем словарь путей к файлам
-    file_paths = {}
-    for item_id in item_ids:
-        if item_id in resources:
-            file_paths[item_id] = resources[item_id].file_path
-        else:
-            file_paths[item_id] = f"{current_app.config['GITHUB_URL']}no_item_image.png"
-               
-    return items, file_paths
-
-
-
-
-
 #@lru_cache(maxsize=1000)
 def get_item_resource(item_ids: Union[int, List[int]]) -> Union[Optional[DT_ItemResource], Dict[int, DT_ItemResource]]:
     """Get item resource by ID with caching. Now supports both single ID and list of IDs"""
@@ -435,8 +429,11 @@ def get_item_resource(item_ids: Union[int, List[int]]) -> Union[Optional[DT_Item
         return resources_dict.get(item_ids)
     return resources_dict
 
+
+
+
 #@lru_cache(maxsize=1000)
-# * Получаем ссылку на изображение предмета, по его IID
+# * Получаем ссылку на изображение предмета, по его IID (сам найдет все, чисто айди только)
 def get_item_pic_url(item_id):
     if isinstance(item_id, int):
         item_id = get_item_resource(item_id)
@@ -462,7 +459,6 @@ def get_item_model_resource(item_id: int) -> Optional[DT_ItemResource]:
             row.RPosY
         )
     return None
-
 
 #@lru_cache(maxsize=1000)
 def get_specific_proc_item(item_id: int) -> Optional[TblSpecificProcItem]:
@@ -506,7 +502,6 @@ def get_specific_proc_item(item_id: int) -> Optional[TblSpecificProcItem]:
             row.mDParamDesc
             )
     return None
-
 
 # DT_ItemAbnormalResist Check
 def get_itemabnormalResist_data(item_id: int) -> Optional[List[DT_ItemAbnormalResist]]:
@@ -719,7 +714,6 @@ def get_rune_bead_data(item_id: int) -> Optional[DT_Bead]:
         )
     return None
 
-
 # DT_ItemBeadModule Check
 def get_item_bead_module_data(item_id: int) -> Optional[List[DT_ItemBeadModule]]:
     query = """
@@ -762,7 +756,6 @@ def get_item_bead_module_data(item_id: int) -> Optional[List[DT_ItemBeadModule]]
         )
     return None
 
-
 # TblBeadHoleProb Check
 def get_item_bead_holeprob_data(item_id: int) -> Optional[List[TblBeadHoleProb]]:
     query = """
@@ -794,8 +787,6 @@ def get_item_bead_holeprob_data(item_id: int) -> Optional[List[TblBeadHoleProb]]
         ))
     
     return results
-
-
 
 # DT_ItemAttributeAdd Check
 def get_item_attribute_add_data(item_id: int) -> Optional[List[DT_ItemAttributeAdd]]:
@@ -832,8 +823,6 @@ def get_item_attribute_add_data(item_id: int) -> Optional[List[DT_ItemAttributeA
     else:
         return None
     
-
-
 # DT_ItemAttributeResist Check
 def get_item_attribute_resist_data(item_id: int) -> Optional[List[DT_ItemAttributeResist]]:
     attribute_type_weapon_df = get_google_sheets_data(ATTRIBUTE_TYPE_ARMOR_URL)
@@ -869,9 +858,6 @@ def get_item_attribute_resist_data(item_id: int) -> Optional[List[DT_ItemAttribu
     else:
         return None
     
-    
-
-
 # DT_ItemProtect Check
 def get_item_protect_data(item_id: int) -> Optional[List[DT_ItemProtect]]:
     
@@ -913,9 +899,6 @@ def get_item_protect_data(item_id: int) -> Optional[List[DT_ItemProtect]]:
     else:
         return None
     
-    
-
-
 # DT_ItemSlain Check
 def get_item_slain_data(item_id: int) -> Optional[List[DT_ItemSlain]]:
     
@@ -955,8 +938,6 @@ def get_item_slain_data(item_id: int) -> Optional[List[DT_ItemSlain]]:
     else:
         return None
     
-
-
 # DT_ItemPanalty Check
 def get_item_panalty_data(item_id: int) -> Optional[List[DT_ItemPanalty]]:
     

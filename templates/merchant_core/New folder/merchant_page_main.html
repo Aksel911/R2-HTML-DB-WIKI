@@ -13,7 +13,6 @@
 
 
     <link rel="stylesheet" href="/static/bg/css/main_css_others.css">
-
 </head>
 <body>
     <h1>{% block header %}{% endblock %}</h1>
@@ -22,7 +21,7 @@
     <button class="theme-toggle" id="theme-toggle">
         <i class="fas fa-adjust"></i>
     </button>
-    
+
     <!-- Search Container -->
     <div class="search-container">
         <form id="search-form">
@@ -49,14 +48,41 @@
 
     <!-- Main Content -->
     <div class="table-wrapper">
-        <table id="skill-table" class="table table-striped table-bordered table-hover display">
+        <table id="items-table" class="table table-striped table-bordered table-hover">
             <thead>
                 <tr>
-                    {% block table_headers %}{% endblock %}
+                    <th>Картинка</th>
+                    <th>Название</th>
+                    <th>Класс</th>
                 </tr>
             </thead>
             <tbody>
-                {% block table_content %}{% endblock %}
+                {% set seen = [] %}
+                {% for item in items %}
+                    {% if item[2] not in seen %}
+                        {% set _ = seen.append(item[2]) %}
+                        <tr>
+                            <td>
+                                {% if item_resources[item[0]] %}
+                                <div class="hover-text-wrapper">
+                                    <img src="{{ item_resources[item[0]] }}"
+                                         width="48"
+                                         height="48"
+                                         loading="lazy"
+                                         class="monster-image"
+                                         alt="{{ item[1] }}"
+                                         onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
+                                    <div class="hover-text">[{{ item[1] }}] {{ item[2] }}</div>
+                                </div>
+                                {% else %}
+                                    <p>No image available</p>
+                                {% endif %}
+                            </td>
+                            <td><a href="/monster/{{ item[1] }}">{{ item[2] }}</a></td>
+                            <td>{{ item[3] }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
             </tbody>
         </table>
     </div>

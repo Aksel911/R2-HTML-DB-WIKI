@@ -2,6 +2,13 @@ import pandas as pd
 from typing import Optional
 from flask import current_app
 
+# Оборачиваем каждую функцию в контекст приложения
+def with_app_context(func, app, *args, **kwargs):
+    with app.app_context():
+        return func(*args, **kwargs)
+
+
+
 def get_google_sheets_data(url: str) -> pd.DataFrame:
     """Fetch data from Google Sheets"""
     try:

@@ -1,0 +1,109 @@
+<!-- Filters container -->
+<div class="filters-container mb-4">
+    <div class="row">
+        <!-- Main filter buttons -->
+        <div class="col-md-12">
+            <button class="btn btn-primary mb-3" type="button" data-toggle="collapse" data-target="#mainFilters">
+                <i class="fas fa-filter"></i> Основные фильтры
+            </button>
+            <button class="btn btn-info mb-3 ml-2" id="resetFilters">
+                <i class="fas fa-sync"></i> Сбросить фильтры
+            </button>
+            <select id="perPageSelect" class="form-control same-width-as-reset"></select>
+        </div>
+
+        <!-- Search -->
+        <div class="col-md-12 mb-3">
+            <div class="search-container position-relative">
+                <div class="input-group">
+                    <input type="text" 
+                        class="form-control" 
+                        id="merchantSearch" 
+                        placeholder="🔍 Поиск по ListID или имени торговца..."
+                        autocomplete="off">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="searchSuggestions">
+                    <!-- Suggestions will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Filters -->
+        <div class="col-12 collapse" id="mainFilters">
+            <div class="card card-body mb-3 filter-card-container">
+                <div class="filterrow">
+                    <!-- Payment Type -->
+                    <div class="col-md-3 mb-3">
+                        <div class="filter-group">
+                            <label for="paymentTypeFilter" class="filter-label">
+                                <i class="fas fa-coins me-2"></i>Тип оплаты
+                            </label>
+                            <select class="form-control custom-select filter-select" id="paymentTypeFilter">
+                                <option value="">Все типы</option>
+                                <option class="payment-gold" value="0">Серебро</option>
+                                <option class="payment-honorpoint" value="1">Очки чести</option>
+                                <option class="payment-chaospoint" value="2">Очки хаоса</option>
+                                <option class="payment-chaosssilver" value="3">Серебро хаоса</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="col-md-3 mb-3">
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="fas fa-tags me-2"></i>Цена
+                            </label>
+                            <div class="input-group filter-range">
+                                <input type="number" class="form-control" id="priceMin" placeholder="Мин">
+                                <span class="input-group-text range-separator">
+                                    <i class="fas fa-arrows-alt-h"></i>
+                                </span>
+                                <input type="number" class="form-control" id="priceMax" placeholder="Макс">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkboxes -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="filter-toggles">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="eventMerchantFilter">
+                                <label class="custom-control-label" for="eventMerchantFilter">
+                                    <i class="fas fa-calendar-alt"></i> Ивентовый торговец
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status and pagination -->
+<div id="totalCount" class="mb-3 mt-3">Найдено торговцев: 0</div>
+<div class="pagination-container mb-4 d-flex justify-content-center gap-2"></div>
+
+<!-- Loading overlay and messages -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <span>Загрузка данных...</span>
+    </div>
+</div>
+<div id="errorMessage" class="message-container error-message"></div>
+
+<!-- Scripts -->
+<script src="/static/bg/js/filter/merchant_page_table_filter.js"></script>
+<script src="/static/bg/js/menu/search.js"></script>
+
+<!-- Styles -->
+<link rel="stylesheet" href="/static/bg/css/menu/search.css">

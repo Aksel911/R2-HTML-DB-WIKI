@@ -46,7 +46,7 @@ body {
 }
 
 .back-button-container {
-    top: 20px;
+    top: 80px;
     display: flex;
     gap: 10px;
     align-items: center;
@@ -57,6 +57,14 @@ body {
     bottom: 20px;
     margin-top: auto;
 }
+
+@media (max-width: 768px) { /* Настройте ширину по необходимости */
+    .back-button-container,
+    .theme-toggle-container {
+        display: none;
+    }
+}
+
 
 /* Buttons */
 .theme-toggle,
@@ -213,31 +221,6 @@ img:hover {
     animation: shimmer 2s infinite;
 }
 
-/* Monster title */
-.monster-title {
-    position: relative;
-    overflow: visible;
-}
-
-.monster-title::before,
-.monster-title::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 30px;
-    height: 2px;
-    background: linear-gradient(90deg, var(--primary-color), transparent);
-}
-
-.monster-title::before {
-    left: -40px;
-    transform: translateY(-50%);
-}
-
-.monster-title::after {
-    right: -40px;
-    transform: translateY(-50%) rotate(180deg);
-}
 
 /* Animations */
 .fadeIn {
@@ -548,15 +531,6 @@ body.dark-theme {
     color: rgba(255, 255, 255, 0.9) !important; 
 }
 
-
-.dark-theme .monster-title {
-    background: linear-gradient(135deg, #4a90e2 0%, #87ceeb 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: none;
-}
-
 .dark-theme .back-button {
     background-color: #2c3e50;
 }
@@ -609,6 +583,14 @@ body.dark-theme {
 
 
 /* Главное название монстра или предмета  */
+/* Common styles for both titles */
+
+.detail-title-desktop,
+.detail-title-mobile {
+    text-align: center;
+}
+
+.monster-title-mobile,
 .monster-title {
     font-size: 3rem;
     font-weight: 800;
@@ -626,12 +608,14 @@ body.dark-theme {
     overflow: visible;
 }
 
+.monster-title-text-mobile,
 .monster-title-text {
     position: relative;
     z-index: 1;
     text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1), -1px -1px 0px rgba(255, 255, 255, 0.1);
 }
 
+.monster-title-glow-mobile,
 .monster-title-glow {
     position: absolute;
     top: 50%;
@@ -642,6 +626,26 @@ body.dark-theme {
     background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
     filter: blur(5px);
     z-index: 0;
+}
+
+/* Desktop version */
+@media screen and (min-width: 961px) {
+    .detail-title-desktop {
+        display: block;
+    }
+    .detail-title-mobile {
+        display: none;
+    }
+}
+
+/* Mobile version */
+@media screen and (max-width: 960px) {
+    .detail-title-desktop {
+        display: none;
+    }
+    .detail-title-mobile {
+        display: block;
+    }
 }
 /* ---------  */
 
@@ -728,12 +732,12 @@ body.dark-theme {
 /* Content styles */
 .skill-content-wrapper {
     transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow-x: hidden; /* Hide horizontal scrollbar */
-    overflow-y: scroll; /* Add vertical scrollbar */
-    scrollbar-width: none;
+    height: auto; /* Автоматическая высота */
+    overflow: hidden; /* Скрыть overflow во всех направлениях */
     border-radius: 8px;
     background: var(--bg-module-light);
     margin-top: 8px;
+    text-align: center;
 }
 
 .skill-content-wrapper::-webkit-scrollbar {
@@ -746,7 +750,7 @@ body.dark-theme {
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
                 opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     background: transparent !important;
-    padding: 0 !important;
+    padding: 0 0 2px 0 !important;
 }
 
 .skill-section.collapsed {
@@ -971,7 +975,9 @@ body.dark-theme {
 /* ---------  */
 
 
-
+.skill-abnormal-picture {
+    margin-bottom: 30px;
+}
 
 
 
@@ -1077,6 +1083,13 @@ body.dark-theme {
     transform: translateY(-2px);
     box-shadow: 3px 3px 6px rgba(0,0,0,0.15);
 }
+@media (max-width: 768px) { /* Настройте ширину по необходимости */
+    .slain-card  {
+        padding: 0px;
+    }
+}
+
+
 
 .bonus-type {
     font-weight: bold;

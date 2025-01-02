@@ -27,6 +27,16 @@
         {% include 'main_page_menu.html' %}
 
         <div class="container text-center">
+
+             <!-- Заголовок Mobile -->
+             <div class="detail-title-mobile">
+                <h1 class="monster-title-mobile fadeIn">
+                    <span class="monster-title-text-mobile">{{ skill.name }}</span>
+                    <div class="monster-title-glow-mobile"></div>
+                </h1>
+                <p class="fadeIn"><img src="{{ skill.item_use_class }}" alt="Class icon"></p>
+            </div>
+
             <!-- Первый блок -->
             <div class="row">
                 <div class="col-12 col-md-6">
@@ -40,11 +50,14 @@
 
                 <!-- Второй блок -->
                 <div class="col-12 col-md-6">
-                    <h1 class="monster-title fadeIn">
-                        <span class="monster-title-text">{{ skill.name }}</span>
-                        <div class="monster-title-glow"></div>
-                    </h1>
-                    <p class="fadeIn"><img src="{{ skill.item_use_class }}" alt="Class icon"></p>
+                    <!-- Заголовок -->
+                    <div class="detail-title-desktop">
+                        <h1 class="monster-title fadeIn">
+                            <span class="monster-title-text">{{ skill.name }}</span>
+                            <div class="monster-title-glow"></div>
+                        </h1>
+                        <p class="fadeIn"><img src="{{ skill.item_use_class }}" alt="Class icon"></p>
+                    </div>
                     
                     <!-- На предметах -->
                     {% include 'skill_core/detail/skill_page_detail_skill_on_in_item.html' %}

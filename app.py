@@ -5,7 +5,6 @@ from os.path import splitext, exists
 from os import makedirs
 from flask_talisman import Talisman
 import logging
-from logging.handlers import RotatingFileHandler
 import traceback
 from datetime import datetime
 
@@ -15,41 +14,81 @@ def setup_logging(app):
     log_dir = 'logs'
     if not exists(log_dir):
         makedirs(log_dir)
+        
+    # Get current date for file names
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    
+    # Форматтер для обычных логов
+    class RequestFormatter(logging.Formatter):
+        def format(self, record):
+            if hasattr(record, 'request_data'):
+                # Форматирование для запроса
+                return (
+                    f"\n{'='*100}\n"
+                    f"TIME: {self.formatTime(record)}\n"
+                    f"TYPE: {record.levelname}\n"
+                    f"REQUEST: {record.request_data['method']} {record.request_data['url']}\n"
+                    f"HEADERS:\n{json.dumps(record.request_data['headers'], indent=2)}\n"
+                    f"BODY: {record.request_data['body']}\n"
+                    f"{'='*100}"
+                )
+            elif hasattr(record, 'response_data'):
+                # Форматирование для ответа
+                return (
+                    f"\n{'-'*100}\n"
+                    f"TIME: {self.formatTime(record)}\n"
+                    f"RESPONSE: {record.response_data['status']}\n"
+                    f"HEADERS:\n{json.dumps(record.response_data['headers'], indent=2)}\n"
+                    f"{'-'*100}"
+                )
+            else:
+                # Общий формат для других логов
+                return (
+                    f"\n{'-'*50}\n"
+                    f"TIME: {self.formatTime(record)}\n"
+                    f"TYPE: {record.levelname}\n"
+                    f"MODULE: {record.module}\n"
+                    f"MESSAGE: {record.getMessage()}\n"
+                    f"{'-'*50}"
+                )
 
-    # File handler for all logs
-    file_handler = RotatingFileHandler(
-        f'{log_dir}/app.log',
-        maxBytes=10485760,  # 10MB
-        backupCount=10,
+    # File handler for all logs with date in filename
+    file_handler = logging.FileHandler(
+        f'{log_dir}/app_{current_date}.log',
         encoding='utf-8'
     )
-    file_handler.setFormatter(logging.Formatter(
-        '[%(asctime)s] %(levelname)s in %(module)s [%(pathname)s:%(lineno)d]:\n%(message)s'
-    ))
+    file_handler.setFormatter(RequestFormatter())
     file_handler.setLevel(logging.INFO)
-
-    # Error file handler for errors only
-    error_file_handler = RotatingFileHandler(
-        f'{log_dir}/error.log',
-        maxBytes=10485760,
-        backupCount=10,
+    
+    # Error file handler with date in filename
+    error_file_handler = logging.FileHandler(
+        f'{log_dir}/error_{current_date}.log',
         encoding='utf-8'
     )
     error_file_handler.setFormatter(logging.Formatter(
-        '[%(asctime)s] %(levelname)s in %(module)s [%(pathname)s:%(lineno)d]:\n%(message)s\nTraceback:\n%(exc_info)s'
+        "\n{'='*100}\n"
+        "TIME: %(asctime)s\n"
+        "ERROR: %(levelname)s\n"
+        "MODULE: %(module)s\n"
+        "LOCATION: %(pathname)s:%(lineno)d\n"
+        "FUNCTION: %(funcName)s\n"
+        "MESSAGE: %(message)s\n"
+        "TRACEBACK:\n%(exc_info)s\n"
+        f"{'='*100}"
     ))
     error_file_handler.setLevel(logging.ERROR)
-
+    
     # Remove default handlers
     app.logger.handlers.clear()
-
+    
     # Add handlers to app logger
     app.logger.addHandler(file_handler)
     app.logger.addHandler(error_file_handler)
     app.logger.setLevel(logging.INFO)
-
-    # Log when the application starts
-    app.logger.info(f"Application startup at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Log startup
+    app.logger.info(f"Application started")
+    
 
 app = Flask(__name__)
 
