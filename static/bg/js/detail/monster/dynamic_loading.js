@@ -47,51 +47,50 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
 
     // Единая функция загрузки данных
+    // Pre-fetch templates in parallel with data
     async function loadSection(section) {
         try {
-            // Проверяем, нужно ли загружать секцию
-            const shouldLoad = section.containers.some(container => {
-                if (section.shouldLoad) {
-                    return section.shouldLoad(container.id);
-                }
-                return document.getElementById(container.id) !== null;
-            });
+            if (!section.containers.some(container => 
+                section.shouldLoad ? section.shouldLoad(container.id) : 
+                document.getElementById(container.id))) return;
 
-            if (!shouldLoad) return;
+            const [dataResponse, ...templateResponses] = await Promise.all([
+                fetch(`/api/monster/${monsterId}/${section.endpoint}`),
+                ...section.containers.map(container => 
+                    fetch(`/render_template/${container.template}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({}) // Empty payload for pre-fetch
+                    })
+                )
+            ]);
 
-            // Получаем данные
-            const response = await fetch(`/api/monster/${monsterId}/${section.endpoint}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
+            const data = await dataResponse.json();
 
-            // Обновляем все контейнеры для данной секции
-            for (const container of section.containers) {
+            // Process containers in parallel
+            await Promise.all(section.containers.map(async (container, i) => {
                 const element = document.getElementById(container.id);
-                if (!element) continue;
+                if (!element) return;
 
                 const templateResponse = await fetch(`/render_template/${container.template}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
-
+                
                 if (templateResponse.ok) {
                     const html = await templateResponse.text();
-                    // Проверяем, что вернулся не пустой HTML
                     if (html.trim()) {
                         element.innerHTML = html;
                         element.classList.remove('loading');
-                        // Инициализируем спойлеры в новом контенте
                         initializeSpoilers(element);
                     } else {
-                        // Если вернулся пустой HTML, скрываем контейнер
                         element.style.display = 'none';
                     }
                 }
-            }
+            }));
         } catch (error) {
             console.error(`Error loading ${section.endpoint}:`, error);
-            // В случае ошибки скрываем контейнеры секции
             section.containers.forEach(container => {
                 const element = document.getElementById(container.id);
                 if (element) element.style.display = 'none';
@@ -99,6 +98,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Загружаем все секции
-    sections.forEach(loadSection);
+    // Загружаем все секции параллельно
+    Promise.all(sections.map(section => loadSection(section)));
 });

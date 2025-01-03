@@ -129,11 +129,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const element = document.getElementById(section.containers[0].id);
             if (!element) return;
 
-            const response = await fetch(`/api/item/${itemId}/${section.endpoint}`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            
-            const data = await response.json();
-            if (!isValidData(data)) {
+            // Parallel fetch of data and template pre-fetch
+            const [dataResponse, ...templateResponses] = await Promise.all([
+                fetch(`/api/item/${itemId}/${section.endpoint}`),
+                ...section.containers.map(container => 
+                    fetch(`/render_template/item/${container.template}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({})
+                    })
+                )
+            ]);
+
+            const data = await dataResponse.json();
+            if (!data || !isValidData(data)) {
                 section.containers.forEach(container => {
                     const el = document.getElementById(container.id);
                     if (el) el.style.display = 'none';
@@ -141,29 +150,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            for (const container of section.containers) {
+            // Process all containers in parallel
+            await Promise.all(section.containers.map(async (container) => {
                 const el = document.getElementById(container.id);
-                if (!el) continue;
+                if (!el) return;
 
                 const templateResponse = await fetch(`/render_template/item/${container.template}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
 
-                if (templateResponse.ok) {
-                    const html = await templateResponse.text();
-                    if (html.trim()) {
-                        el.innerHTML = html;
-                        el.classList.remove('loading');
-                        if (window.initializeSpoilers) {
-                            window.initializeSpoilers(el);
-                        }
-                    } else {
-                        el.style.display = 'none';
-                    }
+                if (!templateResponse.ok) return;
+                
+                const html = await templateResponse.text();
+                if (html.trim()) {
+                    el.innerHTML = html;
+                    el.classList.remove('loading');
+                    window.initializeSpoilers?.(el);
+                } else {
+                    el.style.display = 'none';
                 }
-            }
+            }));
         } catch (error) {
             console.error(`Error loading ${section.endpoint}:`, error);
             section.containers.forEach(container => {
@@ -173,6 +181,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Загружаем все секции параллельно
-    Promise.all(sections.map(section => loadSection(section)));
+    // Load all sections in parallel
+    Promise.all(sections.map(loadSection));
 });
