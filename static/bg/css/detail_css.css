@@ -290,7 +290,7 @@ img:hover {
 .abnormal-desc,
 .module-desc,
 .skill-desc {
-    font-size: 1.0rem;
+    font-size: 0.8rem;
     line-height: 1.5;
     color: var(--text-dark);
     margin-bottom: 1rem;
@@ -752,6 +752,41 @@ body.dark-theme {
     background: transparent !important;
     padding: 0 0 2px 0 !important;
 }
+
+/* Стили только для мобильных устройств */
+@media screen and (max-width: 768px) {
+    .skill-content {
+        width: 100%;
+        box-sizing: border-box;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        transform: none !important;
+    }
+    
+    .item-row {
+        gap: 0.1rem;
+    }
+
+    .item-row .stat-value {
+        min-width: 0px;
+        text-align: right;
+        padding-right: 0.5rem;
+    }
+
+    .stat-grid {
+        gap: 0.1rem !important;
+    }
+
+    .stat-grid .stat-label {
+        margin: 0;
+        text-align: left; /* Для текста */
+        justify-self: start; /* Если используется grid */
+        align-self: start; /* Для вертикального выравнивания, если нужно */
+    }
+    
+}
+
+
 
 .skill-section.collapsed {
     .skill-content-wrapper {

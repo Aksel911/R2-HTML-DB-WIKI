@@ -2,8 +2,17 @@ from flask import current_app
 from typing import List, Dict, Optional, Tuple
 from services.database import execute_query
 from services.item_service import get_item_pic_url
-from services.utils import get_payment_type_name
 from models.merchant import Merchant
+
+def get_payment_type_name(payment_type: int) -> str:
+    payment_types = {
+        0: "Серебра",
+        1: "Очков чести",
+        2: "Очков хаоса",
+        3: "Серебра хаоса"
+    }
+    return payment_types.get(payment_type, "Неизвестная валюта")
+
 
 def apply_merchant_filters(merchants: List[Merchant], filters: Dict) -> List[Merchant]:
     """Apply filters to merchant list"""
@@ -72,54 +81,61 @@ def merchant_to_dict(merchant: Merchant) -> dict:
 
 def get_merchant_by_id(merchant_list_id: int) -> Dict:
     query = """
-    SELECT 
+    SELECT
         a.ListID,
-        c.MID, 
+        c.MID,
         c.MName,
         c.MClass,
         a.ItemID,
-        d.IName, 
+        d.IName,
         a.Price,
         b.mPaymentType,
         c.mIsEvent
     FROM TblMerchantSellList AS a
-    INNER JOIN TblMerchantName b ON (a.ListID = b.mID) 
+    INNER JOIN TblMerchantName b ON (a.ListID = b.mID)
     INNER JOIN DT_Monster c ON (b.mID = c.mSellMerchanID)
     LEFT JOIN DT_Item d ON (a.ItemID = d.IID)
     WHERE a.ListID = ?
     ORDER BY c.MID, a.ListID, d.IName
     """
-    
+
     rows = execute_query(query, (merchant_list_id,))
     if not rows:
         return None
     
     merchants = {}
-    
+   
     for row in rows:
         mid = row.MID
-        
-        # Создаем нового торговца если его еще нет
+       
         if mid not in merchants:
-            list_id = row.ListID
-            item_pic = get_item_pic_url(row.ItemID)
-            
             merchants[mid] = {
                 'MID': mid,
                 'MName': row.MName.replace('/n', ' ') if row.MName else '',
                 'MClass': row.MClass,
-                'mIsEvent': row.mIsEvent,
-                'ListID': list_id, 
+                'ListID': row.ListID,
                 'mPaymentType': row.mPaymentType,
-                'ItemID': row.ItemID,
-                'ItemName': row.IName,
-                'Price': row.Price,
-                'PaymentType': get_payment_type_name(row.mPaymentType), 
-                'ItemPicture': item_pic or f"{current_app.config['GITHUB_URL']}no_item_image.png"
-                
+                'items_data': []
             }
+       
+        # Add item to merchant's items list
+        item_pic = get_item_pic_url(row.ItemID)
+        
+        item_data = {
+            'ItemID': row.ItemID,
+            'ItemName': row.IName,
+            'Price': row.Price,
+            'PaymentType': get_payment_type_name(row.mPaymentType),
+            'ItemPicture': item_pic or f"{current_app.config['GITHUB_URL']}no_item_image.png",
+            'mIsEvent': int(row.mIsEvent) if row.mIsEvent is not None else 0  # Явное приведение к int
+        }
+        
+        
+        merchants[mid]['items_data'].append(item_data)
 
-    return list(merchants.values())
+    result = list(merchants.values())
+
+    return result
 
 def get_merchants_list(search_term: str = '') -> Tuple[List[Merchant], Dict]:
     """Get all merchants with optional search"""

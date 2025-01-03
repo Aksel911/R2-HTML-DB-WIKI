@@ -304,18 +304,17 @@ class UIManager {
     renderMerchants(merchants) {
         const merchantsGrid = document.querySelector('.merchants-grid');
         if (!merchantsGrid) return;
-
+    
         this._animateTableUpdate(merchantsGrid, () => {
             merchantsGrid.innerHTML = merchants.map((merchant, index) => `
                 <div class="atropos" data-index="${index}">
+                    <div class="merchant-card-id" data-atropos-offset="5" onclick="window.location.href='/merchant/${merchant.ListID}'">
+                        <span class="merchant-id-link">#${merchant.ListID}</span>
+                    </div>
                     <a href="/monster/${merchant.MID}" class="card-link">
                         <div class="atropos-scale">
                             <div class="atropos-rotate">
                                 <div class="atropos-inner" data-merchant-type="${merchant.PaymentType}">
-                                    <div class="merchant-card-id" data-atropos-offset="5">
-                                        #${merchant.ListID}
-                                    </div>
-                            
                                     <div class="merchant-image" data-atropos-offset="8" data-merchant-type="${merchant.PaymentType}">
                                         <img src="${this._getMerchantImage(merchant)}"
                                             alt="${merchant.MName}"
@@ -323,11 +322,11 @@ class UIManager {
                                             class="merchant-image"
                                             onerror="this.src='${CONSTANTS.FALLBACK_IMAGE}';">
                                     </div>
-                                    
+                                   
                                     <div class="merchant-card-title" data-atropos-offset="6">
                                         <span class="merchant-name-link">${merchant.MName}</span>
                                     </div>
-
+    
                                     <div class="stat-badges" data-atropos-offset="4">
                                         <div class="stat-badge" data-atropos-offset="3">
                                             <i class="fas fa-coins"></i>
@@ -345,7 +344,7 @@ class UIManager {
                     </a>
                 </div>
             `).join('');
-
+    
             this._initializeAtroposCards();
         });
     }

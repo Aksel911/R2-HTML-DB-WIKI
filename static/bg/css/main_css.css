@@ -3289,9 +3289,27 @@ body.dark-theme .theme-toggle:hover {
     color: #2c5282;
     backdrop-filter: blur(4px);
     border: 1px solid rgba(74, 158, 255, 0.2);
+    z-index: 10;
 }
 
+.merchant-id-link {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
 
+.merchant-id-link:hover {
+    color: #4299e1;
+    text-decoration: none;
+}
+
+.dark-theme .merchant-id-link {
+    color: #bbdefb;
+}
+
+.dark-theme .merchant-id-link:hover {
+    color: #63b3ed;
+}
 
 
 /* Merchant Image */

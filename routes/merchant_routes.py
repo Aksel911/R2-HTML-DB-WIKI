@@ -75,19 +75,13 @@ def merchants_list(items=None, item_resources=None):
 
 @bp.route('/merchant/<int:merchant_list_id>')
 def merchant_detail(merchant_list_id: int):
-    try:
-        if not (merchant := get_merchant_by_id(merchant_list_id)):
-            return "Merchant not found", 404
-        
-        return render_template(
-            'merchant_core/merchant_page_detail.html',
-            merchant=merchant,
-            title=f'[Торговцы]',
-            header=f'[Торговцы]'
-        )
-        
-    except Exception as e:
-        print(f"Error in merchant detail route: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return "Internal server error", 500
+    merchants = get_merchant_by_id(merchant_list_id)
+    if not merchants:
+        return "Merchant not found", 404
+    
+    return render_template(
+        'merchant_core/merchant_page_detail.html',
+        merchants=merchants,
+        title=f'[Торговцы] Магазин {merchant_list_id}',
+        header=f'[Торговцы] Магазин {merchant_list_id}'
+    )

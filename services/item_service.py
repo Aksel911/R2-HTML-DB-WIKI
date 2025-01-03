@@ -442,7 +442,10 @@ def get_item_pic_url(item_id):
         item_pic_url = f"{current_app.config['GITHUB_URL']}{item_id.RFileName}_{item_id.RPosX}_{item_id.RPosY}.png"
         return item_pic_url
     else:
-        raise ValueError(f"Объект item_id ({item_id}) не содержит необходимых атрибутов (RFileName, RPosX, RPosY)")
+        print(f"Объект item_id ({item_id}) не содержит необходимых атрибутов (RFileName, RPosX, RPosY)")
+        no_pic = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
+        return no_pic
+        
 
 
 #@lru_cache(maxsize=1000)

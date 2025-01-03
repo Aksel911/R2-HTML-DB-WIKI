@@ -6,6 +6,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
     <link rel="stylesheet" href="/static/bg/css/detail_css.css">
 </head>
 <body>
@@ -13,251 +15,419 @@
         <button class="back-button" onclick="window.history.back()">
             <i class="fas fa-arrow-left"></i> Назад
         </button>
-        <button class="theme-toggle" id="theme-toggle" aria-label="Переключить тему">
+        <button class="theme-toggle" id="theme-toggle">
             <i class="fas fa-adjust"></i>
         </button>
     </div>
 
     <main>
-    {% include 'main_page_menu.html' %}
-    <div class="container text-center">
-	
-      {% for merchant_instance in merchant %}
-      <div class="detail-block fadeIn">
-        <div class="detail-title">{{ merchant_instance.MName }} ({{ merchant_instance.MID }})</div>
 
-        <div class="detail-content">
-          <!-- Изображение монстра -->
-          <div class="monster-image-container">
-            {% set monster_image = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/monsters/" ~ merchant_instance.MID ~ ".png" %}
+
+
+        {% include 'main_page_menu.html' %}
+        <div class="container">
+            <h1 class="page-title">Продавцы по магазину: {{ merchants[0].ListID }}</h1>
             
-			<img src="{{ monster_image }}" alt="Monster Image" class="monster-image">
-          </div>
-			
-          <!-- Слайдер с обычными предметами -->
-          <div class="swiper normal-items-slider">
-            <div class="swiper-wrapper">
-              <div class="swiper-slide">
-                <img src="{{ merchant_instance.ItemPicture }}" alt="{{ merchant_instance.ItemName }}" class="item-image">
-                <div class="item-name">{{ merchant_instance.ItemName }}</div>
-                <div class="item-price">
-                  <span class="price-amount">{{ merchant_instance.Price }}</span>
-                  <span class="price-type">({{ merchant_instance.PaymentType }})</span>
-                </div>
-              </div>
+            <!-- Merchant List -->
+            <div class="merchant-list">
+                {% for merchant in merchants %}
+                <button 
+                  class="merchant-button {% if merchant.items_data|selectattr('mIsEvent', 'equalto', 1)|list %}has-event{% endif %}"
+                  onclick="showMerchant('{{ merchant.MID }}')"
+                  data-mid="{{ merchant.MID }}">
+                  {{ merchant.MName }}
+                </button>
+                {% endfor %}
             </div>
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
-          </div>
 
-          <!-- Слайдер с ивентовыми предметами -->
-          {% set event_items = merchant_instance.merchant_items | selectattr('mIsEvent', '==', 1) | list %}
-          {% if event_items %}
-          <div class="swiper event-items-slider">
-            <div class="swiper-wrapper">
-              {% for item in event_items %}
-              <div class="swiper-slide">
-                <img src="{{ item.ItemPicture }}" alt="{{ item.ItemName }}" class="item-image">
-                <div class="item-name">{{ item.ItemName }}</div>
-                <div class="item-price">
-                  <span class="price-amount">{{ item.Price }}</span>  
-                  <span class="price-type">({{ item.PaymentType }})</span>
+            <!-- Merchant Details -->
+            {% for merchant in merchants %}
+            <div class="merchant-card" id="merchant-{{ merchant.MID }}" style="display: none;">
+                <div class="merchant-header">
+                    <div class="merchant-avatar">
+                        <a href="/monster/{{ merchant.MID }}">
+                          <img src="https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/monsters/{{ merchant.MID }}.png" 
+                          alt="{{ merchant.MName }}"
+                          onerror="this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
+                        </a>
+                    </div>
+                    <div class="merchant-info">
+                        <a href="/monster/{{ merchant.MID }}" class="merchant-name">
+                            <h3>{{ merchant.MName }}</h3>
+                        </a>
+                        <span class="merchant-id">MID: {{ merchant.MID }}</span>
+                    </div>
                 </div>
-              </div>
-              {% endfor %}
+
+                <!-- Regular Items -->
+                {% set regular_items = merchant.items_data|selectattr("mIsEvent", "equalto", 0)|list %}
+                {% if regular_items %}
+                <div class="items-section">
+                    <div class="section-header">
+                        <i class="fas fa-store"></i>
+                        <h4>Обычные предметы</h4>
+                    </div>
+                    <div class="items-grid">
+                        {% for item in regular_items %}
+                        <a href="/item/{{ item.ItemID }}" class="item-card">
+                            <div class="item-image">
+                                <img src="{{ item.ItemPicture }}" alt="{{ item.ItemName }}">
+                            </div>
+                            <div class="item-info">
+                                <span class="item-name">{{ item.ItemName }}</span>
+                                <div class="item-price">
+                                    <span class="price-amount">{{ item.Price }}</span>
+                                    <span class="price-type">{{ item.PaymentType }}</span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Event Items -->
+                {% set event_items = merchant.items_data|selectattr("mIsEvent", "equalto", 1)|list %}
+                {% if event_items %}
+                <div class="items-section event-section">
+                    <div class="section-header">
+                        <i class="fas fa-star"></i>
+                        <h4>Ивентовые предметы</h4>
+                    </div>
+                    <div class="items-grid">
+                        {% for item in event_items %}
+                        <a href="/item/{{ item.ItemID }}" class="item-card event-item">
+                            <div class="item-image">
+                                <img src="{{ item.ItemPicture }}" alt="{{ item.ItemName }}">
+                            </div>
+                            <div class="item-info">
+                                <span class="item-name">{{ item.ItemName }}</span>
+                                <div class="item-price">
+                                    <span class="price-amount">{{ item.Price }}</span>
+                                    <span class="price-type">{{ item.PaymentType }}</span>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
-            <div class="swiper-button-next"></div>
-            <div class="swiper-button-prev"></div>
-          </div>
-          {% endif %}
+          {% endfor %}
         </div>
-      </div>
-      {% endfor %}
-    </div>
-  </main>
+    </main>
+
+<style>
+      /* Light Theme (Default) */
+      .page-title {
+          color: #1a202c;
+          text-align: center;
+          margin: 20px 0;
+          font-size: 1.5rem;
+      }
+      
+      .merchant-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-bottom: 20px;
+          justify-content: center;
+      }
+      
+      .merchant-button {
+          background: rgba(237, 242, 247, 0.8);
+          border: none;
+          border-radius: 8px;
+          padding: 8px 16px;
+          color: #2d3748;
+          cursor: pointer;
+          transition: all 0.2s;
+      }
+      
+      .merchant-button:hover {
+          transform: translateY(-2px);
+          background: rgba(237, 242, 247, 0.9);
+      }
+      
+      .merchant-button.has-event {
+          background: rgba(254, 215, 170, 0.8);
+      }
+      
+      .merchant-button.has-event:hover {
+          background: rgba(254, 215, 170, 0.9);
+      }
+      
+      .merchant-button.active {
+          background: #3b82f6;
+          color: white;
+      }
+      
+      .merchant-card {
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 16px;
+          margin-bottom: 30px;
+          padding: 20px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          backdrop-filter: blur(10px);
+      }
+      
+      .merchant-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 20px;
+          padding: 10px;
+          background: rgba(237, 242, 247, 0.8);
+          border-radius: 12px;
+      }
+      
+      .merchant-name {
+          text-decoration: none;
+          color: #2d3748;
+      }
+      
+      .merchant-name:hover {
+          color: #3b82f6;
+          text-decoration: none;
+      }
+      
+      .merchant-avatar {
+          width: 48px;
+          height: 48px;
+          margin-right: 15px;
+      }
+      
+      .merchant-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          border-radius: 8px;
+      }
+      
+      .merchant-info h3 {
+          margin: 0;
+          font-size: 1.2rem;
+          color: #2d3748;
+      }
+      
+      .merchant-id {
+          color: #718096;
+          font-size: 0.9rem;
+      }
+      
+      .section-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 15px;
+          padding: 8px 15px;
+          background: rgba(237, 242, 247, 0.8);
+          border-radius: 8px;
+      }
+      
+      .section-header i {
+          margin-right: 10px;
+          color: #3b82f6;
+      }
+      
+      .section-header h4 {
+          margin: 0;
+          color: #2d3748;
+          font-size: 1.1rem;
+      }
+      
+      .items-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 15px;
+          padding: 15px;
+      }
+      
+      .item-card {
+          background: rgba(237, 242, 247, 0.8);
+          border-radius: 8px;
+          padding: 10px;
+          transition: transform 0.2s, box-shadow 0.2s;
+          text-decoration: none;
+          display: block;
+      }
+      
+      .item-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          text-decoration: none;
+      }
+      
+      .item-image {
+          width: 48px;
+          height: 48px;
+          margin: 0 auto 10px;
+      }
+      
+      .item-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+      }
+      
+      .item-info {
+          text-align: center;
+      }
+      
+      .item-name {
+          display: block;
+          color: #2d3748;
+          font-size: 0.9rem;
+          margin-bottom: 5px;
+          word-break: break-word;
+          text-align: center;
+      }
+      
+      .item-price {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2px;
+      }
+      
+      .price-amount {
+          color: #d97706;
+          font-weight: bold;
+          font-size: 0.9rem;
+      }
+      
+      .price-type {
+          color: #718096;
+          font-size: 0.8rem;
+      }
+      
+      .event-section .section-header i {
+          color: #d97706;
+      }
+      
+      .event-item {
+          background: rgba(254, 215, 170, 0.3);
+          border: 1px solid rgba(245, 158, 11, 0.3);
+      }
+      
+      /* Dark Theme */
+      .dark-theme .page-title {
+          color: #e2e8f0;
+      }
+      
+      .dark-theme .merchant-button {
+          background: rgba(30, 41, 59, 0.8);
+          color: #e2e8f0;
+      }
+      
+      .dark-theme .merchant-button:hover {
+          background: rgba(30, 41, 59, 0.9);
+      }
+      
+      .dark-theme .merchant-button.has-event {
+          background: rgba(146, 64, 14, 0.8);
+      }
+      
+      .dark-theme .merchant-button.has-event:hover {
+          background: rgba(146, 64, 14, 0.9);
+      }
+      
+      .dark-theme .merchant-button.active {
+          background: #2563eb;
+      }
+      
+      .dark-theme .merchant-card {
+          background: rgba(30, 41, 59, 0.8);
+      }
+      
+      .dark-theme .merchant-header {
+          background: rgba(15, 23, 42, 0.6);
+      }
+      
+      .dark-theme .merchant-name {
+          color: #e2e8f0;
+      }
+      
+      .dark-theme .merchant-name:hover {
+          color: #60a5fa;
+      }
+      
+      .dark-theme .merchant-info h3 {
+          color: #e2e8f0;
+      }
+      
+      .dark-theme .merchant-id {
+          color: #94a3b8;
+      }
+      
+      .dark-theme .section-header {
+          background: rgba(15, 23, 42, 0.4);
+      }
+      
+      .dark-theme .section-header i {
+          color: #60a5fa;
+      }
+      
+      .dark-theme .section-header h4 {
+          color: #e2e8f0;
+      }
+      
+      .dark-theme .item-card {
+          background: rgba(30, 41, 59, 0.6);
+      }
+      
+      .dark-theme .item-name {
+          color: #e2e8f0;
+      }
+      
+      .dark-theme .price-amount {
+          color: #fbbf24;
+      }
+      
+      .dark-theme .price-type {
+          color: #94a3b8;
+      }
+      
+      .dark-theme .event-section .section-header i {
+          color: #f59e0b;
+      }
+      
+      .dark-theme .event-item {
+          background: rgba(146, 64, 14, 0.3);
+          border: 1px solid rgba(245, 158, 11, 0.3);
+      }
+</style>
 
     {% block scripts %}
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <script src="/static/bg/js/main_js.js"></script>
-    <script src="/static/bg/js/detail/spoiler.js"></script>
+    <script>
+    function showMerchant(mid) {
+        // Hide all merchant cards
+        document.querySelectorAll('.merchant-card').forEach(card => {
+            card.style.display = 'none';
+        });
+        
+        // Show selected merchant card
+        document.getElementById(`merchant-${mid}`).style.display = 'block';
+        
+        // Update button states
+        document.querySelectorAll('.merchant-button').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.dataset.mid === mid) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    // Show first merchant by default
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstMerchant = document.querySelector('.merchant-button');
+        if(firstMerchant) {
+            firstMerchant.click();
+        }
+    });
+    </script>
     {% endblock %}
 </body>
-
-<style>
-.swiper {
-      width: 100%;
-      height: 200px;
-      margin-bottom: 30px;
-    }
-    .swiper-slide {
-      text-align: center;
-    }
-    .swiper-button-next, .swiper-button-prev {
-      color: #fff;
-    }
-
-.spoiler-header {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    margin-bottom: 1px;
-}
-
-.spoiler-header:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.spoiler-header i {
-    margin-right: 0.5rem;
-}
-
-.spoiler-header i:last-child {
-    margin-left: auto;
-    margin-right: 0;
-    transition: transform 0.3s ease;
-}
-
-.spoiler-header.active i:last-child {
-    transform: rotate(180deg);
-}
-
-.item-count {
-    margin-left: 0.5rem;
-    color: #9ca3af;
-    font-size: 0.9rem;
-}
-
-.spoiler-content {
-    overflow: hidden;
-    transition: all 0.3s ease;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 0 0 8px 8px;
-}
-
-.items-grid {
-    display: grid;
-    gap: 1rem;
-    padding: 1rem;
-}
-
-.merchant-item {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.merchant-item:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.item-info {
-    margin-left: 1rem;
-    flex-grow: 1;
-}
-
-.item-name {
-    display: block;
-    color: #e2e8f0;
-    text-decoration: none;
-    margin-bottom: 0.5rem;
-    transition: color 0.3s ease;
-}
-
-.item-name:hover {
-    color: #60a5fa;
-}
-
-.item-price {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.price-amount {
-    color: #fbbf24;
-    font-weight: bold;
-}
-
-.price-type {
-    color: #9ca3af;
-    font-size: 0.9rem;
-}
-
-/* Dark theme */
-.dark-theme .spoiler-header {
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.dark-theme .spoiler-header:hover {
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.dark-theme .merchant-item {
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.dark-theme .merchant-item:hover {
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.merchant-detail {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.merchant-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.merchant-label {
-    color: #9ca3af;
-    font-size: 0.9rem;
-}
-
-.merchant-value {
-    color: #e2e8f0;
-    font-weight: bold;
-}
-</style>
-
-
-
-  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-  <script>
-    var normalSlider = new Swiper(".normal-items-slider", {
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
-      slidesPerView: 3,
-      spaceBetween: 10
-    });
-    var eventSlider = new Swiper(".event-items-slider", {
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
-      slidesPerView: 3,  
-      spaceBetween: 10
-    });
-  </script>
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-  <script src="/static/bg/js/main_js.js"></script>
-
 </html>

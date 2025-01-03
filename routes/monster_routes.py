@@ -18,8 +18,7 @@ from services.monster_service import (
 )
 from services.utils import get_google_sheets_data, with_app_context
 from services.merchant_service import (
-    get_merchant_items,
-    get_payment_type_name
+    get_merchant_items
 )
 from services.database import execute_query
 from config.settings import MONSTER_CLASS_URL, MONSTER_RACE_URL, MONSTER_LOCATION_URL

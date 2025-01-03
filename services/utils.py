@@ -54,12 +54,4 @@ def clean_dict(d: dict) -> dict:
     """Remove None values from dictionary"""
     return {k: v for k, v in d.items() if v is not None}
 
-def get_payment_type_name(payment_type: int) -> str:
-    """Get payment type name"""
-    payment_types = {
-        0: "Серебра",
-        1: "Очков чести",
-        2: "Очков хаоса",
-        3: "ШОПа"
-    }
-    return payment_types.get(payment_type, "Неизвестная валюта")
+
