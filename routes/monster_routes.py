@@ -188,6 +188,30 @@ def monster_page(type):
     return handle_monster_page()
 
 
+# Обработка времени респауна
+def format_time_components(seconds):
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    remaining_seconds = seconds % 60
+    
+    time_parts = []
+    if hours > 0:
+        time_parts.append(f"{hours} ч.")
+    if minutes > 0:
+        time_parts.append(f"{minutes} мин.")
+    if remaining_seconds > 0 or not time_parts:
+        time_parts.append(f"{remaining_seconds} сек.")
+    
+    return " ".join(time_parts)
+
+def get_respawn_info(time_in_seconds):
+    return {
+        "mTickMin": time_in_seconds // 60,
+        "mTick": time_in_seconds,
+        "hours": time_in_seconds // 3600,
+        "formatted_time": format_time_components(time_in_seconds)
+    }
+
 
 # ! Страница детальной информации монстров
 @bp.route('/monster/<int:monster_id>')
@@ -216,8 +240,13 @@ def monster_detail(monster_id: int):
             
             has_data['has_abnormal'] = future_abnormal.result() is not None
             has_data['has_attributes'] = future_attributes.result() is not None
-        
-        
+            
+            future_mtick_normal = executor.submit(with_app_context, get_monster_mtick, current_app._get_current_object(), monster_id, 0)
+            future_mtick_event = executor.submit(with_app_context, get_monster_mtick, current_app._get_current_object(), monster_id, 1)
+            
+            mTick_normal, mVarRespawnTick_normal = future_mtick_normal.result()
+            mTick_event, mVarRespawnTick_event = future_mtick_event.result()
+            
         # Преобразуем monster в словарь
         monster_dict = {
             'MID': monster.MID,
@@ -351,7 +380,24 @@ def monster_detail(monster_id: int):
                 file_path_gif = None
         except:
             file_path_gif = None
+        
+        
+        # Получение времени респауна
+        respawn_info_normal = {}
+        respawn_info_event = {}
 
+        if mTick_normal > 0:
+            respawn_info_normal = {
+                "normal": get_respawn_info(mTick_normal),
+                "event": get_respawn_info(mVarRespawnTick_normal)
+            }
+
+        if mTick_event > 0:
+            respawn_info_event = {
+                "normal": get_respawn_info(mTick_event),
+                "event": get_respawn_info(mVarRespawnTick_event)
+            }
+    
         # Рендеринг базового шаблона
         return render_template(
             'monster_core/monster_page_detail.html',
@@ -362,6 +408,8 @@ def monster_detail(monster_id: int):
             raceinfo=race_info,
             monlocationinfo=monster_location,
             monstermodelno_result=monster_model_no,
+            respawn_info_normal=respawn_info_normal,
+            respawn_info_event=respawn_info_event,
             mgbj_desc=mgbj_desc,
             prefix='m',
             has_data=has_data  # Передаем информацию о наличии данных
