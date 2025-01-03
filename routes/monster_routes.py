@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, current_app, abort, jsonify, request, current_app
+import traceback
 import requests
 from services.monster_service import (
     get_monster_by_id,
@@ -368,7 +369,6 @@ def monster_detail(monster_id: int):
 
     except Exception as e:
         print(f"Error in monster detail route: {str(e)}")
-        import traceback
         traceback.print_exc()
         return "Internal server error", 500
     

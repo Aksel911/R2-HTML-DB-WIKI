@@ -14,23 +14,3 @@
 	</div>
 </div>
 {% endif %}
-<!-- Можно купить у -->
-{% if merchant_sellers %}
-<div class="skill-section fadeIn">
-	<p class="section-star">★</p>
-	<h2 class="section-title">Можно купить у</h2>
-	<div class="skill-content">
-		{% for merchant in merchant_sellers %}
-		<div class="item-row">
-			<img class="item-icon"
-				 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'"
-				 src="https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/{{ merchant.MerchantID }}.png">
-			<a href="{{ url_for('monsters.monster_detail', monster_id=merchant.MerchantID) }}"
-			   class="item-name">{{ merchant.MerchantName }}</a>
-			<span class="stat-value">{{ merchant.Price }}</span>
-			<span class="stat-value">{{ merchant.PaymentType }}</span>
-		</div>
-		{% endfor %}
-	</div>
-</div>
-{% endif %}

@@ -465,19 +465,23 @@ class ItemUIManager {
 
 	// Инициализация библиотеки Atropos для 3D-эффектов карточек
 	initializeAtropos() {
-		const script = document.createElement('script');
-		script.src = 'https://unpkg.com/atropos@2.0.2/atropos.js';
-		script.onload = () => {
-			//console.log('Atropos loaded successfully');
-			this.atroposLoaded = true;
-		};
-		document.head.appendChild(script);
+        if (!window.Atropos) {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/atropos@2.0.2/atropos.js';
+            script.onload = () => {
+                this.atroposLoaded = true;
+                this.reinitializeCards();
+            };
+            document.head.appendChild(script);
 
-		const link = document.createElement('link');
-		link.rel = 'stylesheet';
-		link.href = 'https://unpkg.com/atropos@2.0.2/atropos.css';
-		document.head.appendChild(link);
-	}
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/atropos@2.0.2/atropos.css';
+            document.head.appendChild(link);
+        } else {
+            this.atroposLoaded = true;
+        }
+    }
 
 	// Переинициализация карточек при изменении темы
 	reinitializeCards() {

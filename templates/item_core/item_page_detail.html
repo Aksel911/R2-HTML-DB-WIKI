@@ -2,27 +2,22 @@
 <html>
 <head>
     {% include "favicon.html" %}
-    <title>[{{ item.IID }}] {{ item.IName }} </title>
+    <title>[{{ item.IID }}] {{ item.IName }}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
     <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <!-- Подключение Dark Theme -->
-    <link rel="stylesheet" href="/static/bg/css/detail_css.css">
-
-</head>
-<body>
     
-    <!-- Контейнер для sticky-кнопки -->
+    <link rel="stylesheet" href="/static/bg/css/detail_css.css">
+    <script src="/static/bg/js/detail/item/dynamic_loading.js"></script>
+</head>
+<body data-item-id="{{ item.IID }}">
     <div class="back-button-container">
         <button class="back-button" onclick="window.history.back()">
             <i class="fas fa-arrow-left"></i>
             Назад
         </button>
-    
         <button class="theme-toggle" id="theme-toggle" aria-label="Переключить тему">
             <i class="fas fa-adjust"></i>
         </button>
@@ -31,8 +26,7 @@
     <main>
         {% include 'main_page_menu.html' %}
         <div class="container text-center">
-
-			{% if monstermodelno_result %}
+            {% if monstermodelno_result %}
                 <p class="fadeIn">🛠️{{ monstermodelno_result }}</p>
                 <div class="monster-viewer-container">
                     {% include 'GLB.html' %}
@@ -41,8 +35,8 @@
                 <p class="fadeIn">🏴</p>
             {% endif %}
 
-             <!-- Заголовок Mobile -->
-             <div class="detail-title-mobile">
+            <!-- Заголовок Mobile -->
+            <div class="detail-title-mobile">
                 <h1 class="monster-title-mobile fadeIn">
                     <span class="monster-title-text">{{ item.IName }}</span>
                     <div class="monster-title-glow"></div>
@@ -56,41 +50,110 @@
                 </div>
             </div>
 
-			<div class="row">
+            <div class="row">
+                <!-- Первый блок -->
                 <div class="col-12 col-md-6">
-                    <!-- Первый блок -->
-
                     <!-- Информация -->
                     {% include 'item_core/detail/item_page_detail_information.html' %}
 
+                    <!-- Dynamic content -->
                     <!-- TblBeadHoleProb --> <!-- Свиток создания ячеек -->
-                    {% include 'item_core/detail/TblBeadHoleProb.html' %}
-
+                    <div id="bead-hole-container" class="loading" data-template="TblBeadHoleProb.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка данных слотов...</div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- DT_Bead Руны --> <!-- Руны -->
-                    {% include 'item_core/detail/DT_Bead.html' %}
-
+                    <div id="bead-container" class="loading" data-template="DT_Bead.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка данных руны...</div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- DT_ItemBeadModule -->
-                    {% include 'item_core/detail/DT_ItemBeadModule.html' %}
+                    <div id="bead-module-container" class="loading" data-template="DT_ItemBeadModule.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка модулей...</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Крафт предмета -->
-                    {% include 'item_core/detail/item_page_detail_item_craft.html' %}
+                    {% if has_data.has_craft %}
+                    <div id="craft-container" class="loading" data-template="item_page_detail_item_craft.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка рецепта крафта...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <!-- Нужен для крафта -->
-                    {% include 'item_core/detail/item_page_detail_need_craft.html' %}
+                    <div id="craft-need-container" class="loading" data-template="item_page_detail_need_craft.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка потребности в крафте...</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- TblSpecificProcItem -->
-                    {% include 'item_core/detail/TblSpecificProcItem.html' %}
+                    <div id="specific-proc-container" class="loading" data-template="TblSpecificProcItem.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка специальных эффектов...</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Скилл -->
-                    {% include 'item_core/detail/item_page_detail_skill.html' %}
+                    {% if has_data.has_skill %}
+                    <div id="skill-container" class="loading" data-template="item_page_detail_skill.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка умений...</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Абнормал -->
-                    {% include 'item_core/detail/item_page_detail_abnormal.html' %}
+                    <div id="abnormal-container" class="loading" data-template="item_page_detail_abnormal.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка эффектов...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
 
-				</div>
+                    <!-- Можно купить у -->
+                    <div id="merchant-container" class="loading" data-template="item_page_detail_merchant.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка информации о торговцах...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Второй блок -->
-				<div class="col-12 col-md-6">
+                <div class="col-12 col-md-6">
                     <!-- Заголовок -->
                     <div class="detail-title-desktop">
                         <h1 class="monster-title fadeIn">
@@ -105,40 +168,105 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Dynamic content -->
                     <!-- Можно получить из -->
-                    {% include 'item_core/detail/item_page_detail_can_get_item_from.html' %}
+                    <div id="can-get-container" class="loading" data-template="item_page_detail_can_buy_item_from.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка источников получения...</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- AbnormalResist -->
-                    {% include 'item_core/detail/item_page_detail_abnormal_resist.html' %}
+                    {% if has_data.has_abnormal %}
+                    <div id="abnormal-resist-container" class="loading" data-template="item_page_detail_abnormal_resist.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка сопротивлений...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <!-- Перевоплощает в -->
-                    {% include 'item_core/detail/item_page_detail_transform_in.html' %}
+                    {% if has_data.has_skill %}
+                    <div id="transform-container" class="loading" data-template="item_page_detail_transform_in.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка трансформаций...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <!-- DT_ItemProtect -->
-                    {% include 'item_core/detail/DT_ItemProtect.html' %}
-                    
+                    {% if has_data.has_protect %}
+                    <div id="protect-container" class="loading" data-template="DT_ItemProtect.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка защит...</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- DT_ItemPanalty -->
-                    {% include 'item_core/detail/DT_ItemPanalty.html' %}
+                    <div id="penality-container" class="loading" data-template="DT_ItemPanalty.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка штрафов...</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- DT_ItemSlain -->
-                    {% include 'item_core/detail/DT_ItemSlain.html' %}
+                    <div id="slain-container" class="loading" data-template="DT_ItemSlain.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка убийств...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <!-- DT_ItemAttributeAdd -->
-                    {% include 'item_core/detail/DT_ItemAttributeAdd.html' %}
+                    {% if has_data.has_attributes %}
+                    <div id="attribute-add-container" class="loading" data-template="DT_ItemAttributeAdd.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка атрибутов...</div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- DT_ItemAttributeResist -->
-                    {% include 'item_core/detail/DT_ItemAttributeResist.html' %}
-
+                    <div id="attribute-resist-container" class="loading" data-template="DT_ItemAttributeResist.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка сопротивлений атрибутам...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </main>
 
-
+    <!-- Scripts -->
     {% block scripts %}
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-
 
         <!-- Скрипты -->
         <script src="/static/bg/js/main_js.js"></script>

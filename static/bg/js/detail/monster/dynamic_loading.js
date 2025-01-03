@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
         {
             endpoint: 'attributes',
             containers: [
-                { id: 'attributes-container', template: 'DT_MonsterAttributeAdd.html' }
+                { id: 'attributes-add-container', template: 'DT_MonsterAttributeAdd.html' },
+                { id: 'attributes-resist-container', template: 'DT_MonsterAttributeResist.html' }
             ]
         },
         {

@@ -1,3 +1,4 @@
+import traceback
 from flask import Blueprint, abort, render_template, jsonify, request, render_template, current_app
 
 from services.item_service import (
@@ -252,13 +253,8 @@ def with_app_context(func, app, *args, **kwargs):
 @bp.route('/item/<int:item_id>')
 def item_detail(item_id: int):
     try:
-        print(f"Item ID: {item_id}")
-        # Получаем приложение для использования в контексте
-        app = current_app._get_current_object()
-        
-        # Проверка основных данных
-        item = get_item_by_id(item_id)
-        if not item:
+        # Получаем только базовую информацию о предмете
+        if not (item := get_item_by_id(item_id)):
             return "Item not found", 404
 
         item_resource = get_item_resource(item_id)
@@ -271,57 +267,11 @@ def item_detail(item_id: int):
         except (ValueError, AttributeError):
             return "Invalid item use class", 400
 
-        # Создаем ThreadPoolExecutor
-        with ThreadPoolExecutor(max_workers=20) as executor:
-            # Оборачиваем каждую функцию в контекст приложения
-            def submit_with_context(func, *args, **kwargs):
-                return executor.submit(with_app_context, func, app, *args, **kwargs)
-
-            # Запускаем все задачи параллельно
-            future_mondropinfo = submit_with_context(get_monster_drop_info, item_id)
-            future_merchant_sellers = submit_with_context(get_merchant_sellers, item_id)
-            future_craft_items = submit_with_context(check_base_items_for_craft, item_id)
-            future_craft_next = submit_with_context(check_next_craft_item, item_id)
-            future_specificproc = submit_with_context(get_specific_proc_item, item_id)
-            future_skill_data = submit_with_context(get_item_skill, item_id)
-            future_itemresource = submit_with_context(get_item_model_resource, item_id)
-            future_abnormalResist = submit_with_context(get_itemabnormalResist_data, item_id)
-            future_bead_module = submit_with_context(get_item_bead_module_data, item_id)
-            future_bead_holeprob = submit_with_context(get_item_bead_holeprob_data, item_id)
-            future_attribute_add = submit_with_context(get_item_attribute_add_data, item_id)
-            future_attribute_resist = submit_with_context(get_item_attribute_resist_data, item_id)
-            future_protect = submit_with_context(get_item_protect_data, item_id)
-            future_slain = submit_with_context(get_item_slain_data, item_id)
-            future_panalty = submit_with_context(get_item_panalty_data, item_id)
-
-            # Получаем результаты
-            mondropinfo = future_mondropinfo.result()
-            merchant_sellers = future_merchant_sellers.result()
-            craft_items = future_craft_items.result()
-            craft_next_item = future_craft_next.result()
-            specificproc_check = future_specificproc.result()
-            skill_data = future_skill_data.result()
-            itemresource_result = future_itemresource.result()
-            item_abnormalResist_data = future_abnormalResist.result()
-            item_bead_module_data = future_bead_module.result()
-            item_bead_holeprob_data = future_bead_holeprob.result()
-            item_attribute_add_data = future_attribute_add.result()
-            item_attribute_resist_data = future_attribute_resist.result()
-            item_protect_data = future_protect.result()
-            item_slain_data = future_slain.result()
-            item_panalty_data = future_panalty.result()
-
-        # Обработка данных навыков
-        if skill_data and isinstance(skill_data, tuple) and len(skill_data) == 6:
-            itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transform_list, monster_pic_url = skill_data
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                abnormal_data = executor.submit(
-                    with_app_context, get_abnormal_in_skill, app, linked_skillsaid
-                ).result()
-                abnormal_type_data, abnormal_type_pic = abnormal_data
-        else:
-            itemdskill_data = itemskill_pic = abnormal_type_data = abnormal_type_pic = None
-            linked_skills = linked_skillsaid = transform_list = monster_pic_url = None
+        # Получаем модель предмета, если она есть
+        app = current_app._get_current_object()
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            itemresource_result = executor.submit(with_app_context, 
+                get_item_model_resource, app, item_id).result()
 
         # Обработка модели предмета
         item_model_no = None
@@ -346,20 +296,17 @@ def item_detail(item_id: int):
         elif item.IType not in [1, 18, 20, 2, 19]:  # Не оружие/щит/стрелы
             prefix = 'i'
 
-        # Проверка DT_Bead и активации навыков
-        rune_bead_data = activation_bead_data = activation_bead_pic = None
-        if item.IName.startswith('Руна'):
-            with ThreadPoolExecutor(max_workers=1) as executor:
-                rune_bead_data = executor.submit(
-                    with_app_context, get_rune_bead_data, app, item_id
-                ).result()
-                if rune_bead_data and rune_bead_data.mBeadType == 2:
-                    activation_data = executor.submit(
-                        with_app_context, get_sid_by_spid, app, rune_bead_data.mParamA
-                    ).result()
-                    activation_bead_data, activation_bead_pic = activation_data
+        # Предварительная проверка наличия данных
+        has_data = {
+            'has_bead': item.IName.startswith('Руна'),
+            'has_skill': bool(get_item_skill(item_id)),
+            'has_craft': bool(check_base_items_for_craft(item_id)),
+            'has_attributes': bool(get_item_attribute_add_data(item_id)),
+            'has_protect': item.IType in [1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 42],  # Типы экипировки
+            'has_abnormal': bool(get_itemabnormalResist_data(item_id))
+        }
 
-        # Рендеринг шаблона
+        # Рендеринг базового шаблона
         return render_template(
             'item_core/item_page_detail.html',
             item=item,
@@ -367,33 +314,180 @@ def item_detail(item_id: int):
             use_class=use_class,
             prefix=prefix,
             monstermodelno_result=item_model_no,
-            mondropinfo=mondropinfo,
-            merchant_sellers=merchant_sellers,
-            craft_result=craft_items,
-            craft_next=craft_next_item,
-            specificproc_data=specificproc_check,
-            itemdskill_data=itemdskill_data,
-            itemskill_pic=itemskill_pic,
-            linked_skills=linked_skills,
-            linked_skillsaid=linked_skillsaid,
-            abnormal_type_data=abnormal_type_data,
-            abnormal_type_pic=abnormal_type_pic,
-            transform_list=transform_list,
-            monster_pic_url=monster_pic_url,
-            item_abnormalResist_data=item_abnormalResist_data,
-            rune_bead_data=rune_bead_data,
-            activation_bead_data=activation_bead_data,
-            activation_bead_pic=activation_bead_pic,
-            item_bead_module_data=item_bead_module_data,
-            item_bead_holeprob_data=item_bead_holeprob_data,
-            item_attribute_add_data=item_attribute_add_data,
-            item_attribute_resist_data=item_attribute_resist_data,
-            item_protect_data=item_protect_data,
-            item_slain_data=item_slain_data,
-            item_panalty_data=item_panalty_data
+            has_data=has_data
         )
     except Exception as e:
         print(f"Error in item detail route: {str(e)}")
         import traceback
         traceback.print_exc()
         return "Internal server error", 500
+
+
+
+
+@bp.route('/render_template/item/<path:template_name>', methods=['POST'])
+def render_template_part(template_name):
+    """Рендер частичных шаблонов"""
+    try:
+        data = request.get_json()
+        return render_template(f'item_core/detail/{template_name}', **data)
+    except Exception as e:
+        return str(e), 500
+
+# API endpoints with error handling
+def api_response(func):
+    """Декоратор для унификации API ответов"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return jsonify(func(*args, **kwargs))
+        except Exception as e:
+            print(f"Error in {func.__name__}: {str(e)}")
+            traceback.print_exc()
+            return jsonify({'error': str(e)}), 500
+    return wrapper
+
+@bp.route('/api/item/<int:item_id>/bead-hole')
+@api_response
+def get_item_bead_hole_data(item_id):
+    data = get_item_bead_holeprob_data(item_id)
+    return {'item_bead_holeprob_data': data}
+
+@bp.route('/api/item/<int:item_id>/bead-rune')
+@api_response
+def get_item_bead_rune_data(item_id):
+    data = get_rune_bead_data(item_id)
+    return {'rune_bead_data': data}
+
+@bp.route('/api/item/<int:item_id>/bead-module')
+@api_response
+def get_item_bead_module_data_route(item_id):
+    data = get_item_bead_module_data(item_id)
+    return {'item_bead_module_data': data}
+
+@bp.route('/api/item/<int:item_id>/craft')
+@api_response
+def get_item_craft_data(item_id):
+    data = check_base_items_for_craft(item_id)
+    return {'craft_result': data} if data else {'craft_result': None}
+
+@bp.route('/api/item/<int:item_id>/craft-need')
+@api_response
+def get_item_craft_need_data(item_id):
+    data = check_next_craft_item(item_id)
+    return {'craft_next': data} if data else {'craft_next': None}
+
+@bp.route('/api/item/<int:item_id>/specific-proc')
+@api_response
+def get_item_specific_proc_data(item_id):
+    data = get_specific_proc_item(item_id)
+    return {'specificproc_data': data}
+
+@bp.route('/api/item/<int:item_id>/skill')
+@api_response
+def get_item_skill_data(item_id):
+    data = get_item_skill(item_id)
+    if data and isinstance(data, tuple) and len(data) == 6:
+        itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transform_list, monster_pic_url = data
+        return {
+            'itemdskill_data': itemdskill_data,
+            'itemskill_pic': itemskill_pic,
+            'linked_skills': linked_skills,
+            'linked_skillsaid': linked_skillsaid,
+            'transform_list': transform_list,
+            'monster_pic_url': monster_pic_url
+        }
+    return {}
+
+@bp.route('/api/item/<int:item_id>/abnormal')
+@api_response
+def get_item_abnormal_data(item_id):
+    skill_data = get_item_skill(item_id)
+    if skill_data and isinstance(skill_data, tuple) and len(skill_data) == 6:
+        _, _, _, linked_skillsaid, _, _ = skill_data
+        abnormal_type_data, abnormal_type_pic = get_abnormal_in_skill(linked_skillsaid)
+        return {
+            'abnormal_type_data': abnormal_type_data,
+            'abnormal_type_pic': abnormal_type_pic
+        }
+    return {}
+
+@bp.route('/api/item/<int:item_id>/abnormal-resist')
+@api_response
+def get_item_abnormal_resist_data(item_id):
+    data = get_itemabnormalResist_data(item_id)
+    return {'item_abnormalResist_data': data}
+
+@bp.route('/api/item/<int:item_id>/can-get')
+@api_response
+def get_item_sources_data(item_id):
+    drops = get_monster_drop_info(item_id)
+    sellers = get_merchant_sellers(item_id)
+    return {
+        'mondropinfo': drops,
+        'merchant_sellers': sellers
+    }
+
+@bp.route('/api/item/<int:item_id>/protect-penality')
+@api_response
+def get_item_protect_penality_data(item_id):
+    protect_data = get_item_protect_data(item_id)
+    penality_data = get_item_panalty_data(item_id)
+    return {
+        'item_protect_data': protect_data,
+        'item_panalty_data': penality_data
+    }
+
+@bp.route('/api/item/<int:item_id>/slain')
+@api_response
+def get_item_slain_data_route(item_id):
+    data = get_item_slain_data(item_id)
+    return {'item_slain_data': data}
+
+@bp.route('/api/item/<int:item_id>/attribute-add')
+@api_response
+def get_item_attribute_add_data_route(item_id):
+    data = get_item_attribute_add_data(item_id)
+    return {'item_attribute_add_data': data}
+
+@bp.route('/api/item/<int:item_id>/attribute-resist')
+@api_response
+def get_item_attribute_resist_data_route(item_id):
+    data = get_item_attribute_resist_data(item_id)
+    return {'item_attribute_resist_data': data}
+
+@bp.route('/api/item/<int:item_id>/transform')
+@api_response
+def get_item_transform_data(item_id):
+    skill_data = get_item_skill(item_id)
+    if skill_data and isinstance(skill_data, tuple) and len(skill_data) == 6:
+        _, _, _, _, transform_list, monster_pic_url = skill_data
+        return {
+            'transform_list': transform_list,
+            'monster_pic_url': monster_pic_url
+        }
+    return {}
+
+@bp.route('/api/item/<int:item_id>/skill-detail')
+@api_response
+def get_item_skill_detail(item_id):
+    skill_data = get_item_skill(item_id)
+    if skill_data and isinstance(skill_data, tuple) and len(skill_data) == 6:
+        itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transform_list, monster_pic_url = skill_data
+        if linked_skillsaid:
+            abnormal_data = get_abnormal_in_skill(linked_skillsaid)
+            abnormal_type_data, abnormal_type_pic = abnormal_data
+        else:
+            abnormal_type_data, abnormal_type_pic = None, None
+            
+        return {
+            'itemdskill_data': itemdskill_data,
+            'itemskill_pic': itemskill_pic,
+            'linked_skills': linked_skills,
+            'linked_skillsaid': linked_skillsaid,
+            'abnormal_type_data': abnormal_type_data,
+            'abnormal_type_pic': abnormal_type_pic,
+            'transform_list': transform_list,
+            'monster_pic_url': monster_pic_url
+        }
+    return {}

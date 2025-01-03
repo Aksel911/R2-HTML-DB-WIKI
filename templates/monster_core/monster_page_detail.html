@@ -110,7 +110,7 @@
                     {% endif %}
                     
                     {% if has_data.has_attributes %}
-                    <div id="attributes-container" class="loading" data-template="DT_MonsterAttributeAdd.html">
+                    <div id="attributes-add-container" class="loading" data-template="DT_MonsterAttributeAdd.html">
                         <div class="loading-wrapper">
                             <div class="loading-content">
                                 <div class="loading-spinner"></div>
@@ -118,9 +118,18 @@
                             </div>
                         </div>
                     </div>
+
+                    <div id="attributes-resist-container" class="loading" data-template="DT_MonsterAttributeResist.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка MonsterAttributeResist...</div>
+                            </div>
+                        </div>
+                    </div>
                     {% endif %}
                     
-                    <!-- Предметы добычи всегда показываем, так как они могут быть у любого монстра -->
+                    <!-- Предметы дропа всегда показываем, так как они могут быть у любого монстра -->
                     <div id="drops-container" class="loading" data-template="monster_page_detail_item_drop.html">
                         <div class="loading-wrapper">
                             <div class="loading-content">
