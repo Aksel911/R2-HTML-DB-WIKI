@@ -1,0 +1,95 @@
+{% if material_item_info_data %}
+<style>
+    .material-stat-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: linear-gradient(145deg, #f5f5f5, #e6e6e6);
+        border: 1px solid #ddd;
+        box-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        margin-right: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .dark-theme .material-stat-badge {
+        background: linear-gradient(145deg, #333, #2a2a2a);
+        border-color: #444;
+        color: #fff;
+    }
+
+    .material-icon {
+        margin-right: 8px;
+        width: 16px;
+        color: #666;
+    }
+
+    .dark-theme .material-icon {
+        color: #aaa;
+    }
+
+    /* Специфичные стили для разных типов */
+    .material-type-badge { color: #3b82f6; }
+    .material-grade-badge { color: #10b981; }
+    .material-level-badge { color: #8b5cf6; }
+    .material-enchant-badge { color: #f97316; }
+
+    .dark-theme .material-type-badge { color: #60a5fa; }
+    .dark-theme .material-grade-badge { color: #34d399; }
+    .dark-theme .material-level-badge { color: #a78bfa; }
+    .dark-theme .material-enchant-badge { color: #fb923c; }
+</style>
+
+<div class="skill-section fadeIn material-info-section">
+    <p class="section-star">★</p>
+    <h2 class="section-title">[MaterialItem] Инфо</h2>
+    <div class="skill-content">
+        <div class="stat-grid">
+            
+            <div class="stat-row material-type-row">
+                <span class="stat-label">
+                    <i class="fas fa-magic material-icon"></i>
+                    Тип сферы
+                </span>
+                <span class="stat-value">
+                    <span class="material-stat-badge material-type-badge">[{{ material_item_info_data.mtype }}]</span>
+                    {{ material_item_info_data.mtype_desc }}
+                </span>
+            </div>
+            
+            <div class="stat-row material-grade-row">
+                <span class="stat-label">
+                    <i class="fas fa-star material-icon"></i>
+                    Грейд
+                </span>
+                <span class="stat-value">
+                    <span class="material-stat-badge material-grade-badge">[{{ material_item_info_data.mgrade }}]</span>
+                    {{ material_item_info_data.mgrade_desc }}
+                </span>
+            </div>
+            
+            <div class="stat-row material-level-row">
+                <span class="stat-label">
+                    <i class="fas fa-layer-group material-icon"></i>
+                    Уровень
+                </span>
+                <span class="stat-value">
+                    <span class="material-stat-badge material-level-badge">[{{ material_item_info_data.mlevel }}]</span>
+                    {{ material_item_info_data.mlevel_desc }}
+                </span>
+            </div>
+            
+            <div class="stat-row material-enchant-row">
+                <span class="stat-label">
+                    <i class="fas fa-hammer material-icon"></i>
+                    Заточка
+                </span>
+                <span class="stat-value">
+                    <span class="material-stat-badge material-enchant-badge">[{{ material_item_info_data.menchant }}]</span>
+                    {{ material_item_info_data.menchant_desc }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

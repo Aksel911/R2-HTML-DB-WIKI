@@ -1,0 +1,317 @@
+{% if material_draw_data %}
+<style>
+    .box-header {
+        background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+        border-radius: 18px;
+        padding: 16px 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .dark-theme .box-header {
+        background: linear-gradient(145deg, rgba(50, 50, 50, 0.8), rgba(30, 30, 30, 0.8));
+        border-color: rgba(70, 70, 70, 0.8);
+    }
+
+    .box-id {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        backdrop-filter: blur(8px);
+    }
+
+    .dark-theme .box-id {
+        background: rgba(58, 59, 59, 0.8);
+    }
+
+    .main-id {
+        color: #2563eb;
+        font-weight: 500;
+    }
+
+    .sub-ids {
+        color: #64748b;
+        font-size: 0.95em;
+        letter-spacing: 0.02em;
+    }
+    
+    .dark-theme .sub-ids {
+        color:rgb(180, 180, 180);
+    }
+
+    .chance-badge {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(59, 130, 246, 0.15);
+        padding: 8px 16px;
+        border-radius: 24px;
+        color: #2563eb;
+        font-weight: 500;
+        font-size: 0.95em;
+        margin-left: auto;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .dark-theme .chance-badge {
+        background: rgba(59, 130, 246, 0.25);
+        color: #60a5fa;
+    }
+
+    .chance-badge:hover {
+        background: rgba(59, 130, 246, 0.25);
+        transform: translateY(-1px);
+    }
+
+    .dark-theme .chance-badge:hover {
+        background: rgba(59, 130, 246, 0.35);
+    }
+
+    .items-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+        padding: 8px;
+    }
+
+    .item-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dark-theme .item-card {
+        background: rgba(58, 59, 59, 0.5);
+        border-color: rgba(71, 71, 71, 0.8);
+    }
+
+    .item-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+    }
+
+    .item-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .dark-theme .item-header {
+        border-color: rgba(51, 65, 85, 0.8);
+    }
+
+    .item-image {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        object-fit: cover;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .item-title {
+        flex-grow: 1;
+    }
+
+    .item-name {
+        color: #1e40af;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1em;
+        display: block;
+        margin-bottom: 4px;
+        transition: color 0.2s ease;
+    }
+
+    .item-name:hover {
+        color: #2563eb;
+    }
+
+    .dark-theme .item-name {
+        color: #60a5fa;
+    }
+
+    .item-id {
+        color: #64748b;
+        font-size: 0.9em;
+    }
+
+    .item-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .item-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95em;
+        color: #475569;
+        padding: 8px;
+        background: rgba(241, 245, 249, 0.5);
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .item-stat:hover {
+        background: rgba(241, 245, 249, 0.8);
+    }
+
+    .dark-theme .item-stat {
+        background: rgba(20, 20, 20, 0.5);
+        color: #94a3b8;
+    }
+
+    .item-stat:hover {
+        background: rgba(241, 245, 249, 0.8);
+    }
+
+    .dark-theme .item-stat:hover {
+        background: rgba(40, 40, 40, 0.8);
+    }
+
+    .stat-icon {
+        color: #64748b;
+        width: 16px;
+        height: 16px;
+    }
+
+    .status-обычный {
+        color:rgb(60, 60, 60);
+        font-weight: 500;
+    }
+
+    .status-проклятый {
+        color: #dc2626;
+        font-weight: 500;
+    }
+
+    .status-благой {
+        color: #f59e0b;
+        font-weight: 500;
+    }
+
+    .status-случайный {
+        font-weight: 500;
+        animation: randomStatus 3s infinite;
+    }
+
+    .dark-theme .status-обычный {
+        color: #d1d5db;
+    }
+
+    .dark-theme .status-проклятый {
+        color: #ef4444;
+    }
+
+    .dark-theme .status-благой {
+        color: #fbbf24;
+    }
+
+    .dark-theme .status-случайный {
+        animation: randomStatus 3s infinite;
+    }
+
+    @media (max-width: 768px) {
+        .items-list {
+            grid-template-columns: 1fr;
+        }
+        
+        .box-id {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .chance-badge {
+            margin-left: 0;
+            margin-top: 8px;
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="skill-section fadeIn">
+	<p class="section-star">★</p>
+	<div class="skill-content">
+	
+    <h2 class="section-title">Содержимое сундука</h2>
+    {% for group in material_draw_data|groupby('group_name') %}
+    <div class="box-header">
+        <div class="box-id">
+            <span class="sub-ids">MDID: {{ group.list[0].mdid }} | MDRD: {{ group.list[0].mdrd }}</span>
+            <span class="chance-badge">
+                <i class="fas fa-dice-d20"></i>
+                Шанс: {{ "%.2f"|format(group.list[0].draw_chance|float) }}% (Предметов: {{ group.list|length }})
+            </span>
+        </div>
+    </div>
+
+    <div class="items-list">
+        {% for item in group.list %}
+        <div class="item-card">
+            <div class="item-header">
+                {% if item.item_pic %}
+                <img src="{{ item.item_pic }}" alt="{{ item.item_name }}" class="item-image">
+                {% endif %}
+                <div class="item-title">
+                    <a href="/item/{{ item.item_iid }}" class="item-name">{{ item.item_name }}</a>
+                    
+                </div>
+				<span class="item-id">[ID: {{ item.item_iid }}]</span>
+            </div>
+
+            <div class="item-stats">
+                <div class="item-stat">
+                    <i class="fas fa-percentage"></i>
+                    Шанс: {{ "%.2f"|format(item.drop_rate|float) }}%
+                </div>
+
+                <div class="item-stat">
+                    <i class="fas fa-cube"></i>
+                    Количество: {{ item.quantity }}
+                </div>
+
+                <div class="item-stat">
+                    <i class="fas fa-star"></i>
+                    <span class="status-{{ item.item_status|lower }}">{{ item.item_status }}</span>
+                </div>
+
+                <div class="item-stat">
+                    <i class="fas fa-lock"></i>
+                    {{ item.binding }}
+                </div>
+
+                {% if item.effect_time > 0 %}
+                <div class="item-stat">
+                    <i class="fas fa-clock"></i>
+                    {{ item.effect_time }} сек.
+                </div>
+                {% endif %}
+
+                {% if item.item_time > 0 %}
+                <div class="item-stat">
+                    <i class="fas fa-hourglass-half"></i>
+                    {{ item.item_time }} сек.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

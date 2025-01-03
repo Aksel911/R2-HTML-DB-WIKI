@@ -8,8 +8,8 @@ DT_Bead, DT_ItemBeadModule, TblBeadHoleProb, DT_ItemAttributeAdd,
 DT_ItemAttributeResist, DT_ItemProtect, DT_ItemSlain, DT_ItemPanalty)
 
 from services.database import execute_query
-from services.utils import clean_description, get_google_sheets_data, get_skill_icon_path, get_item_resource
-
+from services.utils import clean_description, get_google_sheets_data, get_skill_icon_path, get_item_resource, get_item_pic_url
+from services.skill_service import get_sid_by_spid
 from config.settings import ATTRIBUTE_TYPE_WEAPON_URL, ATTRIBUTE_TYPE_ARMOR_URL
 
 # Фильтры
@@ -554,6 +554,9 @@ def get_itemabnormalResist_data(item_id: int) -> Optional[List[DT_ItemAbnormalRe
 # DT_Bead Check
 def get_rune_bead_data(item_id: int) -> Optional[DT_Bead]:
     """Get detailed bead/rune data by item ID with caching"""
+    
+    #print(f"Getting bead data for item ID: {item_id}")
+    
     query = """
     SELECT
         a.mBeadNo,
@@ -640,35 +643,81 @@ def get_rune_bead_data(item_id: int) -> Optional[DT_Bead]:
     """
     
     row = execute_query(query, (item_id,), fetch_one=True)
+    current_spid_data, current_spid_image = None, None
     
     if row:
-        return DT_Bead(
-            row.mBeadNo,
-            row.mBead_Name,
-            row.mBeadType,
-            row.mBeadTypeDesc,
-            row.mChkGroup,
-            row.mPercent,
-            row.mApplyTarget,
-            row.mParamA,
-            row.mParamADesc,  
-            row.mParamB,
-            row.mParamBDesc,  
-            row.mParamC,
-            row.mParamCDesc,  
-            row.mParamD,
-            row.mParamDDesc, 
-            row.mParamE,
-            row.mParamEDesc, 
-            row.mTargetIPos,
-            row.mProb,
-            row.mGroup,
-            row.mItemSubType,
-            row.mMaxHoleCount,
-            row.mHoleCount,
-            row.mHoleProb,
-            row.MID
+        # mBeadType = 1 Активация навыка (проверка класса)
+        if row.mBeadType == 1:
+            BeadTypeOneSPID = row.mParamA, row.mParamB, row.mParamC, row.mParamD, row.mParamE
+            #print(f"BeadTypeOneSPID: {BeadTypeOneSPID}")
+            for spid in BeadTypeOneSPID:
+                if spid and spid != 0:
+                    spid_result = get_sid_by_spid(spid)
+                    if spid_result and isinstance(spid_result, tuple) and len(spid_result) == 2:
+                        spid_row, img = spid_result
+                        if spid_row:
+                            current_spid_data = [
+                                spid_row[0],  # mSPID
+                                spid_row[1],  # mName
+                                spid_row[2],  # mSpriteFile
+                                spid_row[3],  # mSpriteX
+                                spid_row[4],  # mSpriteY
+                                spid_row[5],  # SID
+                                spid_row[6]   # SName
+                            ]
+                            current_spid_image = img
+                            #print(f"Current SPID Data: {current_spid_data}")
+                            break
+
+        # mBeadType = 2 Активация навыка
+        elif row.mBeadType == 2 and row.mParamA:
+            spid_result = get_sid_by_spid(row.mParamA)
+            if spid_result and isinstance(spid_result, tuple) and len(spid_result) == 2:
+                spid_row, img = spid_result
+                if spid_row:
+                    current_spid_data = [
+                        spid_row[0],  # mSPID
+                        spid_row[1],  # mName
+                        spid_row[2],  # mSpriteFile
+                        spid_row[3],  # mSpriteX
+                        spid_row[4],  # mSpriteY
+                        spid_row[5],  # SID
+                        spid_row[6]   # SName
+                    ]
+                    #print(f"Current current_spid_image Data: {current_spid_image}")
+                    current_spid_image = img
+
+        bead = DT_Bead(
+            mBeadNo=row.mBeadNo,
+            mBeadName=row.mBead_Name,
+            mBeadType=row.mBeadType,
+            mBeadTypeDesc=row.mBeadTypeDesc,
+            mChkGroup=row.mChkGroup,
+            mPercent=float(row.mPercent) if row.mPercent else 0.0,
+            mApplyTarget=row.mApplyTarget,
+            mParamA=float(row.mParamA) if row.mParamA else 0.0,
+            mParamADesc=row.mParamADesc,
+            mParamB=float(row.mParamB) if row.mParamB else 0.0,
+            mParamBDesc=row.mParamBDesc,
+            mParamC=float(row.mParamC) if row.mParamC else 0.0,
+            mParamCDesc=row.mParamCDesc,
+            mParamD=float(row.mParamD) if row.mParamD else 0.0,
+            mParamDDesc=row.mParamDDesc,
+            mParamE=float(row.mParamE) if row.mParamE else 0.0,
+            mParamEDesc=row.mParamEDesc,
+            mTargetIPos=row.mTargetIPos,
+            mProb=float(row.mProb) if row.mProb else 0.0,
+            mGroup=row.mGroup,
+            mItemSubType=row.mItemSubType,
+            mMaxHoleCount=row.mMaxHoleCount if row.mMaxHoleCount else 0,
+            mHoleCount=row.mHoleCount if row.mHoleCount else 0,
+            mHoleProb=float(row.mHoleProb) if row.mHoleProb else 0.0,
+            MID=row.MID if row.MID else 0,
+            spid_data=current_spid_data,
+            spid_image=current_spid_image
         )
+        return bead
+        
     return None
 
 # DT_ItemBeadModule Check
@@ -896,8 +945,7 @@ def get_item_slain_data(item_id: int) -> Optional[List[DT_ItemSlain]]:
         return None
     
 # DT_ItemPanalty Check
-def get_item_panalty_data(item_id: int) -> Optional[List[DT_ItemPanalty]]:
-    
+def get_item_panalty_data(item_id: int) -> Optional[List[DT_ItemPanalty]]: 
     query = """
     SELECT
         a.IUseClass,
@@ -990,6 +1038,101 @@ def get_item_panalty_data(item_id: int) -> Optional[List[DT_ItemPanalty]]:
 
 
 
+
+# TblMaterialItemInfo Sphere Check
+def get_material_item_info_data(item_id: int):
+    query = """
+    SELECT
+        b.IName,
+        a.MType,
+        a.MGrade,
+        a.MLevel,
+        a.MEnchant 
+    FROM
+        [dbo].[TblMaterialItemInfo] AS a
+        LEFT JOIN [dbo].[DT_Item] AS b ON ( b.[IID] = a.[IID] ) 
+    WHERE
+        b.IID = ?
+    """
+    
+    row = execute_query(query, (item_id,), fetch_one=True)
+    
+    if row:
+        
+        MType_Desc = {1:'Сфера Мастерства', 2:'Сфера Души', 3:'Сфера Защиты', 4:'Сфера Разрушения', 5:'Сфера Жизни', 6:'Сфера (1 Слот А)', 7:'Сфера (2 Слот В)', 8:'Сфера (3 Слот С)'}.get(row.MType, 'Неизвестно')
+        
+        MGrade_Desc = {1:'Обычный', 2:'Редкий', 3:'Эпический', 4:'Легендарный'}.get(row.MGrade, 'Неизвестно')
+        
+        MLevel_Desc = {1:'1 Уровень', 2:'2 Уровень', 3:'3 Уровень', 4:'4 Уровень', 5:'5 Уровень'}.get(row.MLevel, 'Неизвестно')
+        
+        MEnchant_Desc = {1:'+0', 2:'+1', 3:'+2', 4:'+3', 5:'+4', 6:'+5'}.get(row.MEnchant, 'Неизвестно')
+        
+        
+        return {
+        'name': row.IName,
+        'mtype': row.MType,
+        'mtype_desc': MType_Desc,
+        'mgrade': row.MGrade,
+        'mgrade_desc': MGrade_Desc,
+        'mlevel': row.MLevel,
+        'mlevel_desc': MLevel_Desc,
+        'menchant': row.MEnchant,
+        'menchant_desc': MEnchant_Desc
+    }
+    else:
+        return None
+
+
+# TblMaterialDrawResult
+# Получаем дроп из коробки по айди коробки
+def get_material_draw_info(box_id: int):
+    query = """
+    SELECT
+        a2.MDID, a.MDRD, a3.IID as box_iid, b2.IName as box_name,
+        a.IID as item_iid, b.IName as item_name,
+        a2.mDesc as group_name, a.mPerOrRate as drop_rate,
+        a.mItemStatus as item_status, a.mCnt as quantity,
+        a.mBinding as binding_status, a.mEffTime as effect_time,
+        a.mValTime as item_time, a2.mMaxResCnt as max_res_cnt,
+        a2.mSuccess as draw_chance
+    FROM TblMaterialDrawResult AS a
+    LEFT OUTER JOIN TblMaterialDrawIndex AS a2 ON a2.MDRD = a.MDRD
+    LEFT OUTER JOIN TblMaterialDrawMaterial AS a3 ON a3.MDID = a2.MDID
+    LEFT OUTER JOIN DT_Item AS b ON b.IID = a.IID
+    LEFT OUTER JOIN DT_Item AS b2 ON b2.IID = a3.IID
+    WHERE a3.IID = ?
+    """
+    
+    rows = execute_query(query, (box_id,))
+    
+    if rows:
+        data = []
+        for row in rows:
+            item_status_desc = {0: 'Проклятый', 1: 'Обычный', 2: 'Благой', 3: 'Рандом'}.get(row.item_status, 'Неизвестно')
+            binding_desc = 'Да' if row.binding_status == 0 else 'Нет'
+            
+            item_pic = get_item_pic_url(row.item_iid)
+            
+            data.append({
+                'mdid': row.MDID,
+                'mdrd': row.MDRD,
+                'box_iid': row.box_iid,
+                'box_name': row.box_name,
+                'item_iid': row.item_iid,
+                'item_name': row.item_name,
+                'item_pic': item_pic,
+                'group_name': row.group_name,
+                'drop_rate': row.drop_rate,
+                'item_status': item_status_desc,
+                'quantity': row.quantity,
+                'binding': binding_desc,
+                'effect_time': row.effect_time,
+                'item_time': row.item_time,
+                'max_res_cnt': row.max_res_cnt,
+                'draw_chance': row.draw_chance
+            })
+        return data
+    return None
 
 
 

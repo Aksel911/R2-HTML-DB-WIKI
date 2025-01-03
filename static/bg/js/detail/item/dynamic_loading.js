@@ -107,6 +107,18 @@ document.addEventListener('DOMContentLoaded', function() {
             containers: [
                 { id: 'attribute-resist-container', template: 'DT_ItemAttributeResist.html' }
             ]
+        },
+        {
+            endpoint: 'material-item-info',
+            containers: [
+                { id: 'material-item-info-container', template: 'TblMaterialItemInfo.html' }
+            ]
+        },
+        {
+            endpoint: 'material-draw',
+            containers: [
+                { id: 'material-draw-container', template: 'TblMaterialDrawResult.html' }
+            ]
         }
     ];
 

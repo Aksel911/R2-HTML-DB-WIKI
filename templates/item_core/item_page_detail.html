@@ -57,35 +57,6 @@
                     {% include 'item_core/detail/item_page_detail_information.html' %}
 
                     <!-- Dynamic content -->
-                    <!-- TblBeadHoleProb --> <!-- Свиток создания ячеек -->
-                    <div id="bead-hole-container" class="loading" data-template="TblBeadHoleProb.html">
-                        <div class="loading-wrapper">
-                            <div class="loading-content">
-                                <div class="loading-spinner"></div>
-                                <div class="loading-text">Загрузка данных слотов...</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- DT_Bead Руны --> <!-- Руны -->
-                    <div id="bead-container" class="loading" data-template="DT_Bead.html">
-                        <div class="loading-wrapper">
-                            <div class="loading-content">
-                                <div class="loading-spinner"></div>
-                                <div class="loading-text">Загрузка данных руны...</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- DT_ItemBeadModule -->
-                    <div id="bead-module-container" class="loading" data-template="DT_ItemBeadModule.html">
-                        <div class="loading-wrapper">
-                            <div class="loading-content">
-                                <div class="loading-spinner"></div>
-                                <div class="loading-text">Загрузка модулей...</div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Крафт предмета -->
                     {% if has_data.has_craft %}
@@ -170,6 +141,59 @@
                     </div>
 
                     <!-- Dynamic content -->
+                    
+                    <!-- TblMaterialDrawResult - Boxes -->
+                    <div id="material-draw-container" class="loading" data-template="TblMaterialDrawResult.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка TblMaterialDrawResult...</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- TblMaterialItemInfo - Sphere -->
+                    <div id="material-item-info-container" class="loading" data-template="TblMaterialItemInfo.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка TblMaterialItemInfo...</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <!-- TblBeadHoleProb --> <!-- Свиток создания ячеек -->
+                    <div id="bead-hole-container" class="loading" data-template="TblBeadHoleProb.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка данных слотов...</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- DT_Bead Руны --> <!-- Руны -->
+                    <div id="bead-container" class="loading" data-template="DT_Bead.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка данных руны...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DT_ItemBeadModule -->
+                    <div id="bead-module-container" class="loading" data-template="DT_ItemBeadModule.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка модулей...</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Можно получить из -->
                     <div id="can-get-container" class="loading" data-template="item_page_detail_can_buy_item_from.html">
                         <div class="loading-wrapper">

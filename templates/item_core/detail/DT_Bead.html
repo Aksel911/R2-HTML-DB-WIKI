@@ -1,136 +1,473 @@
-<!-- DT_Bead Руны -->
+<!-- DT_Bead -->
 {% if rune_bead_data %}
-<div class="skill-section fadeIn">
-	<p class="section-star">★</p>
-	<h2 class="section-title">Информация о руне</h2>
-	<div class="skill-content">
-		<div class="stat-grid">
-			<!-- Базовая информация о руне -->
-			<div class="stat-row">
-				<span class="stat-label">Номер эффекта</span>
-				<span class="stat-value">{{ rune_bead_data.mBeadNo }}</span>
-			</div>
-			{% if rune_bead_data.mBead_Name %}
-			<div class="stat-row">
-				<span class="stat-label">Название эффекта</span>
-				<span class="stat-value">{{ rune_bead_data.mBead_Name }}</span>
-			</div>
-			{% endif %}
-			<div class="stat-row">
-				<span class="stat-label">Тип эффекта</span>
-				<span class="stat-value">{{ rune_bead_data.mBeadTypeDesc }}</span>
-			</div>
-			
-			<!-- Информация о применении -->
-			<div class="stat-row">
-				<span class="stat-label">Группа проверки</span>
-				<span class="stat-value">{{ rune_bead_data.mChkGroup }}</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Процент эффекта</span>
-				<span class="stat-value">{{ rune_bead_data.mPercent }}%</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Цель применения</span>
-				<span class="stat-value">{{ rune_bead_data.mApplyTarget }}</span>
-			</div>
-			
-			<!-- Параметры эффекта -->
-			{% if rune_bead_data.mParamA != 0 %}
-			<div class="stat-row">
-				<span class="stat-label">Параметр A</span>
-				<span class="stat-value">{{ rune_bead_data.mParamA }} {% if rune_bead_data.mParamADesc %}({{ rune_bead_data.mParamADesc }}){% endif %}</span>
-			</div>
-			{% endif %}
-			{% if rune_bead_data.mParamB != 0 %}
-			<div class="stat-row">
-				<span class="stat-label">Параметр B</span>
-				<span class="stat-value">{{ rune_bead_data.mParamB }} {% if rune_bead_data.mParamBDesc %}({{ rune_bead_data.mParamBDesc }}){% endif %}</span>
-			</div>
-			{% endif %}
-			{% if rune_bead_data.mParamC != 0 %}
-			<div class="stat-row">
-				<span class="stat-label">Параметр C</span>
-				<span class="stat-value">{{ rune_bead_data.mParamC }} {% if rune_bead_data.mParamCDesc %}({{ rune_bead_data.mParamCDesc }}){% endif %}</span>
-			</div>
-			{% endif %}
-			{% if rune_bead_data.mParamD != 0 %}
-			<div class="stat-row">
-				<span class="stat-label">Параметр D</span>
-				<span class="stat-value">{{ rune_bead_data.mParamD }} {% if rune_bead_data.mParamDDesc %}({{ rune_bead_data.mParamDDesc }}){% endif %}</span>
-			</div>
-			{% endif %}
-			{% if rune_bead_data.mParamE != 0 %}
-			<div class="stat-row">
-				<span class="stat-label">Параметр E</span>
-				<span class="stat-value">{{ rune_bead_data.mParamE }} {% if rune_bead_data.mParamEDesc %}({{ rune_bead_data.mParamEDesc }}){% endif %}</span>
-			</div>
-			{% endif %}
-			
-			<!-- Информация о слотах -->
-			<div class="stat-row">
-				<span class="stat-label">Слот экипировки</span>
-				<span class="stat-value">{{ rune_bead_data.mTargetIPos }}</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Вероятность</span>
-				<span class="stat-value">{{ rune_bead_data.mProb }}%</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Группа руны</span>
-				<span class="stat-value">{{ rune_bead_data.mGroup }}</span>
-			</div>
-			
-			<!-- Информация об отверстиях -->
-			{% if rune_bead_data.mMaxHoleCount %}
-			<div class="stat-row">
-				<span class="stat-label">Макс. кол-во отверстий</span>
-				<span class="stat-value">{{ rune_bead_data.mMaxHoleCount }}</span>
-			</div>
-			{% endif %}
-			{% if rune_bead_data.mHoleCount %}
-			<div class="stat-row">
-				<span class="stat-label">Текущее кол-во отверстий</span>
-				<span class="stat-value">{{ rune_bead_data.mHoleCount }}</span>
-			</div>
-			{% endif %}
-			{% if rune_bead_data.mHoleProb %}
-			<div class="stat-row">
-				<span class="stat-label">Вероятность отверстия</span>
-				<span class="stat-value">{{ rune_bead_data.mHoleProb }}%</span>
-			</div>
-			{% endif %}
-		</div>
+<style>
+    .rune-info {
+        border-radius: 16px;
+        overflow: hidden;
+    }
 
-		<!-- Активируемый навык -->
-		{% if rune_bead_data.mBeadType == 2 and activation_bead_data %}
-		<div class="activation-skill-section">
-			<h3 class="section-subtitle">Активируемый навык</h3>
-			<div class="abnormal-resist-row">
-				<div class="abnormal-resist-info">
-					{% if activation_bead_pic %}
-					<img class="skill-sprite-icon"
-						src="{{ activation_bead_pic }}"
-						alt="{{ activation_bead_data.SName or 'Skill icon' }}"
-						onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
-					{% endif %}
-					<div class="abnormal-resist-content">
-						<div class="abnormal-resist-name">
-							<a href="{{ url_for('skills.skill_detail', skill_id=activation_bead_data.SID) }}" class="skill-name">
-								{{ activation_bead_data.SName or 'Неизвестно' }}
-							</a>
-						</div>
-						{% if activation_bead_data.AID %}
-						<div class="abnormal-resist-type">AID: {{ activation_bead_data.AID }}</div>
-						{% endif %}
-						{% if activation_bead_data.IName %}
-						<div class="abnormal-resist-desc">Предмет: {{ activation_bead_data.IName }}</div>
-						{% endif %}
+    .rune-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 20px;
+    }
+
+    .rune-stat-group {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .rune-header {
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+        border-bottom: 2px solid rgba(226, 232, 240, 0.8);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .rune-header-icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+    }
+
+    .rune-header-title {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 1.1em;
+    }
+
+    .rune-stat-row {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 16px;
+        align-items: center;
+        padding: 8px 0;
+    }
+
+    .rune-stat-label {
+        color: #64748b;
+        font-size: 0.9em;
+        font-weight: 500;
+    }
+
+    .rune-stat-value {
+        color: #1e293b;
+        font-weight: 500;
+        text-align: right;
+    }
+
+    /* Стили для разных типов групп */
+    .rune-primary {
+        border-top: 4px solid #3b82f6;
+    }
+
+    .rune-primary .rune-header-icon {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .rune-effect {
+        border-top: 4px solid #8b5cf6;
+    }
+
+    .rune-effect .rune-header-icon {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+    }
+
+    .rune-equipment {
+        border-top: 4px solid #22c55e;
+    }
+
+    .rune-equipment .rune-header-icon {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+
+    /* Блок параметров */
+    .param-block {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        border-radius: 6px;
+        padding: 4px 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .param-value {
+        color: #2563eb;
+        font-weight: 600;
+    }
+
+    .param-desc {
+        color: #64748b;
+        font-size: 0.9em;
+    }
+
+    /* Бейджи для процентов и вероятностей */
+    .percent-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+
+    .chance-badge {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    /* Темная тема */
+    .dark-theme .rune-stat-group {
+        background: rgba(50, 50, 50, 0.8);
+        border-color: rgba(68, 69, 70, 0.01);
+    }
+
+    .dark-theme .rune-header {
+        border-bottom-color: rgba(51, 65, 85, 0.8);
+    }
+
+    .dark-theme .rune-header-title {
+        color: #f1f5f9;
+    }
+
+    .dark-theme .rune-stat-label {
+        color: #94a3b8;
+    }
+
+    .dark-theme .rune-stat-value {
+        color: #f1f5f9;
+    }
+
+    .dark-theme .param-block {
+        background: rgba(51, 65, 85, 0.3);
+        border-color: rgba(51, 65, 85, 0.8);
+    }
+
+    .dark-theme .param-value {
+        color: #60a5fa;
+    }
+
+    .dark-theme .param-desc {
+        color: #94a3b8;
+    }
+
+    .dark-theme .percent-badge {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+    }
+
+    .dark-theme .chance-badge {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .rune-grid {
+            padding: 12px;
+            gap: 12px;
+        }
+
+        .rune-stat-group {
+            padding: 16px;
+        }
+
+        .rune-stat-row {
+            gap: 8px;
+        }
+
+        .rune-stat-label {
+            font-size: 0.85em;
+        }
+
+        .param-block {
+            padding: 4px 8px;
+            font-size: 0.9em;
+        }
+    }
+
+
+    .skill-info-block {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 4px;
+    }
+
+    .skill-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        object-fit: cover;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .skill-name-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .skill-name-link:hover {
+        color: #1d4ed8;
+    }
+
+    .dark-theme .skill-name-link {
+        color: #60a5fa;
+    }
+
+    .dark-theme .skill-name-link:hover {
+        color: #93c5fd;
+    }
+
+    .dark-theme .skill-icon {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .skill-param-block {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+</style>
+
+<div class="skill-section fadeIn">
+    <p class="section-star">★</p>
+    <h2 class="section-title">Информация о руне</h2>
+    <div class="skill-content">
+        <div class="rune-info">
+            <div class="rune-grid">
+                <!-- Основная информация -->
+                <div class="rune-stat-group rune-primary">
+                    <div class="rune-header">
+                        <div class="rune-header-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <span class="rune-header-title">Основная информация</span>
+                    </div>
+                    <div class="rune-stat-row">
+                        <span class="rune-stat-label">Номер mBeadNo</span>
+                        <span class="rune-stat-value">{{ rune_bead_data.mBeadNo }}</span>
+                    </div>
+                    <div class="rune-stat-row">
+                        <span class="rune-stat-label">Тип эффекта</span>
+                        <span class="rune-stat-value">[{{ rune_bead_data.mBeadType }}] {{ rune_bead_data.mBeadTypeDesc }}</span>
+                    </div>
+                </div>
+
+                <!-- Информация об эффекте -->
+                <div class="rune-stat-group rune-effect">
+                    <div class="rune-header">
+                        <div class="rune-header-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <span class="rune-header-title">Эффект</span>
+                    </div>
+                    <div class="rune-stat-row">
+                        <span class="rune-stat-label">Группа проверки</span>
+                        <span class="rune-stat-value">{{ rune_bead_data.mChkGroup }}</span>
+                    </div>
+                    <div class="rune-stat-row">
+                        <span class="rune-stat-label">Процент эффекта</span>
+                        <span class="rune-stat-value">
+                            <span class="percent-badge">
+                                <i class="fas fa-percentage"></i>
+                                {{ rune_bead_data.mPercent }}%
+                            </span>
+                        </span>
+                    </div>
+                    <div class="rune-stat-row">
+                        <span class="rune-stat-label">Цель применения</span>
+                        <span class="rune-stat-value">{{ rune_bead_data.mApplyTarget }}</span>
+                    </div>
+                    {% if rune_bead_data.mParamA != 0 %}
+					<div class="rune-stat-row">
+						<span class="rune-stat-label">Параметр A</span>
+						<span class="rune-stat-value">
+							<div class="skill-param-block">
+								<span class="param-block">
+									<span class="param-value">{{ rune_bead_data.mParamA }}</span>
+									{% if rune_bead_data.mParamADesc %}
+									<span class="param-desc">({{ rune_bead_data.mParamADesc }})</span>
+									{% endif %}
+								</span>
+								{% if rune_bead_data.spid_data and rune_bead_data.spid_data[6] %}
+								<div class="skill-info-block">
+									<img 
+										src="{{ rune_bead_data.spid_image }}" 
+										alt="{{ rune_bead_data.spid_data[6] }}"
+										class="skill-icon"
+										onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
+									<a href="/skill/{{ rune_bead_data.spid_data[5] }}" class="skill-name-link">
+										{{ rune_bead_data.spid_data[6] }}
+									</a>
+								</div>
+								{% endif %}
+							</div>
+						</span>
 					</div>
+					{% endif %}
+
+					{% if rune_bead_data.mParamB != 0 %}
+					<div class="rune-stat-row">
+						<span class="rune-stat-label">Параметр B</span>
+						<span class="rune-stat-value">
+							<div class="skill-param-block">
+								<span class="param-block">
+									<span class="param-value">{{ rune_bead_data.mParamB }}</span>
+									{% if rune_bead_data.mParamBDesc %}
+									<span class="param-desc">({{ rune_bead_data.mParamBDesc }})</span>
+									{% endif %}
+								</span>
+								{% if rune_bead_data.spid_data and rune_bead_data.spid_data[6] %}
+								<div class="skill-info-block">
+									<img 
+										src="{{ rune_bead_data.spid_image }}" 
+										alt="{{ rune_bead_data.spid_data[6] }}"
+										class="skill-icon"
+										onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
+									<a href="/skill/{{ rune_bead_data.spid_data[5] }}" class="skill-name-link">
+										{{ rune_bead_data.spid_data[6] }}
+									</a>
+								</div>
+								{% endif %}
+							</div>
+						</span>
+					</div>
+					{% endif %}
+
+					{% if rune_bead_data.mParamC != 0 %}
+					<div class="rune-stat-row">
+						<span class="rune-stat-label">Параметр C</span>
+						<span class="rune-stat-value">
+							<div class="skill-param-block">
+								<span class="param-block">
+									<span class="param-value">{{ rune_bead_data.mParamC }}</span>
+									{% if rune_bead_data.mParamCDesc %}
+									<span class="param-desc">({{ rune_bead_data.mParamCDesc }})</span>
+									{% endif %}
+								</span>
+								{% if rune_bead_data.spid_data and rune_bead_data.spid_data[6] %}
+								<div class="skill-info-block">
+									<img 
+										src="{{ rune_bead_data.spid_image }}" 
+										alt="{{ rune_bead_data.spid_data[6] }}"
+										class="skill-icon"
+										onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
+									<a href="/skill/{{ rune_bead_data.spid_data[5] }}" class="skill-name-link">
+										{{ rune_bead_data.spid_data[6] }}
+									</a>
+								</div>
+								{% endif %}
+							</div>
+						</span>
+					</div>
+					{% endif %}
+
+					{% if rune_bead_data.mParamD != 0 %}
+					<div class="rune-stat-row">
+						<span class="rune-stat-label">Параметр D</span>
+						<span class="rune-stat-value">
+							<div class="skill-param-block">
+								<span class="param-block">
+									<span class="param-value">{{ rune_bead_data.mParamD }}</span>
+									{% if rune_bead_data.mParamDDesc %}
+									<span class="param-desc">({{ rune_bead_data.mParamDDesc }})</span>
+									{% endif %}
+								</span>
+								{% if rune_bead_data.spid_data and rune_bead_data.spid_data[6] %}
+								<div class="skill-info-block">
+									<img 
+										src="{{ rune_bead_data.spid_image }}" 
+										alt="{{ rune_bead_data.spid_data[6] }}"
+										class="skill-icon"
+										onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
+									<a href="/skill/{{ rune_bead_data.spid_data[5] }}" class="skill-name-link">
+										{{ rune_bead_data.spid_data[6] }}
+									</a>
+								</div>
+								{% endif %}
+							</div>
+						</span>
+					</div>
+					{% endif %}
+
+					{% if rune_bead_data.mParamE != 0 %}
+					<div class="rune-stat-row">
+						<span class="rune-stat-label">Параметр E</span>
+						<span class="rune-stat-value">
+							<div class="skill-param-block">
+								<span class="param-block">
+									<span class="param-value">{{ rune_bead_data.mParamE }}</span>
+									{% if rune_bead_data.mParamEDesc %}
+									<span class="param-desc">({{ rune_bead_data.mParamEDesc }})</span>
+									{% endif %}
+								</span>
+								{% if rune_bead_data.spid_data and rune_bead_data.spid_data[6] %}
+								<div class="skill-info-block">
+									<img 
+										src="{{ rune_bead_data.spid_image }}" 
+										alt="{{ rune_bead_data.spid_data[6] }}"
+										class="skill-icon"
+										onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
+									<a href="/skill/{{ rune_bead_data.spid_data[5] }}" class="skill-name-link">
+										{{ rune_bead_data.spid_data[6] }}
+									</a>
+								</div>
+								{% endif %}
+							</div>
+						</span>
+					</div>
+					{% endif %}
 				</div>
-			</div>
-		</div>
-		{% endif %}
-	</div>
+
+                <!-- Информация об экипировке -->
+                <div class="rune-stat-group rune-equipment">
+                    <div class="rune-header">
+                        <div class="rune-header-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <span class="rune-header-title">Применение</span>
+                    </div>
+                    <div class="rune-stat-row">
+                        <span class="rune-stat-label">Слот экипировки</span>
+                        <span class="rune-stat-value">{{ rune_bead_data.mTargetIPos }}</span>
+                    </div>
+                    <div class="rune-stat-row">
+                        <span class="rune-stat-label">Вероятность</span>
+                        <span class="rune-stat-value">
+                            <span class="percent-badge chance-badge">
+                                <i class="fas fa-dice"></i>
+                                {{ rune_bead_data.mProb }}%
+                            </span>
+                        </span>
+                    </div>
+                    <div class="rune-stat-row">
+                        <span class="rune-stat-label">Группа руны</span>
+                        <span class="rune-stat-value">{{ rune_bead_data.mGroup }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}

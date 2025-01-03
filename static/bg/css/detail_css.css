@@ -279,6 +279,19 @@ img:hover {
     justify-content: center; /* Горизонтальное центрирование */
     align-items: center; /* Вертикальное центрирование */
 }
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
+    border-radius: 2px;
+}
+
+
 
 .abnormal-content,
 .module-content,
@@ -521,6 +534,10 @@ img:hover {
     display: flex; /* Для возможности центрирования содержимого */
     justify-content: center; /* Горизонтальное центрирование */
     align-items: center; /* Вертикальное центрирование */
+}
+
+.dark-theme .section-title::after {
+    background: linear-gradient(90deg,rgb(90, 90, 90),rgb(136, 137, 138));
 }
 
 body.dark-theme {
@@ -943,24 +960,24 @@ body.dark-theme {
 
 /* Цвета для IType предметов */
 .normal {
-    color: white;
+    color: white !important;;
 }
 .dark-theme .normal {
-    color: white;
+    color: white !important;;
 }
 
 .blessed {
-    color: yellow;
+    color: orange !important;;
 }
 .dark-theme .blessed {
-    color: yellow;
+    color: yellow !important;
 }
 
 .cursed {
-    color: red;
+    color: red !important;;
 }
 .dark-theme .cursed {
-    color: red;
+    color: red !important;;
 }
 /* ---------  */
 

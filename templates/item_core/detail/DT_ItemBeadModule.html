@@ -1,58 +1,281 @@
 <!-- DT_ItemBeadModule -->
 {% if item_bead_module_data %}
+<style>
+.module-info {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.module-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 20px;
+}
+
+.module-stat-group {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.module-header {
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid rgba(226, 232, 240, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.module-header-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+.module-header-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.1em;
+}
+
+.module-stat-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.module-stat-label {
+    color: #64748b;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.module-stat-value {
+    color: #1e293b;
+    font-weight: 500;
+    text-align: right;
+}
+
+/* Группы модуля */
+.module-basic {
+    border-top: 4px solid #3b82f6;
+}
+.module-basic .module-header-icon {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.module-type {
+    border-top: 4px solid #8b5cf6;
+}
+.module-type .module-header-icon {
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+.module-params {
+    border-top: 4px solid #22c55e;
+}
+.module-params .module-header-icon {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+/* Специальные элементы */
+.module-level {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.module-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    background: rgba(139, 92, 246, 0.1);
+    color: #8b5cf6;
+}
+
+.module-param {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border-radius: 6px;
+    padding: 4px 12px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Темная тема */
+.dark-theme .module-stat-group {
+    background: rgba(50, 50, 50, 0.8);
+    border-color: rgba(68, 69, 70, 0.01);
+}
+
+.dark-theme .module-header {
+    border-bottom-color: rgba(51, 65, 85, 0.8);
+}
+
+.dark-theme .module-header-title {
+    color: #f1f5f9;
+}
+
+.dark-theme .module-stat-label {
+    color: #94a3b8;
+}
+
+.dark-theme .module-stat-value {
+    color: #f1f5f9;
+}
+
+.dark-theme .module-level,
+.dark-theme .module-type-badge {
+    background: rgba(51, 65, 85, 0.3);
+    border-color: rgba(51, 65, 85, 0.8);
+}
+
+.dark-theme .module-param {
+    background: rgba(51, 65, 85, 0.3);
+    border-color: rgba(51, 65, 85, 0.8);
+    color: #f1f5f9;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .module-grid {
+        padding: 12px;
+        gap: 12px;
+    }
+    
+    .module-stat-group {
+        padding: 16px;
+    }
+    
+    .module-stat-row {
+        gap: 8px;
+    }
+    
+    .module-stat-label {
+        font-size: 0.85em;
+    }
+}
+</style>
+
 <div class="skill-section fadeIn">
-	<p class="section-star">★</p>
-	<h2 class="section-title">Информация о модуле</h2>
-	<div class="skill-content">
-		<div class="stat-grid">
-			<!-- Базовая информация о модуле -->
-			<div class="stat-row">
-				<span class="stat-label">ID модуля</span>
-				<span class="stat-value">{{ item_bead_module_data.MID }}</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Название модуля</span>
-				<span class="stat-value">{{ item_bead_module_data.MName }}</span>
-			</div>
-			{% if item_bead_module_data.MDesc %}
-			<div class="stat-row">
-				<span class="stat-label">Описание</span>
-				<span class="stat-value">{{ item_bead_module_data.MDesc }}</span>
-			</div>
-			{% endif %}
-			
-			<!-- Тип и уровень -->
-			<div class="stat-row">
-				<span class="stat-label">Тип модуля</span>
-				<span class="stat-value">{{ item_bead_module_data.MType }}</span>
-			</div>
-			<div class="stat-row">
-				<span class="stat-label">Уровень модуля</span>
-				<span class="stat-value">{{ item_bead_module_data.MLevel }}</span>
-			</div>
-			
-			<!-- Параметры модуля -->
-			{% if item_bead_module_data.MAParam != 0 and item_bead_module_data.MAParamName %}
-			<div class="stat-row">
-				<span class="stat-label">{{ item_bead_module_data.MAParamName }}</span>
-				<span class="stat-value">{{ item_bead_module_data.MAParam }}</span>
-			</div>
-			{% endif %}
-			
-			{% if item_bead_module_data.MBParam != 0 and item_bead_module_data.MBParamName %}
-			<div class="stat-row">
-				<span class="stat-label">{{ item_bead_module_data.MBParamName }}</span>
-				<span class="stat-value">{{ item_bead_module_data.MBParam }}</span>
-			</div>
-			{% endif %}
-			
-			{% if item_bead_module_data.MCParam != 0 and item_bead_module_data.MCParamName %}
-			<div class="stat-row">
-				<span class="stat-label">{{ item_bead_module_data.MCParamName }}</span>
-				<span class="stat-value">{{ item_bead_module_data.MCParam }}</span>
-			</div>
-			{% endif %}
-		</div>
-	</div>
+    <p class="section-star">★</p>
+    <h2 class="section-title">Информация о модуле</h2>
+    <div class="skill-content">
+        <div class="module-info">
+            <div class="module-grid">
+                <!-- Базовая информация -->
+                <div class="module-stat-group module-basic">
+                    <div class="module-header">
+                        <div class="module-header-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <span class="module-header-title">Основная информация</span>
+                    </div>
+                    <div class="module-stat-row">
+                        <span class="module-stat-label">ID модуля</span>
+                        <span class="module-stat-value">{{ item_bead_module_data.MID }}</span>
+                    </div>
+                    <div class="module-stat-row">
+                        <span class="module-stat-label">Название модуля</span>
+                        <span class="module-stat-value">{{ item_bead_module_data.MName }}</span>
+                    </div>
+                    {% if item_bead_module_data.MDesc %}
+                    <div class="module-stat-row">
+                        <span class="module-stat-label">Описание</span>
+                        <span class="module-stat-value">{{ item_bead_module_data.MDesc }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Тип и уровень -->
+                <div class="module-stat-group module-type">
+                    <div class="module-header">
+                        <div class="module-header-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <span class="module-header-title">Характеристики</span>
+                    </div>
+                    <div class="module-stat-row">
+                        <span class="module-stat-label">Тип модуля</span>
+                        <span class="module-stat-value">
+                            <span class="module-type-badge">
+                                <i class="fas fa-cube"></i>
+                                {{ item_bead_module_data.MType }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="module-stat-row">
+                        <span class="module-stat-label">Уровень модуля</span>
+                        <span class="module-stat-value">
+                            <span class="module-level">
+                                <i class="fas fa-star"></i>
+                                {{ item_bead_module_data.MLevel }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Параметры модуля -->
+                {% if item_bead_module_data.MAParam != 0 or item_bead_module_data.MBParam != 0 or item_bead_module_data.MCParam != 0 %}
+                <div class="module-stat-group module-params">
+                    <div class="module-header">
+                        <div class="module-header-icon">
+                            <i class="fas fa-sliders-h"></i>
+                        </div>
+                        <span class="module-header-title">Параметры</span>
+                    </div>
+                    {% if item_bead_module_data.MAParam != 0 and item_bead_module_data.MAParamName %}
+                    <div class="module-stat-row">
+                        <span class="module-stat-label">{{ item_bead_module_data.MAParamName }}</span>
+                        <span class="module-stat-value">
+                            <span class="module-param">{{ item_bead_module_data.MAParam }}</span>
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item_bead_module_data.MBParam != 0 and item_bead_module_data.MBParamName %}
+                    <div class="module-stat-row">
+                        <span class="module-stat-label">{{ item_bead_module_data.MBParamName }}</span>
+                        <span class="module-stat-value">
+                            <span class="module-param">{{ item_bead_module_data.MBParam }}</span>
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if item_bead_module_data.MCParam != 0 and item_bead_module_data.MCParamName %}
+                    <div class="module-stat-row">
+                        <span class="module-stat-label">{{ item_bead_module_data.MCParamName }}</span>
+                        <span class="module-stat-value">
+                            <span class="module-param">{{ item_bead_module_data.MCParam }}</span>
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}

@@ -103,7 +103,6 @@ def get_skill_name_by_sid(skill_id: int) -> Optional[str]:
     """
     row = execute_query(query, (skill_id,), fetch_one=True)
     return row.SName if row else None
-    
 
 
 def get_monster_reget_skill_pic_icon_datasource(skill_id: int) -> Optional[str]:

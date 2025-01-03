@@ -176,6 +176,10 @@ class DT_Bead:
     mHoleCount: int
     mHoleProb: float
     MID: int
+    spid_data: list
+    spid_image: str
+    
+    
 
 
 

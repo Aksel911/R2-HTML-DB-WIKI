@@ -17,7 +17,9 @@ from services.item_service import (
     get_item_attribute_resist_data,
     get_item_protect_data,
     get_item_slain_data,
-    get_item_panalty_data
+    get_item_panalty_data,
+    get_material_item_info_data,
+    get_material_draw_info
 )
 from services.monster_service import get_monster_drop_info
 from services.merchant_service import get_merchant_sellers
@@ -306,6 +308,8 @@ def item_detail(item_id: int):
             'has_abnormal': bool(get_itemabnormalResist_data(item_id))
         }
 
+        print(item.IStatus)
+        
         # Рендеринг базового шаблона
         return render_template(
             'item_core/item_page_detail.html',
@@ -355,7 +359,7 @@ def get_item_bead_hole_data(item_id):
 
 @bp.route('/api/item/<int:item_id>/bead-rune')
 @api_response
-def get_item_bead_rune_data(item_id):
+def get_rune_bead_data_route(item_id):
     data = get_rune_bead_data(item_id)
     return {'rune_bead_data': data}
 
@@ -491,3 +495,18 @@ def get_item_skill_detail(item_id):
             'monster_pic_url': monster_pic_url
         }
     return {}
+
+
+@bp.route('/api/item/<int:item_id>/material-item-info')
+@api_response
+def get_material_item_info_data_route(item_id):
+    print(f"Route called with item_id: {item_id}")
+    data = get_material_item_info_data(item_id)
+    return {'material_item_info_data': data}
+
+
+@bp.route('/api/item/<int:item_id>/material-draw')
+@api_response
+def get_material_draw_route(item_id):
+    data = get_material_draw_info(item_id)
+    return {'material_draw_data': data}
