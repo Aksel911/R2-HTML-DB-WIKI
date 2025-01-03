@@ -1,0 +1,405 @@
+<!-- TblAi -->
+{% if ai_data %}
+<style>
+    .ai-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 10px;
+    }
+
+    .ai-card {
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .behavior-section {
+        margin-bottom: 20px;
+        background: rgba(255,255,255,0.4);
+        padding: 15px;
+        border-radius: 8px;
+        backdrop-filter: blur(5px);
+    }
+
+    .behavior-title {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid rgba(44, 62, 80, 0.2);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9em;
+    }
+
+    .behavior-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .behavior-item {
+        background: rgba(255,255,255,0.7);
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+    }
+
+    .behavior-item:hover {
+        transform: translateY(-2px);
+    }
+
+    .behavior-label {
+        font-size: 0.85em;
+        color: #666;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .behavior-value {
+        font-weight: bold;
+        color: #2c3e50;
+        font-size: 1.1em;
+    }
+
+    .items-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .item-cell {
+        background: rgba(255,255,255,0.7);
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .item-cell:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .item-image {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+
+    .item-name {
+        font-size: 0.85em;
+        color: #2c3e50;
+        text-decoration: none;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .item-name:hover {
+        color: #3498db;
+        text-decoration: underline;
+    }
+
+    .ai-type {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        display: inline-block;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    .ai-id {
+        background: rgba(0,0,0,0.05);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        color: #666;
+        margin-bottom: 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .empty-item {
+        color: #999;
+        font-style: italic;
+    }
+
+    /* Тёмная тема */
+
+    .dark-theme .behavior-section {
+        background: rgba(255,255,255,0.05);
+    }
+
+    .dark-theme .behavior-title {
+        color: #ecf0f1;
+        border-bottom-color: rgba(236, 240, 241, 0.2);
+    }
+
+    .dark-theme .behavior-item,
+    .dark-theme .item-cell {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .dark-theme .behavior-label {
+        color: #bdc3c7;
+    }
+
+    .dark-theme .behavior-value {
+        color: #ecf0f1;
+    }
+
+    .dark-theme .item-name {
+        color: #ecf0f1;
+    }
+
+    .dark-theme .item-name:hover {
+        color: #3498db;
+    }
+
+    .dark-theme .ai-type {
+        background: linear-gradient(135deg, #2980b9, #1f6a99);
+    }
+
+    .dark-theme .ai-id {
+        background: rgba(255,255,255,0.1);
+        color: #bdc3c7;
+    }
+	
+	.info-icon {
+        cursor: help;
+        color: #3498db;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 8px;
+    }
+
+    .info-tooltip {
+        visibility: hidden;
+        position: absolute;
+        background: rgba(44, 62, 80, 0.95);
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        width: 280px;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 10px;
+        opacity: 0;
+        transition: opacity 0.3s, visibility 0.3s;
+        pointer-events: none;
+        z-index: 1000;
+        text-transform: none;
+        font-weight: normal;
+        line-height: 1.4;
+        text-align: left;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .info-tooltip::before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 8px solid transparent;
+        border-bottom-color: rgba(44, 62, 80, 0.95);
+    }
+
+    .info-icon:hover .info-tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .behavior-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+</style>
+
+<div class="skill-section fadeIn">
+    <p class="section-star">★</p>
+    <h2 class="section-title">
+        [AI] Базовое поведение монстра
+    </h2>
+    <div class="skill-content">
+        <div class="ai-grid">
+            <div class="ai-card">
+				<!-- Основная информация -->
+                <div class="behavior-section">
+                    <div class="behavior-title">
+                        <i class="fas fa-info-circle"></i>
+                        Основная информация
+                        <div class="info-icon">
+                            <i class="fas fa-question-circle"></i>
+                            <div class="info-tooltip">
+                                Базовые параметры искусственного интеллекта монстра, определяющие его поведение в различных ситуациях.
+								Включает радиус сбора предметов и пороговые значения HP для смены поведения.
+                            </div>
+                        </div>
+                    </div>
+					<div class="ai-id">
+						<i class="fas fa-microchip"></i>
+						mAiId: {{ ai_data.mAiId }}
+					</div>
+					{% if ai_data.mDesc %}
+					<div class="ai-type">
+						{{ ai_data.mDesc }}
+						<div class="info-icon">
+							<i class="fas fa-question-circle"></i>
+							<div class="info-tooltip">
+								Описание типа поведения монстра, характеризующее его базовый AI паттерн.
+							</div>
+						</div>
+					</div>
+					{% endif %}
+					
+				</div>
+				
+				
+                
+
+                <!-- Параметры поведения -->
+                <div class="behavior-section">
+                    <div class="behavior-title">
+                        <i class="fas fa-cogs"></i>
+                        Параметры поведения
+                        <div class="info-icon">
+                            <i class="fas fa-question-circle"></i>
+                            <div class="info-tooltip">
+                                Основные параметры, определяющие поведение монстра:
+                                - Радиус сбора: зона, в которой монстр подбирает предметы
+                                - HP ярости: порог HP для агрессивного поведения
+                                - HP страха: порог HP для защитного поведения
+                            </div>
+                        </div>
+                    </div>
+                    <div class="behavior-grid">
+                        <div class="behavior-item">
+                            <div class="behavior-label">
+                                <i class="fas fa-search"></i>
+                                Радиус сбора
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        Расстояние в игровых единицах, на котором монстр
+                                        замечает и пытается подобрать предметы.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="behavior-value">{{ ai_data.mFindItem }}</div>
+                        </div>
+                        <div class="behavior-item">
+                            <div class="behavior-label">
+                                <i class="fas fa-fire"></i>
+                                mRageHp
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        Процент HP, при котором монстр входит в состояние ярости.
+                                        В этом состоянии он становится более агрессивным
+                                        и может использовать предметы ярости.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="behavior-value">{{ ai_data.mRageHp }}%</div>
+                        </div>
+                        <div class="behavior-item">
+                            <div class="behavior-label">
+                                <i class="fas fa-running"></i>
+                                mFearHp
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        Процент HP, при котором монстр начинает проявлять страх.
+                                        В этом состоянии он может пытаться убежать
+                                        или использовать защитные предметы.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="behavior-value">{{ ai_data.mFearHp }}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Предметы ярости -->
+                {% if ai_data.angry_items %}
+                <div class="behavior-section">
+                    <div class="behavior-title">
+                        <i class="fas fa-fire-alt"></i>
+                        mAngryItem
+                        <div class="info-icon">
+                            <i class="fas fa-question-circle"></i>
+                            <div class="info-tooltip">
+                                Предметы, которые монстр может использовать
+                                в состоянии ярости (обычно при HP ниже {{ ai_data.mRageHp }}%).
+                                Как правило, это наступательные или усиливающие предметы.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="items-grid">
+                        {% for item in ai_data.angry_items %}
+                            <div class="item-cell">
+                                <img src="{{ item.pic_url }}" alt="{{ item.name }}" class="item-image">
+                                <a href="/item/{{ item.id }}" class="item-name">{{ item.name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Предметы гнева -->
+                {% if ai_data.rage_items %}
+                <div class="behavior-section">
+                    <div class="behavior-title">
+                        <i class="fas fa-bolt"></i>
+                        mRageItem
+                        <div class="info-icon">
+                            <i class="fas fa-question-circle"></i>
+                            <div class="info-tooltip">
+                                Специальные предметы, доступные монстру
+                                в состоянии наивысшей агрессии.
+                                Обычно это мощные боевые предметы или предметы для контроля боя.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="items-grid">
+                        {% for item in ai_data.rage_items %}
+                            <div class="item-cell">
+                                <img src="{{ item.pic_url }}" alt="{{ item.name }}" class="item-image">
+                                <a href="/item/{{ item.id }}" class="item-name">{{ item.name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

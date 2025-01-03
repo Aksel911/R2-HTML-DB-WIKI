@@ -1,8 +1,8 @@
 from typing import List, Dict, Optional
 from flask import current_app
 from services.database import execute_query
-from services.monster_service import get_monster_name, get_monster_pic_url
-from services.item_service import get_item_pic_url, get_item_resource
+from services.utils import get_monster_pic_url, get_item_pic_url
+
 
 DEFAULT_IMAGE_URL = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
 

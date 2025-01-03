@@ -1,7 +1,7 @@
 from flask import current_app
 from typing import List, Dict, Optional, Tuple
 from services.database import execute_query
-from services.item_service import get_item_pic_url
+from services.utils import get_item_pic_url
 from models.merchant import Merchant
 
 def get_payment_type_name(payment_type: int) -> str:

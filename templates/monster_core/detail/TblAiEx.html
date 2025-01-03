@@ -1,0 +1,587 @@
+<!-- TblAiEx -->
+{% if aiex_data %}
+<style>
+    .aiex-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 10px;
+    }
+
+    .aiex-card {
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .aiex-header {
+        margin-bottom: 20px;
+    }
+
+    .aiex-section {
+        margin-bottom: 20px;
+        background: rgba(255,255,255,0.4);
+        padding: 15px;
+        border-radius: 8px;
+        backdrop-filter: blur(5px);
+    }
+
+    .aiex-section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid rgba(44, 62, 80, 0.2);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9em;
+    }
+
+    .aiex-id {
+        background: rgba(0,0,0,0.05);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85em;
+        color: #666;
+        margin-bottom: 15px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .info-icon {
+        cursor: help;
+        color: #3498db;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .info-tooltip {
+        visibility: hidden;
+        position: absolute;
+        background: rgba(44, 62, 80, 0.95);
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        width: 280px;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 10px;
+        opacity: 0;
+        transition: opacity 0.3s, visibility 0.3s;
+        pointer-events: none;
+        z-index: 1000;
+        text-transform: none;
+        font-weight: normal;
+        line-height: 1.4;
+        text-align: left;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .info-tooltip::before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 8px solid transparent;
+        border-bottom-color: rgba(44, 62, 80, 0.95);
+    }
+
+    .info-icon:hover .info-tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .behavior-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .behavior-item {
+        background: rgba(255,255,255,0.7);
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+    }
+
+    .behavior-item:hover {
+        transform: translateY(-2px);
+    }
+
+    .behavior-label {
+        font-size: 0.85em;
+        color: #666;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .behavior-value {
+        font-weight: bold;
+        color: #2c3e50;
+        font-size: 1.1em;
+    }
+
+    .skills-section,
+    .items-section {
+        margin-top: 20px;
+    }
+
+    .category-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9em;
+        color: #2c3e50;
+        margin: 15px 0 10px;
+        padding: 8px 12px;
+        background: rgba(52, 152, 219, 0.1);
+        border-radius: 6px;
+    }
+
+    .hp-indicator {
+        margin-left: auto;
+        font-size: 0.85em;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(46, 204, 113, 0.2);
+        color: #27ae60;
+    }
+
+    .hp-indicator.low {
+        background: rgba(231, 76, 60, 0.2);
+        color: #c0392b;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .content-item {
+        background: rgba(255,255,255,0.7);
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .content-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .content-item img {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        border-radius: 6px;
+        padding: 2px;
+        background: rgba(255,255,255,0.9);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .content-item a {
+        color: #2c3e50;
+        text-decoration: none;
+        font-size: 0.9em;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .content-item a:hover {
+        color: #3498db;
+    }
+
+    .subcategory {
+        font-size: 0.85em;
+        color: #7f8c8d;
+        margin: 12px 0 8px;
+        padding-left: 15px;
+        border-left: 3px solid #3498db;
+    }
+
+    /* Тёмная тема */
+
+    .dark-theme .aiex-section {
+        background: rgba(255,255,255,0.05);
+    }
+
+    .dark-theme .aiex-section-title {
+        color: #ecf0f1;
+        border-bottom-color: rgba(236, 240, 241, 0.2);
+    }
+
+    .dark-theme .behavior-item,
+    .dark-theme .content-item {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .dark-theme .behavior-label {
+        color: #bdc3c7;
+    }
+
+    .dark-theme .behavior-value {
+        color: #ecf0f1;
+    }
+
+    .dark-theme .category-title {
+        color: #ecf0f1;
+        background: rgba(52, 152, 219, 0.2);
+    }
+
+    .dark-theme .content-item a {
+        color: #ecf0f1;
+    }
+
+    .dark-theme .content-item img {
+        background: rgba(255,255,255,0.05);
+    }
+
+    .dark-theme .ai-id {
+        background: rgba(255,255,255,0.1);
+        color: #bdc3c7;
+    }
+</style>
+
+<div class="skill-section fadeIn">
+    <p class="section-star">★</p>
+    <h2 class="section-title">[AI-EX] Расширенное поведение монстра</h2>
+    <div class="skill-content">
+        <div class="aiex-grid">
+            <div class="aiex-card">
+                <!-- Основная информация -->
+                <div class="aiex-section">
+                    <div class="aiex-section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Основная информация
+                        <div class="info-icon">
+                            <i class="fas fa-question-circle"></i>
+                            <div class="info-tooltip">
+                                Монстр использует разные наборы навыков и предметов в зависимости от уровня HP. 
+                                Это делает их поведение более динамичным и сложным для противостояния.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-id">
+                        <i class="fas fa-microchip"></i>
+                        mAiId: {{ aiex_data.mAiId }}
+                    </div>
+                    {% if aiex_data.mDesc %}
+                    <div class="ai-type">{{ aiex_data.mDesc }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Параметры навыков -->
+                <div class="aiex-section">
+                    <div class="aiex-section-title">
+                        <i class="fas fa-magic"></i>
+                        Параметры навыков
+                        <div class="info-icon">
+                            <i class="fas fa-question-circle"></i>
+                            <div class="info-tooltip">
+                                Монстр меняет набор используемых навыков в зависимости от HP.
+                                При HP > {{ aiex_data.mSkillPercent }}% используется один набор навыков,
+                                при HP < {{ aiex_data.mSkillPercent }}% - другой.
+                                Навыки используются с указанным периодом перезарядки.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="behavior-grid">
+                        <div class="behavior-item">
+                            <div class="behavior-label">
+                                <i class="fas fa-heart"></i>
+                                Порог HP
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        Процент HP, при котором монстр меняет набор используемых навыков.
+                                        Выше этого значения используется один набор, ниже - другой.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="behavior-value">{{ aiex_data.mSkillPercent }}%</div>
+                        </div>
+                        <div class="behavior-item">
+                            <div class="behavior-label">
+                                <i class="fas fa-clock"></i>
+                                Перезарядка
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        Время в секундах между использованиями навыков.
+                                        Монстр не может использовать навыки чаще этого периода.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="behavior-value">{{ aiex_data.mSkillCoolTime }}с</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Параметры предметов -->
+                <div class="aiex-section">
+                    <div class="aiex-section-title">
+                        <i class="fas fa-box-open"></i>
+                        Параметры предметов
+                        <div class="info-icon">
+                            <i class="fas fa-question-circle"></i>
+                            <div class="info-tooltip">
+                                Монстр использует разные предметы в зависимости от HP.
+                                При HP > {{ aiex_data.mItemPercent }}% используется один набор предметов,
+                                при HP < {{ aiex_data.mItemPercent }}% - другой.
+                                Предметы используются с указанным периодом перезарядки.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="behavior-grid">
+                        <div class="behavior-item">
+                            <div class="behavior-label">
+                                <i class="fas fa-heart"></i>
+                                Порог HP
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        Процент HP, при котором монстр меняет набор используемых предметов.
+                                        Выше этого значения используется один набор, ниже - другой.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="behavior-value">{{ aiex_data.mItemPercent }}%</div>
+                        </div>
+                        <div class="behavior-item">
+                            <div class="behavior-label">
+                                <i class="fas fa-clock"></i>
+                                Перезарядка
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        Время в секундах между использованиями предметов.
+                                        Монстр не может использовать предметы чаще этого периода.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="behavior-value">{{ aiex_data.mItemCoolTime }}с</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Навыки при HP выше порога -->
+                {% if aiex_data.skills_up.we or aiex_data.skills_up.inside or aiex_data.skills_up.outside %}
+                <div class="aiex-section">
+                    <div class="aiex-section-title">
+                        <i class="fas fa-arrow-up"></i>
+                        Навыки при HP выше порога
+                        <span class="hp-indicator">HP > {{ aiex_data.mSkillPercent }}%</span>
+                    </div>
+                    {% for category, skills in aiex_data.skills_up.items() %}
+                        {% if skills %}
+                            <div class="subcategory">
+                                {% if category == 'we' %}
+                                    <i class="fas fa-fist-raised"></i> Обычные навыки
+                                {% elif category == 'inside' %}
+                                    <i class="fas fa-compress-arrows-alt"></i> Ближние навыки
+                                {% elif category == 'outside' %}
+                                    <i class="fas fa-expand-arrows-alt"></i> Дальние навыки
+                                {% endif %}
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        {% if category == 'we' %}
+                                            Базовые навыки, которые монстр использует в обычном бою.
+                                        {% elif category == 'inside' %}
+                                            Навыки, используемые на ближней дистанции.
+                                        {% elif category == 'outside' %}
+                                            Навыки, используемые на дальней дистанции.
+                                        {% endif %}
+                                        Применяются, когда HP монстра выше {{ aiex_data.mSkillPercent }}%.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content-grid">
+                                {% for skill in skills %}
+                                <div class="content-item">
+                                    <img src="{{ skill.icon_url }}" alt="Skill icon">
+                                    <a href="/skill/{{ skill.id }}" class="skill-link">{{ skill.name }}</a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Навыки при HP ниже порога -->
+                {% if aiex_data.skills_down.we or aiex_data.skills_down.inside or aiex_data.skills_down.outside %}
+                <div class="aiex-section">
+                    <div class="aiex-section-title">
+                        <i class="fas fa-arrow-down"></i>
+                        Навыки при HP ниже порога
+                        <span class="hp-indicator low">HP < {{ aiex_data.mSkillPercent }}%</span>
+                    </div>
+                    {% for category, skills in aiex_data.skills_down.items() %}
+                        {% if skills %}
+                            <div class="subcategory">
+                                {% if category == 'we' %}
+                                    <i class="fas fa-fist-raised"></i> Обычные навыки
+                                {% elif category == 'inside' %}
+                                    <i class="fas fa-compress-arrows-alt"></i> Ближние навыки
+                                {% elif category == 'outside' %}
+                                    <i class="fas fa-expand-arrows-alt"></i> Дальние навыки
+                                {% endif %}
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">
+                                        {% if category == 'we' %}
+                                            Базовые навыки, которые монстр использует при низком HP.
+                                        {% elif category == 'inside' %}
+                                            Навыки ближнего боя, используемые при низком HP.
+                                        {% elif category == 'outside' %}
+                                            Дальние атаки, используемые когда у монстра мало HP.
+                                        {% endif %}
+                                        Применяются, когда HP монстра падает ниже {{ aiex_data.mSkillPercent }}%.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content-grid">
+                                {% for skill in skills %}
+                                <div class="content-item">
+                                    <img src="{{ skill.icon_url }}" alt="Skill icon">
+                                    <a href="/skill/{{ skill.id }}" class="skill-link">{{ skill.name }}</a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Предметы при HP выше порога -->
+                {% if aiex_data.items_up.battle or aiex_data.items_up.chase %}
+                <div class="aiex-section">
+                    <div class="aiex-section-title">
+                        <i class="fas fa-arrow-up"></i>
+                        Предметы при HP выше порога
+                        <span class="hp-indicator">HP > {{ aiex_data.mItemPercent }}%</span>
+                    </div>
+                    {% if aiex_data.items_up.battle %}
+                        <div class="subcategory">
+                            <i class="fas fa-swords"></i> В бою
+                            <div class="info-icon">
+                                <i class="fas fa-question-circle"></i>
+                                <div class="info-tooltip">
+                                    Предметы, которые монстр использует во время боя,
+                                    когда его здоровье выше {{ aiex_data.mItemPercent }}%.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-grid">
+                            {% for item in aiex_data.items_up.battle %}
+                            <div class="content-item">
+                                <img src="{{ item.pic_url }}" alt="{{ item.name }}">
+                                <a href="/item/{{ item.id }}" class="item-link">{{ item.name }}</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if aiex_data.items_up.chase %}
+                        <div class="subcategory">
+                            <i class="fas fa-running"></i> При погоне
+                            <div class="info-icon">
+                                <i class="fas fa-question-circle"></i>
+                                <div class="info-tooltip">
+                                    Предметы, используемые при преследовании цели,
+                                    когда HP монстра выше {{ aiex_data.mItemPercent }}%.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-grid">
+                            {% for item in aiex_data.items_up.chase %}
+                            <div class="content-item">
+                                <img src="{{ item.pic_url }}" alt="{{ item.name }}">
+                                <a href="/item/{{ item.id }}" class="item-link">{{ item.name }}</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Предметы при HP ниже порога -->
+                {% if aiex_data.items_down.battle or aiex_data.items_down.chase %}
+                <div class="aiex-section">
+                    <div class="aiex-section-title">
+                        <i class="fas fa-arrow-down"></i>
+                        Предметы при HP ниже порога
+                        <span class="hp-indicator low">HP < {{ aiex_data.mItemPercent }}%</span>
+                    </div>
+                    {% if aiex_data.items_down.battle %}
+                        <div class="subcategory">
+                            <i class="fas fa-swords"></i> В бою
+                            <div class="info-icon">
+                                <i class="fas fa-question-circle"></i>
+                                <div class="info-tooltip">
+                                    Предметы, которые монстр использует во время боя,
+                                    когда его здоровье падает ниже {{ aiex_data.mItemPercent }}%.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-grid">
+                            {% for item in aiex_data.items_down.battle %}
+                            <div class="content-item">
+                                <img src="{{ item.pic_url }}" alt="{{ item.name }}">
+                                <a href="/item/{{ item.id }}" class="item-link">{{ item.name }}</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if aiex_data.items_down.chase %}
+                        <div class="subcategory">
+                            <i class="fas fa-running"></i> При погоне
+                            <div class="info-icon">
+                                <i class="fas fa-question-circle"></i>
+                                <div class="info-tooltip">
+                                    Предметы, используемые при преследовании цели,
+                                    когда HP монстра ниже {{ aiex_data.mItemPercent }}%.
+                                    Часто включают предметы для побега или восстановления.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-grid">
+                            {% for item in aiex_data.items_down.chase %}
+                            <div class="content-item">
+                                <img src="{{ item.pic_url }}" alt="{{ item.name }}">
+                                <a href="/item/{{ item.id }}" class="item-link">{{ item.name }}</a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

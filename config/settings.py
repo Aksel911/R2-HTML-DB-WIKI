@@ -10,6 +10,8 @@ SKILLAPPLYRACE_URL = "https://docs.google.com/spreadsheets/d/1Vz-YWTOGnFUqzlieWf
 ATTRIBUTE_TYPE_WEAPON_URL ="https://docs.google.com/spreadsheets/d/1p8ghiK3AR7Qy-Ckpc3tRcHgIDm507S5i_JBXHHe1dHM/edit?usp=sharing"
 ATTRIBUTE_TYPE_ARMOR_URL ="https://docs.google.com/spreadsheets/d/1Y7Ryq9utZ3643XuvlDHhkLAshC6aZ0n9awoYFAq6wmw/edit?usp=sharing"
 
+MONSTER_MGBJ_TYPE_URL = "https://docs.google.com/spreadsheets/d/1SLJYHODWDMFpcOIFEfTK7q0ORpufT753kYsRiqYE3p8/edit?usp=sharing"
+
 # GitHub URL
 GITHUB_URL = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/"
 

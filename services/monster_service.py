@@ -4,7 +4,9 @@ import requests
 from flask import current_app
 from models.monster import Monster
 from services.database import execute_query, get_db_connection
-from services.utils import get_google_sheets_data, get_skill_icon_path, clean_description
+from services.utils import get_google_sheets_data, get_skill_icon_path, clean_description, get_skill_icon_path, get_item_pic_url
+from services.item_service import get_item_name
+from services.skill_service import get_monster_reget_skill_pic_icon_datasource, get_skill_name_by_sid
 from config.settings import MONSTER_CLASS_URL, ATTRIBUTE_TYPE_WEAPON_URL, ATTRIBUTE_TYPE_ARMOR_URL
 from models.monster import DT_MonsterResource, DT_MonsterAbnormalResist, DT_MonsterAttributeAdd, DT_MonsterAttributeResist, DT_MonsterProtect, DT_MonsterSlain
 
@@ -190,9 +192,6 @@ def get_monster_resource(monster_id: int) -> Optional[DT_MonsterResource]:
 def get_monster_resource_url(RFileName):
     monster_model_no = f"{current_app.config['GITHUB_URL']}models/m{int(RFileName):05}"
     
-def get_monster_pic_url(monster_id: int):
-    monster_pic_url = f"{current_app.config['GITHUB_URL']}{monster_id}.png"
-    return monster_pic_url
 
 # Respawn Time Info
 def get_monster_mtick(monster_id: int, mIsEvent: int) -> Union[tuple[int, int], tuple[int, int]]:
@@ -844,7 +843,246 @@ def get_monster_slain_data(item_id: int) -> Optional[List[DT_MonsterSlain]]:
         return None
     
     
+
+
+
+
+# TblAi
+def get_monster_ai_data(monster_id: int) -> Optional[Dict]:
+    query = """
+    SELECT
+        b.MID,
+        b.MName,
+        a.mDesc,
+        a.mAiId,
+        a.mFindItem,
+        a.mRageHp,
+        a.mFearHp,
+        a.mAngryItem1,
+        a.mAngryItem2,
+        a.mAngryItem3,
+        a.mAngryItem4,
+        a.mAngryItem5,
+        a.mAngryItem6,
+        a.mRageItem1,
+        a.mRageItem2,
+        a.mRageItem3,
+        a.mRageItem4,
+        a.mRageItem5,
+        a.mRageItem6
+    FROM TblAi AS a
+    INNER JOIN DT_Monster AS b ON (b.MAiType = a.mAiId)
+    WHERE b.MID = ?
+    """
     
+    row = execute_query(query, (monster_id,), fetch_one=True)
+    
+    if row:
+        # Функция для обработки предмета
+        def process_item(item_id):
+            if item_id and item_id != 0:
+                return {
+                    'id': item_id,
+                    'name': get_item_name(item_id),
+                    'pic_url': get_item_pic_url(item_id)
+                }
+            return None
+
+        # Обработка предметов ярости
+        angry_items = []
+        for i in range(1, 7):
+            item_id = getattr(row, f'mAngryItem{i}')
+            item_data = process_item(item_id)
+            if item_data:
+                angry_items.append(item_data)
+
+        # Обработка предметов гнева
+        rage_items = []
+        for i in range(1, 7):
+            item_id = getattr(row, f'mRageItem{i}')
+            item_data = process_item(item_id)
+            if item_data:
+                rage_items.append(item_data)
+
+        return {
+            'MID': row.MID,
+            'MName': row.MName,
+            'mDesc': row.mDesc,  # Тип монстра
+            'mAiId': row.mAiId,
+            'mFindItem': row.mFindItem,
+            'mRageHp': row.mRageHp,
+            'mFearHp': row.mFearHp,
+            'angry_items': angry_items,
+            'rage_items': rage_items
+        }
+    return None
+
+# TblAiEx
+def get_monster_aiex_data(monster_id: int) -> Optional[Dict]:
+    query = """
+    SELECT
+        b.MID,
+        b.MName,
+        a.mAiId,
+        a.mDesc,
+        a.mSkillPercent,
+        a.mSkillCoolTime,
+        a.mSkillPerUpToWe0,
+        a.mSkillPerUpToInside0,
+        a.mSkillPerUpToOutside0,
+        a.mSkillPerUpToWe1,
+        a.mSkillPerUpToInside1,
+        a.mSkillPerUpToOutside1,
+        a.mSkillPerUpToWe2,
+        a.mSkillPerUpToInside2,
+        a.mSkillPerUpToOutside2,
+        a.mSkillPerDownToWe0,
+        a.mSkillPerDownToInside0,
+        a.mSkillPerDownToOutside0,
+        a.mSkillPerDownToWe1,
+        a.mSkillPerDownToInside1,
+        a.mSkillPerDownToOutside1,
+        a.mSkillPerDownToWe2,
+        a.mSkillPerDownToInside2,
+        a.mSkillPerDownToOutside2,
+        a.mItemPercent,
+        a.mItemCoolTime,
+        a.mItemPerUpBattle0,
+        a.mItemPerUpChase0,
+        a.mItemPerUpBattle1,
+        a.mItemPerUpChase1,
+        a.mItemPerUpBattle2,
+        a.mItemPerUpChase2,
+        a.mItemPerDownBattle0,
+        a.mItemPerDownChase0,
+        a.mItemPerDownBattle1,
+        a.mItemPerDownChase1,
+        a.mItemPerDownBattle2,
+        a.mItemPerDownChase2
+    FROM TblAiEx AS a
+    INNER JOIN DT_Monster AS b ON (b.MAiType = a.mAiId)
+    WHERE b.MID = ?
+    """
+    
+    row = execute_query(query, (monster_id,), fetch_one=True)
+    
+    if not row:
+        return None
+
+    try:
+        # Получение значений из строки результата
+        row_dict = {
+            'MID': row[0],
+            'MName': row[1],
+            'mAiId': row[2],
+            'mDesc': row[3],
+            'mSkillPercent': row[4],
+            'mSkillCoolTime': row[5],
+            'mItemPercent': row[24],
+            'mItemCoolTime': row[25]
+        }
+        
+
+        # Преобразование навыка
+        def process_skill(skill_id):
+            if not skill_id or skill_id == 0:
+                return None
+
+            sprite_info = get_monster_reget_skill_pic_icon_datasource(skill_id)
+            if not sprite_info:
+                return None
+            
+            skill_name = get_skill_name_by_sid(skill_id)
+            
+            icon_url = get_skill_icon_path(
+                sprite_file=sprite_info[0] if len(sprite_info) > 0 else None,
+                sprite_x=sprite_info[1] if len(sprite_info) > 1 else None,
+                sprite_y=sprite_info[2] if len(sprite_info) > 2 else None
+            )
+
+            return {
+                'id': skill_id,
+                'icon_url': icon_url,
+                'name': skill_name
+            }
+
+        # Преобразование предмета
+        def process_item(item_id):
+            if not item_id or item_id == 0:
+                return None
+
+            name = get_item_name(item_id)
+            if not name:
+                return None
+                
+            return {
+                'id': item_id,
+                'name': name,
+                'pic_url': get_item_pic_url(item_id)
+            }
+
+        # Обработка навыков выше порога
+        skills_up = {
+            'we': [process_skill(row[i]) for i in range(6, 9)],
+            'inside': [process_skill(row[i]) for i in range(9, 12)],
+            'outside': [process_skill(row[i]) for i in range(12, 15)]
+        }
+
+
+        # Обработка навыков ниже порога
+        skills_down = {
+            'we': [process_skill(row[i]) for i in range(15, 18)],
+            'inside': [process_skill(row[i]) for i in range(18, 21)],
+            'outside': [process_skill(row[i]) for i in range(21, 24)]
+        }
+
+        # Обработка предметов выше порога
+        items_up = {
+            'battle': [process_item(row[i]) for i in range(26, 29)],
+            'chase': [process_item(row[i]) for i in range(29, 32)]
+        }
+
+
+        # Обработка предметов ниже порога
+        items_down = {
+            'battle': [process_item(row[i]) for i in range(32, 35)],
+            'chase': [process_item(row[i]) for i in range(35, 38)]
+        }
+
+        # Очистка None значений
+        def clean_list(lst):
+            return [x for x in lst if x is not None]
+
+        # Очистка всех списков
+        skills_up = {k: clean_list(v) for k, v in skills_up.items()}
+        skills_down = {k: clean_list(v) for k, v in skills_down.items()}
+        items_up = {k: clean_list(v) for k, v in items_up.items()}
+        items_down = {k: clean_list(v) for k, v in items_down.items()}
+
+        result = {
+            **row_dict,
+            'skills_up': skills_up,
+            'skills_down': skills_down,
+            'items_up': items_up,
+            'items_down': items_down
+        }
+
+        # Проверяем, не является ли результат кортежем
+        if isinstance(result, tuple) and len(result) > 0:
+            result = result[0]
+
+        return result
+
+    except Exception as e:
+        print(f"Error in get_monster_aiex_data: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+    
+    
+
+
+
 
 # ? ^^ EASY Functions
 

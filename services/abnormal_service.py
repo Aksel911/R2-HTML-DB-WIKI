@@ -4,6 +4,7 @@ from services.database import execute_query
 from services.utils import get_skill_icon_path, clean_dict
 from services.item_service import get_item_resource
 
+
 def get_abnormals_list() -> Tuple[List[AbnormalListItem], Dict[int, str]]:
     """Get list of all abnormal effects"""
     query = """

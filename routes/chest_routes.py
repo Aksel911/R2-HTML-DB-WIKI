@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, jsonify, request
 from services.chest_service import get_chest_route_call, get_chest_script, analyze_drops, update_chest_loot
-from services.item_service import get_item_name, get_item_pic_url, get_item_resource
+from services.item_service import get_item_name
+from services.utils import get_item_pic_url
 
 bp = Blueprint('chests', __name__)
 

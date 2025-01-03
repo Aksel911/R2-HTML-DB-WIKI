@@ -17,12 +17,24 @@
             </div>
             <div class="stat-row">
                 <span class="stat-label">Класс</span>
-                <span class="stat-value">{{ item.MClass }}, {{ classinfo.MName }}</span>
+                <span class="stat-value">[{{ item.MClass }}], {{ classinfo.MName }}</span>
             </div>
             <div class="stat-row">
                 <span class="stat-label">Раса</span>
-                <span class="stat-value">{{ raceinfo.mDesc }}</span>
+                <span class="stat-value">[{{ item.MRaceType }}], {{ raceinfo.mDesc }}</span>
             </div>
+			{% if mgbj_desc %}
+			<div class="stat-row">
+                <span class="stat-label">mGbjType</span>
+                <span class="stat-value">[{{ item.MGbjType }}], {{ mgbj_desc }}</span>
+            </div>
+			{% endif %}
+			{% if ai_data %}
+			<div class="stat-row">
+                <span class="stat-label">AiType</span>
+                <span class="stat-value">[{{ ai_data.mAiId }}], {{ ai_data.mDesc }}</span>
+            </div>
+			{% endif %}
             <div class="stat-row">
                 <span class="stat-label">Отображается HP</span>
                 <span class="stat-value">{% if item.mIsShowHp == 1 %}Да{% else %}Нет{% endif %}</span>

@@ -11,9 +11,10 @@ from services.monster_service import (
     get_monster_attribute_resist_data,
     get_monster_protect_data,
     get_monster_slain_data,
+    get_monster_ai_data,
+    get_monster_aiex_data,
     apply_monster_filters,
-    monster_to_dict,
-    
+    monster_to_dict
     
 )
 from services.utils import get_google_sheets_data, with_app_context
@@ -21,7 +22,7 @@ from services.merchant_service import (
     get_merchant_items
 )
 from services.database import execute_query
-from config.settings import MONSTER_CLASS_URL, MONSTER_RACE_URL, MONSTER_LOCATION_URL
+from config.settings import MONSTER_CLASS_URL, MONSTER_RACE_URL, MONSTER_LOCATION_URL, MONSTER_MGBJ_TYPE_URL
 import pandas as pd
 from functools import wraps, partial
 from concurrent.futures import ThreadPoolExecutor
@@ -277,6 +278,9 @@ def monster_detail(monster_id: int):
             future_google_class = executor.submit(get_google_sheets_data, MONSTER_CLASS_URL)
             future_google_race = executor.submit(get_google_sheets_data, MONSTER_RACE_URL)
             future_google_location = executor.submit(get_google_sheets_data, MONSTER_LOCATION_URL)
+            future_google_mgbj = executor.submit(get_google_sheets_data, MONSTER_MGBJ_TYPE_URL)
+
+            
             
             future_merchant_items = submit_with_context(get_merchant_items, monster_id)
             future_monster_drops = submit_with_context(get_monster_drops, monster_id)
@@ -288,12 +292,15 @@ def monster_detail(monster_id: int):
             future_slain = submit_with_context(get_monster_slain_data, monster_id)
             future_mtick_normal = submit_with_context(get_monster_mtick, monster_id, 0)
             future_mtick_event = submit_with_context(get_monster_mtick, monster_id, 1)
+            future_ai_data = submit_with_context(get_monster_ai_data, monster_id)
+            future_aiex_data = submit_with_context(get_monster_aiex_data, monster_id)
 
             # Получаем результаты Google Sheets
             sheets_data = {
                 'class': future_google_class.result(),
                 'race': future_google_race.result(),
-                'location': future_google_location.result()
+                'location': future_google_location.result(),
+                'mgbj': future_google_mgbj.result()
             }
 
             # Получение информации о классе
@@ -323,6 +330,14 @@ def monster_detail(monster_id: int):
                         for _, row in location_match.iterrows()
                     ]
 
+            # Получение MGbjType описание монстра
+            mgbj_desc = None
+            if not sheets_data['mgbj'].empty:
+                mgbj_match = sheets_data['mgbj'][sheets_data['mgbj']['MGbjType'] == monster_dict['MGbjType']]
+                if not mgbj_match.empty:
+                    mgbj_desc = mgbj_match.iloc[0]['mDesc']
+                        
+            
             # Получаем результаты остальных задач
             merchant_items = future_merchant_items.result()
             monster_drops = future_monster_drops.result()
@@ -334,7 +349,14 @@ def monster_detail(monster_id: int):
             monster_slain_data = future_slain.result()
             mTick_normal, mVarRespawnTick_normal = future_mtick_normal.result()
             mTick_event, mVarRespawnTick_event = future_mtick_event.result()
+            ai_data=future_ai_data.result()
+            aiex_data = future_aiex_data.result(),
 
+            
+            if isinstance(aiex_data, tuple) and len(aiex_data) > 0:
+                aiex_data = aiex_data[0]
+            
+            
             # Обработка изображений
             file_path = f"{current_app.config['GITHUB_URL']}{monster_id}.png"
             file_path_gif = f"{current_app.config['GITHUB_URL']}gif/{monster_id}_IDLE.gif"
@@ -407,6 +429,9 @@ def monster_detail(monster_id: int):
             monster_attribute_resist_data=monster_attribute_resist_data,
             monster_protect_data=monster_protect_data,
             monster_slain_data=monster_slain_data,
+            mgbj_desc=mgbj_desc,
+            ai_data=ai_data,
+            aiex_data=aiex_data,
             prefix=prefix
         )
         
@@ -415,3 +440,6 @@ def monster_detail(monster_id: int):
         import traceback
         traceback.print_exc()
         return "Internal server error", 500
+    
+    
+

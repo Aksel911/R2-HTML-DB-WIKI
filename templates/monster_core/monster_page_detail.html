@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/bg/css/detail_css.css">
 </head>
-<body>
+<body data-monster-id="{{ item.MID }}">
     <!-- Контейнер для sticky-кнопки -->
     <div class="back-button-container">
         <button class="back-button" onclick="window.history.back()">
@@ -62,7 +62,11 @@
                     <!-- AbnormalResist -->
                     {% include 'monster_core/detail/monster_page_detail_abnormal_resist.html' %}
 
+                    <!-- TblAi -->
+                    {% include 'monster_core/detail/TblAi.html' %}
 
+                    <!-- TblAiEx -->
+                    {% include 'monster_core/detail/TblAiEx.html' %}
                 </div>
                 
 

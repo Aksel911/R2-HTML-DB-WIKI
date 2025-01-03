@@ -8,7 +8,8 @@ DT_Bead, DT_ItemBeadModule, TblBeadHoleProb, DT_ItemAttributeAdd,
 DT_ItemAttributeResist, DT_ItemProtect, DT_ItemSlain, DT_ItemPanalty)
 
 from services.database import execute_query
-from services.utils import get_skill_icon_path, clean_description, get_google_sheets_data
+from services.utils import clean_description, get_google_sheets_data, get_skill_icon_path, get_item_resource
+
 from config.settings import ATTRIBUTE_TYPE_WEAPON_URL, ATTRIBUTE_TYPE_ARMOR_URL
 
 # Фильтры
@@ -400,53 +401,6 @@ def get_item_by_id(item_ids: Union[int, List[int]]) -> Union[Optional[DT_Item], 
     if single_id:
         return items_dict.get(item_ids)
     return [items_dict.get(item_id) for item_id in ids]
-
-#@lru_cache(maxsize=1000)
-def get_item_resource(item_ids: Union[int, List[int]]) -> Union[Optional[DT_ItemResource], Dict[int, DT_ItemResource]]:
-    """Get item resource by ID with caching. Now supports both single ID and list of IDs"""
-    single_id = isinstance(item_ids, int)
-    ids = [item_ids] if single_id else item_ids
-    
-    if not ids:
-        return None if single_id else {}
-        
-    placeholders = ','.join('?' * len(ids))
-    query = f"SELECT * FROM DT_ItemResource WHERE ROwnerID IN ({placeholders}) AND RType = 2"
-    
-    rows = execute_query(query, ids, fetch_one=False)
-    
-    # Создаем словарь id -> resource
-    resources_dict = {}
-    for row in rows:
-        resources_dict[row.ROwnerID] = DT_ItemResource(
-            row.ROwnerID,
-            row.RFileName,
-            row.RPosX,
-            row.RPosY
-        )
-    
-    if single_id:
-        return resources_dict.get(item_ids)
-    return resources_dict
-
-
-
-
-#@lru_cache(maxsize=1000)
-# * Получаем ссылку на изображение предмета, по его IID (сам найдет все, чисто айди только)
-def get_item_pic_url(item_id):
-    if isinstance(item_id, int):
-        item_id = get_item_resource(item_id)
-    
-    if hasattr(item_id, 'RFileName') and hasattr(item_id, 'RPosX') and hasattr(item_id, 'RPosY'):
-        item_pic_url = f"{current_app.config['GITHUB_URL']}{item_id.RFileName}_{item_id.RPosX}_{item_id.RPosY}.png"
-        return item_pic_url
-    else:
-        print(f"Объект item_id ({item_id}) не содержит необходимых атрибутов (RFileName, RPosX, RPosY)")
-        no_pic = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
-        return no_pic
-        
-
 
 #@lru_cache(maxsize=1000)
 def get_item_model_resource(item_id: int) -> Optional[DT_ItemResource]:

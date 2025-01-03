@@ -2,20 +2,16 @@ from typing import List, Dict, Optional, Tuple
 from flask import current_app
 from models.skill import Skill, DT_Attribute, DT_SkillSlain
 from services.database import execute_query
-from services.utils import get_skill_icon_path, clean_dict, get_google_sheets_data
-from services.item_service import (get_item_resource, get_item_pic_url)
+from services.utils import get_monster_pic_url, get_skill_icon_path, clean_dict, get_google_sheets_data, get_item_pic_url
+from services.item_service import get_item_resource
 from services.abnormal_service import (
     get_abnormal_skills
-)
-from services.monster_service import (
-    get_monster_pic_url
 )
 from config.settings import ATTRIBUTE_TYPE_WEAPON_URL
 
 
 
-
-# Easy defs
+# ? Easy defs
 # Поиск SID по SPID с картинкой
 def get_sid_by_spid(spid):
     query = """
@@ -99,6 +95,15 @@ def get_skills_list() -> Tuple[List[Tuple], Dict[int, str]]:
     }
 
     return skills_data, file_paths
+
+# ? EAZY DEFS
+def get_skill_name_by_sid(skill_id: int) -> Optional[str]:
+    query = """
+    SELECT SName FROM DT_Skill WHERE SID = ?
+    """
+    row = execute_query(query, (skill_id,), fetch_one=True)
+    return row.SName if row else None
+    
 
 
 def get_monster_reget_skill_pic_icon_datasource(skill_id: int) -> Optional[str]:
@@ -522,10 +527,8 @@ def get_skill_use_by_sid(spid_id: int) -> Optional[Tuple]:
         print(f"Error in get_skill_use_by_sid: {e}")
         return None
     
-    
-    
-    
-    
+
+
 # DT_ItemAttributeAdd Check
 def get_skill_attribute_data(item_id: int) -> Optional[List[DT_Attribute]]:
     
