@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/bg/css/detail_css.css">
+    <script src="/static/bg/js/detail/monster/dynamic_loading.js"></script>
 </head>
 <body data-monster-id="{{ item.MID }}">
     <!-- Контейнер для sticky-кнопки -->
@@ -50,60 +51,95 @@
 
             <div class="row">
                 <div class="col-12 col-md-6">
-                    <!-- Первый блок -->
-
-                    <!-- Информация -->
+                    <!-- First block -->
                     {% include 'monster_core/detail/monster_page_detail_information.html' %}
-
-                    <!-- Локация обитания -->
                     {% include 'monster_core/detail/monster_page_detail_location.html' %}
-
-
-                    <!-- AbnormalResist -->
-                    {% include 'monster_core/detail/monster_page_detail_abnormal_resist.html' %}
-
-                    <!-- TblAi -->
-                    {% include 'monster_core/detail/TblAi.html' %}
-
-                    <!-- TblAiEx -->
-                    {% include 'monster_core/detail/TblAiEx.html' %}
+                    
+                    {% if has_data.has_abnormal %}
+                    <div id="abnormal-resist-container" class="loading" data-template="monster_page_detail_abnormal_resist.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка Abnormal...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if has_data.has_ai %}
+                    <div id="ai-container" class="loading" data-template="TblAi.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка Ai...</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="aiex-container" class="loading" data-template="TblAiEx.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка AiEx...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 
-
-
-                <!-- Второй блок -->
                 <div class="col-12 col-md-6">
-                    <!-- Заголовок -->
+                    <!-- Title and stats -->
                     <div class="detail-title-desktop">
                         <h1 class="monster-title fadeIn">
                             <span class="monster-title-text">{{ item.MName }}</span>
                             <div class="monster-title-glow"></div>
                         </h1>
                     </div>
-
-                    <!-- Статистика -->
+                    
                     {% include 'monster_core/detail/monster_page_detail_stats.html' %}
                     
+                    {% if has_data.has_protect %}
+                    <div id="protect-slain-container" class="loading" data-template="DT_MonsterProtect.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка MonsterProtect...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                     
-                    <!-- DT_MonsterProtect -->
-                    {% include 'monster_core/detail/DT_MonsterProtect.html' %}
-
-                    <!-- DT_MonsterSlain -->
-                    {% include 'monster_core/detail/DT_MonsterSlain.html' %}
-
-                    <!-- DT_MonsterAttributeAdd -->
-                    {% include 'monster_core/detail/DT_MonsterAttributeAdd.html' %}
-
-                    <!-- DT_MonsterAttributeResist -->
-                    {% include 'monster_core/detail/DT_MonsterAttributeResist.html' %}
-
-                    <!-- Список выпадающих предметов -->
-                    {% include 'monster_core/detail/monster_page_detail_item_drop.html' %}
-
-                    <!-- Список продаваемых предметов -->
-                    {% include 'monster_core/detail/monster_page_detail_item_sell.html' %}
-
-
+                    {% if has_data.has_attributes %}
+                    <div id="attributes-container" class="loading" data-template="DT_MonsterAttributeAdd.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка MonsterAttributeAdd...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Предметы добычи всегда показываем, так как они могут быть у любого монстра -->
+                    <div id="drops-container" class="loading" data-template="monster_page_detail_item_drop.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка предметов добычи...</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if has_data.has_merchant %}
+                    <div id="merchant-items-container" class="loading" data-template="monster_page_detail_item_sell.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка торговли...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

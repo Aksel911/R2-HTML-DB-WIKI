@@ -1,6 +1,9 @@
-// Функциональность спойлеров
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('.skill-section').forEach(section => {
+// Выносим инициализацию спойлеров в отдельную функцию
+function initializeSpoilers(container = document) {
+    container.querySelectorAll('.skill-section').forEach(section => {
+        // Проверяем, не был ли уже инициализирован этот спойлер
+        if (section.dataset.spoilerInitialized) return;
+        
         const title = section.querySelector('.section-title');
         const content = section.querySelector('.skill-content');
         
@@ -55,6 +58,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             resizeObserver.observe(content);
+
+            // Отмечаем спойлер как инициализированный
+            section.dataset.spoilerInitialized = 'true';
         }
     });
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSpoilers();
 });
+
+// Добавляем функцию в глобальную область видимости
+window.initializeSpoilers = initializeSpoilers;
