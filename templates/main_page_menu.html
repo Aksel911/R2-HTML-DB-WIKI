@@ -70,7 +70,40 @@
             </li>
         </ul>
     </div>
+    <a href="https://vk.com/r2genius" target="_blank" rel="noopener noreferrer" class="navbar-text version-badge">
+        <i class="fas fa-code-branch me-1"></i>v:{{ config['VERSION'] }}
+    </a>
 </nav>
+
+<style>
+    /* Стили для VERSION */
+    .version-badge {
+        margin-left: auto;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50rem;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        font-size: 0.8rem;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .version-badge:hover {
+        background-color: #e2e6ea;
+        color: #5a6268;
+    }
+    
+    .dark-theme .version-badge {
+        background-color: rgb(40, 40, 40);
+        color: rgb(170, 170, 170);
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    .dark-theme .version-badge:hover {
+        background-color: rgb(60, 60, 60);
+        color: rgb(200, 200, 200);
+    }    
+</style>
 
 
 <!-- Required JS -->
