@@ -10,6 +10,25 @@ import traceback
 from datetime import datetime
 from config.color_logging import *
 
+
+def check_version():
+    """Read version from .ver file and set it to app.config"""
+    try:
+        with open(".ver", "r", encoding='utf-8') as ver_file:
+            for line in ver_file:
+                if line.startswith("VERSION="):
+                    app.config['VERSION'] = line.split("=", 1)[1].strip()
+                    break
+            else:
+                app.config['VERSION'] = '0.0'
+                print("Warning: VERSION= not found in .ver file!")
+    except FileNotFoundError:
+        print("Warning: File .ver not found!")
+        app.config['VERSION'] = 'not found!'
+    except Exception as e:
+        print(f"Error reading .ver file: {e}")
+        app.config['VERSION'] = 'error!'
+
 # Setup logging configuration
 def setup_logging(app):
     # Create logs directory if it doesn't exist
@@ -89,7 +108,8 @@ def setup_logging(app):
     app.logger.setLevel(logging.INFO)
     
     # Log startup
-    app.logger.info(f"Application started")
+    check_version()
+    app.logger.info(f"Application started: {app.config['VERSION']}")
     
 
 app = Flask(__name__)
@@ -160,31 +180,9 @@ def home():
 
 #app.config['VERSION'] = os.getenv('VERSION', '0')
 
-def check_version():
-    """Read version from .ver file and set it to app.config"""
-    try:
-        with open(".ver", "r", encoding='utf-8') as ver_file:
-            for line in ver_file:
-                if line.startswith("VERSION="):
-                    app.config['VERSION'] = line.split("=", 1)[1].strip()
-                    break
-            else:
-                app.config['VERSION'] = '0.0'
-                print("Warning: VERSION= not found in .ver file!")
-    except FileNotFoundError:
-        print("Warning: File .ver not found!")
-        app.config['VERSION'] = 'not found!'
-    except Exception as e:
-        print(f"Error reading .ver file: {e}")
-        app.config['VERSION'] = 'error!'
-
-
-
-
 if __name__ == '__main__':
     #setup_colored_logging(app)
     check_version()
-    print(f"{Colors.GREEN}R2-HTML-DB-WIKI{Colors.RESET}{Colors.YELLOW} Started successfully!{Colors.RESET}{Colors.GRAY} Version: {Colors.RESET}{Colors.GREEN}{app.config['VERSION']}{Colors.RESET}")
-    
+    app.logger.info(f"{Colors.GREEN}R2-HTML-DB-WIKI{Colors.RESET}{Colors.YELLOW} Started successfully!{Colors.RESET}{Colors.GRAY} Version: {Colors.RESET}{Colors.GREEN}{app.config['VERSION']}{Colors.RESET}")
     
     app.run(host='0.0.0.0', port=app.config['PORT'], debug=True)
