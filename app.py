@@ -40,6 +40,7 @@ def setup_logging(app):
                     f"\n{'-'*100}\n"
                     f"TIME: {self.formatTime(record)}\n"
                     f"RESPONSE: {record.response_data['status']}\n"
+                    f"VERSION: {app.config['VERSION']}\n"
                     f"HEADERS:\n{json.dumps(record.response_data['headers'], indent=2)}\n"
                     f"{'-'*100}"
                 )
