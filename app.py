@@ -179,11 +179,11 @@ def check_version():
         app.config['VERSION'] = 'error!'
 
 
-
-
 if __name__ == '__main__':
     #setup_colored_logging(app)
+    app.logger.info(f"Application __name__: {__name__}")
     check_version()
     app.logger.info(f"{Colors.GREEN}R2-HTML-DB-WIKI{Colors.RESET}{Colors.YELLOW} Started successfully!{Colors.RESET}{Colors.GRAY} Version: {Colors.RESET}{Colors.GREEN}{app.config['VERSION']}{Colors.RESET}")
     
+    app.logger.info(f"Application run: {app.config['VERSION']}")
     app.run(host='0.0.0.0', port=app.config['PORT'], debug=True)
