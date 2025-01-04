@@ -182,7 +182,7 @@ def check_version():
 
 
 if __name__ == '__main__':
-    setup_colored_logging(app)
+    #setup_colored_logging(app)
     check_version()
     print(f"{Colors.GREEN}R2-HTML-DB-WIKI{Colors.RESET}{Colors.YELLOW} Started successfully!{Colors.RESET}{Colors.GRAY} Version: {Colors.RESET}{Colors.GREEN}{app.config['VERSION']}{Colors.RESET}")
     

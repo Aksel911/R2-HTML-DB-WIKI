@@ -976,111 +976,172 @@ body.dark-theme .theme-toggle:hover {
 }
 
 @keyframes gradientSlide {
-	0% {
-		background-position: 0% 50%;
-	}
-	100% {
-		background-position: 400% 50%;
-	}
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 200% 50%;
+    }
+    100% {
+        background-position: 400% 50%;
+    }
 }
 
 .author-credit {
-	position: relative;
-	text-align: center;
-	font-weight: 600;
-	background-image: linear-gradient(
-		90deg,
-		#ff6b6b,
-		#4ecdc4,
-		#45b649,
-		#2c3e50,
-		#ff6b6b
-	);
-	background-size: 400% 100%;
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
-	animation: gradientSlide 10s linear infinite;
+    position: relative;
+    text-align: center;
+    font-weight: 600;
+    background-image: linear-gradient(
+        90deg,
+        #ff6b6b,
+        #4ecdc4,
+        #45b649,
+        #2c3e50,
+        #ff6b6b,
+        #ff6b6b
+    );
+    background-size: 400% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientSlide 15s linear infinite;
+    transition: all 0.3s ease;
 }
 
 .author-credit::before {
-	content: "Created by Victor Pavlov";
-	position: absolute;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	background-image: linear-gradient(
-		90deg,
-		#ff6b6b,
-		#4ecdc4,
-		#45b649,
-		#2c3e50,
-		#ff6b6b
-	);
-	background-size: 400% 100%;
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
-	filter: blur(12px);
-	opacity: 0.7;
-	animation: gradientSlide 10s linear infinite;
+    content: "Добро пожаловать в базу знаний R2 Online";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 110%;
+    background-image: linear-gradient(
+        90deg,
+        #ff6b6b,
+        #4ecdc4,
+        #45b649,
+        #2c3e50,
+        #ff6b6b,
+        #ff6b6b
+    );
+    background-size: 400% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: blur(8px);
+    opacity: 0.8;
+    animation: gradientSlide 15s linear infinite;
+    z-index: -1;
 }
 
 .author-credit a {
-	background-image: linear-gradient(
-		90deg,
-		#ff6b6b,
-		#4ecdc4,
-		#45b649,
-		#2c3e50,
-		#ff6b6b
-	) !important;
-	background-size: 400% 100% !important;
-	color: transparent !important;
-	-webkit-background-clip: text !important;
-	background-clip: text !important;
-	text-decoration: none !important;
-	position: relative;
-	display: inline-block;
-	animation: gradientSlide 10s linear infinite;
+    background-image: linear-gradient(
+        90deg,
+        #ff6b6b,
+        #4ecdc4,
+        #45b649,
+        #2c3e50,
+        #ff6b6b,
+        #ff6b6b
+    ) !important;
+    background-size: 400% 100% !important;
+    color: transparent !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    text-decoration: none !important;
+    position: relative;
+    display: inline-block;
+    animation: gradientSlide 15s linear infinite;
+    transition: all 0.3s ease;
 }
 
 .author-credit a::after {
-	content: '';
-	position: absolute;
-	width: 100%;
-	height: 2px;
-	bottom: -4px;
-	left: 0;
-	background-image: linear-gradient(
-		90deg,
-		#ff6b6b,
-		#4ecdc4,
-		#45b649,
-		#2c3e50,
-		#ff6b6b
-	);
-	background-size: 400% 100%;
-	transform: scaleX(0);
-	transform-origin: right;
-	transition: transform 0.3s ease;
-	animation: gradientSlide 10s linear infinite;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-image: linear-gradient(
+        90deg,
+        #ff6b6b,
+        #4ecdc4,
+        #45b649,
+        #2c3e50,
+        #ff6b6b,
+        #ff6b6b
+    );
+    background-size: 400% 100%;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.4s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    animation: gradientSlide 15s linear infinite;
 }
 
 .author-credit a:hover::after {
-	transform: scaleX(1);
-	transform-origin: left;
+    transform: scaleX(1);
+    transform-origin: left;
 }
 
 .author-credit a:hover {
-	text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-}
-.dark-theme .author-credit a:hover {
-	color: inherit !important;
-	text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
 }
 
+/* Dark theme styles */
+.dark-theme .author-credit {
+    background-image: linear-gradient(
+        90deg,
+        #845EC2,
+        #D65DB1,
+        #FF6F91,
+        #FF9671,
+        #845EC2,
+        #845EC2
+    );
+}
+
+.dark-theme .author-credit::before {
+    background-image: linear-gradient(
+        90deg,
+        #845EC2,
+        #D65DB1,
+        #FF6F91,
+        #FF9671,
+        #845EC2,
+        #845EC2
+    );
+    filter: blur(12px);
+    opacity: 0.9;
+}
+
+.dark-theme .author-credit a {
+    background-image: linear-gradient(
+        90deg,
+        #845EC2,
+        #D65DB1,
+        #FF6F91,
+        #FF9671,
+        #845EC2,
+        #845EC2
+    ) !important;
+}
+
+.dark-theme .author-credit a::after {
+    background-image: linear-gradient(
+        90deg,
+        #845EC2,
+        #D65DB1,
+        #FF6F91,
+        #FF9671,
+        #845EC2,
+        #845EC2
+    );
+    height: 3px;
+}
+
+.dark-theme .author-credit a:hover {
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+}
 
 
 

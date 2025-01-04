@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="stylesheet" href="/static/bg/css/main_css.css">
+</head>
+<body>
+    <h1>{% block header %}{% endblock %}</h1>
+
+    {% include 'main_page_menu.html' %}
+
+    <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-adjust"></i>
+    </button>
+
+    {% block content %}
+    <div class="craft-container">
+        <div class="craft-window">
+            <!-- Заголовок окна -->
+            <div class="craft-header">
+                <div class="header-text">
+                    <i class="fas fa-hammer"></i>
+                    <span>Создание предмета</span>
+                </div>
+                <div class="header-buttons">
+                    <div class="search-container">
+                        <div class="search-wrapper">
+                            <input type="text" class="search-input" placeholder="Поиск предмета..." style="display: none;">
+                            <button class="search-btn" onclick="toggleSearch()">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Основное содержимое -->
+            <div class="craft-content">
+                <!-- Левая панель с деталями крафта -->
+                <div class="craft-details">
+                    {% for group1 in crafts.keys()|sort %}
+                        {% for group2 in crafts[group1].keys()|sort %}
+                            {% for craft in crafts[group1][group2] %}
+                                <div class="craft-info" id="craft-{{ craft.rid }}" style="display: none;">
+                                    <!-- Название предмета -->
+                                    <div class="item-title">
+                                        <a href="/item/{{ craft.result_item_id }}" class="item-link">
+                                            <i class="fas fa-link"></i>
+                                            {{ craft.result_name }}
+                                        </a>
+                                    </div>
+
+                                    <!-- Предмет и требования -->
+                                    <div class="craft-main">
+                                        <div class="result-item">
+                                            <div class="item-preview">
+                                                <a href="/item/{{ craft.result_item_id }}">
+                                                    <div class="item-frame">
+                                                        <img src="{{ craft.result_pic }}" 
+                                                             alt="{{ craft.result_name }}" 
+                                                             class="item-icon"
+                                                             loading="lazy"
+                                                             onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
+                                                        <div class="create-count">{{ craft.create_count }}</div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="craft-info-text">
+                                            <div class="gold-text">
+                                                <i class="fas fa-coins"></i>
+                                                Изготовленное серебро: {{ craft.cost }}
+                                            </div>
+                                            <div class="silver-text">
+                                                <i class="fas fa-wallet"></i>
+                                                В наличии: 10,000,000
+                                            </div>
+                                            {% if craft.success_rate == 100 %}
+                                                <div class="success-text">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    Изготовление предмета успешно на 100%
+                                                </div>
+                                            {% else %}
+                                                <div class="failure-text">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                    [{{craft.success_rate}}%] Возможна неудача во время создания предмета.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Материалы -->
+                                    <div class="materials-container">
+                                        <div class="materials-header">
+                                            <i class="fas fa-cube"></i>
+                                            Необходимые материалы
+                                        </div>
+                                        {% for material in craft.materials %}
+                                            <div class="material-slot">
+                                                <a href="/item/{{ material.item_id }}" class="material-preview">
+                                                    <div class="material-frame">
+                                                        <img src="{{ material.pic }}" 
+                                                             alt="{{ material.name }}"
+                                                             loading="lazy"
+                                                             onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
+                                                    </div>
+                                                </a>
+                                                <div class="material-info">
+                                                    <a href="/item/{{ material.item_id }}" class="material-name">{{ material.name }}</a>
+                                                    <div class="material-quantity">{{ material.count }} / {{ material.count }} / (0)</div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        {% for _ in range(4 - craft.materials|length) %}
+                                            <div class="material-slot empty">
+                                                <div class="empty-slot-icon">
+                                                    <i class="fas fa-slash"></i>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Кнопки -->
+                                    <div class="craft-buttons">
+                                        <button class="create-btn">
+                                            <i class="fas fa-hammer"></i>
+                                            Создание
+                                        </button>
+                                        <button class="close-btn">
+                                            <i class="fas fa-times"></i>
+                                            Закрыть
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="craft-result" style="display: none;">
+                                        <div class="craft-result-success">
+                                            <i class="fas fa-check-circle"></i>
+                                            Предмет успешно создан!
+                                        </div>
+                                        <div class="craft-result-failure">
+                                            <i class="fas fa-times-circle"></i>
+                                            Не удалось создать предмет!
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+
+                <!-- Правая панель с меню -->
+                <div class="items-menu">
+                    {% for group1 in crafts.keys()|sort %}
+                    <div class="menu-group">
+                        <div class="menu-header" onclick="toggleGroup(this)">
+                            <i class="fas fa-plus"></i>
+                            {{ group1_names[group1] }}
+                        </div>
+                        <div class="submenu" style="display: none;">
+                            {% if group1 in [4, 5, 6, 7] %}
+                                {% for group2 in crafts[group1].keys()|sort %}
+                                    {% for craft in crafts[group1][group2] %}
+                                        <div class="craft-list-item" onclick="showCraftDetails('{{ craft.rid }}')"
+                                            {% if craft.rid == current_craft_id %}style="color: var(--accent-color);"{% endif %}>
+                                            <img src="{{ craft.result_pic }}" alt="{{ craft.result_name }}" width="24" height="24" loading="lazy" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
+                                            {{ craft.result_name }}{% if craft.create_count > 1 %}({{ craft.create_count }}){% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% else %}
+                                {% for group2 in crafts[group1].keys()|sort %}
+                                    <div class="submenu-category">
+                                        <div class="submenu-header" onclick="toggleSubGroup(this)">
+                                            <i class="fas fa-plus"></i>
+                                            {{ group2_names[group2] }}
+                                        </div>
+                                        <div class="submenu-items" style="display: none;">
+                                            {% for craft in crafts[group1][group2] %}
+                                                <div class="craft-list-item" onclick="showCraftDetails('{{ craft.rid }}')"
+                                                    {% if craft.rid == current_craft_id %}style="color: var(--accent-color);"{% endif %}>
+                                                    <img src="{{ craft.result_pic }}" alt="{{ craft.result_name }}" width="24" height="24" loading="lazy" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
+                                                    {{ craft.result_name }}{% if craft.create_count > 1 %}({{ craft.create_count }}){% endif %}
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="craft-notification" style="display: none;">
+        <div class="notification-content">
+            <i class="notification-icon"></i>
+            <span class="notification-text"></span>
+        </div>
+    </div>
+
+<style>
+    :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8f9fa;
+        --bg-tertiary: #f1f3f5;
+        --border-color: #dee2e6;
+        --text-primary: #212529;
+        --text-secondary: #6c757d;
+        --accent-color: #0d6efd;
+        --success-color: #198754;
+        --error-color: #dc3545;
+        --gold-color: #ffd700;
+        --silver-color: #adb5bd;
+        --item-border: #444;
+        --item-bg: #f8f9fa;
+        --hover-bg: #f1f3f5;
+      }
+      
+      .dark-theme {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-tertiary: #333333;
+        --border-color: #404040;
+        --text-primary: #ffffff;
+        --text-secondary: #d4d4d4;
+        --accent-color: #ffd700;
+        --success-color:rgba(0, 255, 0, 0.7);
+        --error-color: #ff4444;
+        --gold-color: #ffd700;
+        --silver-color: #c0c0c0;
+        --item-border: #666;
+        --item-bg: #2d2d2d;
+        --hover-bg: #404040;
+      }
+      
+      .craft-container {
+        display: flex;
+        justify-content: center;
+        padding: 20px;
+        min-height: calc(100vh - 60px);
+      }
+      
+      .craft-window {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        width: 900px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+      }
+      
+      .craft-header {
+        background: var(--bg-secondary);
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+      }
+      
+      .header-text {
+        color: var(--text-primary);
+        font-size: 26px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .search-container {
+        position: relative;
+      }
+      
+      .search-wrapper {
+        display: flex;
+        align-items: center;
+      }
+      
+      .search-input {
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 6px 12px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        width: 200px;
+        display: none;
+      }
+      
+      .search-btn {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .craft-content {
+        display: flex;
+        height: 725px;
+      }
+      
+      .craft-details {
+        flex: 1;
+        padding: 20px;
+        border-right: 1px solid var(--border-color);
+        position: relative;
+        overflow-y: auto;
+      }
+      
+      .items-menu {
+        width: 300px;
+        background: var(--bg-secondary);
+        overflow-y: auto;
+      }
+      
+      .menu-group {
+        margin-bottom: 2px;
+      }
+      
+      .menu-header,
+      .submenu-header {
+        padding: 8px 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 4px;
+        color: var(--text-primary);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+      }
+      
+      .menu-header:hover,
+      .submenu-header:hover {
+        background: var(--hover-bg);
+      }
+      
+      .menu-header i,
+      .submenu-header i {
+        color: var(--text-secondary);
+        width: 16px;
+        text-align: center;
+      }
+      
+      .submenu {
+        margin-left: 15px;
+        display: none;
+      }
+      
+      .craft-list-item {
+        padding: 8px 12px 8px 36px;
+        cursor: pointer;
+        color: var(--text-secondary);
+        position: relative;
+        border-radius: 4px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        margin-bottom: 1px;
+        transition: all 0.2s ease;
+      }
+      
+      .craft-list-item:hover {
+        background: var(--hover-bg);
+        color: var(--text-primary);
+        transform: translateX(5px);
+        
+      }
+    
+    .craft-list-item img {
+        margin-right: 8px;
+        transition: transform 0.3s ease;
+    }
+    
+    .craft-list-item:hover img {
+        transform: scale(1.2);
+    }
+    
+    
+    .craft-list-item.selected {
+        color: #ffffff;
+        border-color: var(--accent-color);
+    }
+    
+    .craft-list-item.selected img {
+        filter: brightness(1.5);
+    }
+
+
+      .craft-list-item.selected {
+        color: #ffffff;
+      }
+      
+        .craft-main {
+            margin-left: 15px;
+        }
+
+      .item-title {
+        margin-bottom: 20px;
+        font-size: 18px;
+        color: var(--accent-color);
+      }
+      
+      .item-preview {
+        position: relative;
+        width: 64px;
+        height: 64px;
+      }
+      
+      .item-frame {
+        width: 100%;
+        height: 100%;
+        border: 2px solid var(--item-border);
+        border-radius: 4px;
+        background: var(--item-bg);
+        padding: 2px;
+        position: relative;
+      }
+      
+      .item-icon {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      
+      .create-count {
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 12px;
+        border: 1px solid var(--item-border);
+      }
+      
+      .materials-container {
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 20px;
+        margin-bottom: 70px;
+      }
+      
+      .material-slot {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        margin-bottom: 8px;
+      }
+      
+      .material-slot.empty {
+        height: 60px;
+        background: var(--bg-secondary);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      .material-frame {
+        width: 40px;
+        height: 40px;
+        border: 2px solid var(--item-border);
+        border-radius: 4px;
+        background: var(--item-bg);
+        margin-right: 12px;
+        padding: 2px;
+      }
+      
+      .material-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      
+      .gold-text {
+        color: var(--gold-color);
+        margin-bottom: 4px;
+      }
+      
+      .silver-text {
+        color: var(--silver-color);
+        margin-bottom: 4px;
+      }
+      
+      .success-text {
+        color: var(--success-color);
+      }
+      
+      .failure-text {
+        color: var(--error-color);
+      }
+      
+      .craft-buttons {
+        position: absolute;
+        left: 0;
+        right: 0;
+        background: var(--bg-primary);
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        border-top: 1px solid var(--border-color);
+      }
+      
+      .create-btn,
+      .close-btn {
+        flex: 1;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      
+      .create-btn {
+        background: var(--success-color);
+        color: white;
+      }
+      
+      .close-btn {
+        background: var(--error-color);
+        color: white;
+      }
+      
+      .create-btn:hover,
+      .close-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      
+      .notification-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+      
+      .notification-message {
+        background: var(--bg-primary);
+        padding: 20px 40px;
+        border-radius: 8px;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transform: translateY(20px);
+        transition: all 0.3s ease;
+      }
+      
+      .notification-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      .notification-overlay.show .notification-message {
+        transform: translateY(0);
+      }
+      
+      .notification-message i {
+        margin-right: 12px;
+        font-size: 20px;
+      }
+      
+      .notification-message.success {
+        color: var(--success-color);
+        background-color: var(--bg-primary);
+        border: 1px solid var(--success-color);
+      }
+      
+      .notification-message.success i {
+        color: var(--success-color);
+      }
+      
+      .notification-message.error {
+        color: var(--error-color);
+        background-color: var(--bg-primary);
+        border: 1px solid var(--error-color);
+      }
+      
+      .notification-message.error i {
+        color: var(--error-color);
+      }
+      
+      .confetti {
+        width: 10px;
+        height: 10px;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        animation: confettiFall 6s linear infinite;
+      }
+      
+      .confetti.square {
+        width: 8px;
+        height: 8px;
+      }
+      
+      .confetti.circle {
+        border-radius: 50%;
+      }
+      
+      @keyframes confettiFall {
+        0% {
+          transform: translateY(-100vh) rotate(0deg);
+        }
+        100% {
+          transform: translateY(100vh) rotate(720deg);
+        }
+      }
+      
+      @keyframes itemGlow {
+        0% {
+          box-shadow: 0 0 5px var(--accent-color);
+        }
+        50% {
+          box-shadow: 0 0 20px var(--accent-color);
+        }
+        100% {
+          box-shadow: 0 0 5px var(--accent-color);
+        }
+      }
+
+
+      @media (max-width: 768px) {
+            .items-menu {
+                position: absolute;
+                margin-top: 750px;
+                margin-left: 20px;
+                width: unset;
+            }
+
+
+      }
+
+      
+
+      
+</style>
+
+
+<script>
+
+
+    let availableMoney = 10000000;
+
+    // Утилиты
+    function random(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function createConfetti(type) {
+        const colors = type === 'success' ? ['#ff6b6b', '#f06595', '#cc5de8', '#845ef7', '#5c7cfa', '#339af0', '#22b8cf', '#20c997', '#51cf66', '#94d82d', '#fcc419'] : ['#ff0000', '#ff4444', '#ff8888'];
+        const shapes = ['square', 'circle', 'triangle', 'star'];
+        const container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '9999';
+        document.body.appendChild(container);
+        
+        for (let i = 0; i < 150; i++) {
+            const confetti = document.createElement('div');
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            
+            confetti.className = `confetti ${shape}`;
+            confetti.style.backgroundColor = color;
+            confetti.style.left = `${random(0, 100)}vw`;
+            confetti.style.animationDuration = `${random(2, 4)}s`;
+            confetti.style.opacity = random(0.6, 1);
+            confetti.style.transform = `scale(${random(0.5, 1.5)})`;
+            
+            container.appendChild(confetti);
+        }
+        
+        // Постепенное удаление конфетти
+        const duration = 3000;
+        const startTime = performance.now();
+        const fadeOut = () => {
+            const elapsed = performance.now() - startTime;
+            const opacity = 1 - (elapsed / duration);
+            container.style.opacity = opacity > 0 ? opacity : 0;
+            
+            if (elapsed < duration) {
+                requestAnimationFrame(fadeOut);
+            } else {
+                container.remove();
+            }
+        }
+        requestAnimationFrame(fadeOut);
+    }
+
+    function showNotification(message, type) {
+        // Удаляем существующее уведомление, если есть
+        const existingNotification = document.querySelector('.notification-overlay');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        const overlay = document.createElement('div');
+        overlay.className = 'notification-overlay';
+        
+        const notification = document.createElement('div');
+        notification.className = `notification-message ${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        overlay.appendChild(notification);
+        document.body.appendChild(overlay);
+        
+        requestAnimationFrame(() => {
+            overlay.classList.add('show');
+            if (type === 'success') {
+                createConfetti('success');
+                
+                // Создаем элемент audio и воспроизводим звук успеха
+                const audioSuccess = new Audio('https://github.com/Aksel911/R2-Textures/raw/refs/heads/main/%5BFIX%5D%20FIXES/%5BFIX%5D%20%D0%A1%D1%82%D0%B0%D1%80%D1%8B%D0%B9%20%D1%8D%D1%84%D1%84%D0%B5%D0%BA%D1%82%20%D0%B7%D0%B0%D1%82%D0%BE%D1%87%D0%BA%D0%B8/sound/10th_success.wav');
+                audioSuccess.play();
+            } else if (type === 'error') {
+                createConfetti('error');
+                
+                // Создаем элемент audio и воспроизводим звук неудачи
+                const audioFail = new Audio('https://github.com/Aksel911/R2-Textures/raw/refs/heads/main/%5BFIX%5D%20FIXES/%5BFIX%5D%20%D0%A1%D1%82%D0%B0%D1%80%D1%8B%D0%B9%20%D1%8D%D1%84%D1%84%D0%B5%D0%BA%D1%82%20%D0%B7%D0%B0%D1%82%D0%BE%D1%87%D0%BA%D0%B8/sound/FAIL_02.wav');
+                audioFail.play();
+            }
+        });
+        
+        setTimeout(() => {
+            overlay.classList.remove('show');
+            setTimeout(() => overlay.remove(), 300);
+        }, 3000);
+    }
+
+    // Функции меню
+    function toggleGroup(element) {
+        const submenu = element.nextElementSibling;
+        const icon = element.querySelector('i');
+        const allSubmenus = document.querySelectorAll('.submenu');
+        const allIcons = document.querySelectorAll('.menu-header i');
+        
+        // Закрываем все другие группы
+        allSubmenus.forEach(sub => {
+            if (sub !== submenu && sub.style.display !== 'none') {
+                sub.style.display = 'none';
+                const headerIcon = sub.previousElementSibling.querySelector('i');
+                headerIcon.classList.remove('fa-minus');
+                headerIcon.classList.add('fa-plus');
+            }
+        });
+        
+        if (submenu.style.display === 'none') {
+            submenu.style.display = 'block';
+            icon.classList.remove('fa-plus');
+            icon.classList.add('fa-minus');
+        } else {
+            submenu.style.display = 'none';
+            icon.classList.remove('fa-minus');
+            icon.classList.add('fa-plus');
+            
+            // Закрываем все подгруппы
+            submenu.querySelectorAll('.submenu-items').forEach(item => {
+                item.style.display = 'none';
+                const subIcon = item.previousElementSibling.querySelector('i');
+                if (subIcon) {
+                    subIcon.classList.remove('fa-minus');
+                    subIcon.classList.add('fa-plus');
+                }
+            });
+        }
+    }
+
+    function toggleSubGroup(element) {
+        const items = element.nextElementSibling;
+        const icon = element.querySelector('i');
+        
+        if (items.style.display === 'none') {
+            items.style.display = 'block';
+            icon.classList.remove('fa-plus');
+            icon.classList.add('fa-minus');
+        } else {
+            items.style.display = 'none';
+            icon.classList.remove('fa-minus');
+            icon.classList.add('fa-plus');
+        }
+    }
+
+    function showCraftDetails(craftId) {
+        const allCrafts = document.querySelectorAll('.craft-info');
+        const allItems = document.querySelectorAll('.craft-list-item');
+        
+        allCrafts.forEach(craft => craft.style.display = 'none');
+        allItems.forEach(item => {
+            item.classList.remove('selected');
+            item.style.color = 'var(--text-secondary)';
+        });
+        
+        const craftElement = document.getElementById(`craft-${craftId}`);
+        if (craftElement) {
+            craftElement.style.display = 'block';
+            const listItem = document.querySelector(`.craft-list-item[onclick*="${craftId}"]`);
+            if (listItem) {
+                listItem.classList.add('selected');
+                listItem.style.color = 'var(--accent-color)';
+            }
+        }
+    }
+
+    // Функция создания предмета
+    function craftItem(event) {
+        const button = event.target.closest('.create-btn');
+        if (!button) return;
+        
+        const craftInfo = button.closest('.craft-info');
+        const successRateText = craftInfo.querySelector('.failure-text')?.textContent || 
+                            craftInfo.querySelector('.success-text')?.textContent;
+        const successRateMatch = successRateText.match(/\[(\d+)%\]/);
+        
+        let success = true;
+        if (successRateMatch) {
+            const successRate = parseInt(successRateMatch[1]);
+            success = (Math.random() * 100) <= successRate;
+        }
+        
+        // Анимация нажатия кнопки
+        button.style.transform = 'scale(0.95)';
+        setTimeout(() => button.style.transform = '', 100);
+        
+
+        // Проверка наличия достаточного количества денег перед созданием предмета
+        const costElement = craftInfo.querySelector('.gold-text');
+        const cost = parseInt(costElement.textContent.match(/\d+/)[0]);
+        if (availableMoney < cost) {
+            showNotification('Недостаточно денег для создания предмета!', 'error');
+            return;
+        }
+
+        if (success) {
+            showNotification('Предмет успешно создан!', 'success');
+            
+            // Анимация успешного крафта
+            const itemPreview = craftInfo.querySelector('.item-frame');
+            itemPreview.style.animation = 'itemGlow 1s ease'; // Уменьшаем длительность анимации
+            setTimeout(() => itemPreview.style.animation = '', 1000);
+
+            const costElement = craftInfo.querySelector('.gold-text');
+            const cost = parseInt(costElement.textContent.match(/\d+/)[0]);
+            availableMoney -= cost;
+            updateAvailableMoney();
+
+        } else {
+            showNotification('Не удалось создать предмет...', 'error');
+            
+
+            // Анимация неудачи
+            craftInfo.classList.add('shake');
+            setTimeout(() => craftInfo.classList.remove('shake'), 500);
+        }
+    }
+
+
+    // Функция для обновления отображения доступных денег
+    function updateAvailableMoney() {
+        const silverText = document.querySelectorAll('.silver-text');
+        silverText.forEach(text => {
+            text.innerHTML = `
+                <i class="fas fa-wallet"></i>
+                В наличии: ${availableMoney.toLocaleString()}
+            `;
+        });
+    }
+
+
+
+    // Поиск
+    function toggleSearch() {
+        const searchInput = document.querySelector('.search-input');
+        const searchBtn = document.querySelector('.search-btn');
+        
+        if (searchInput.style.display === 'none') {
+            searchInput.style.display = 'block';
+            searchInput.focus();
+            searchBtn.innerHTML = '<i class="fas fa-times"></i>';
+        } else {
+            searchInput.style.display = 'none';
+            searchInput.value = '';
+            searchBtn.innerHTML = '<i class="fas fa-search"></i>';
+            resetSearch();
+        }
+    }
+
+    function performSearch(query) {
+        const searchText = query.toLowerCase();
+        const menuGroups = document.querySelectorAll('.menu-group');
+        
+        menuGroups.forEach(group => {
+            let hasVisibleItems = false;
+            const items = group.querySelectorAll('.craft-list-item');
+            
+            items.forEach(item => {
+                const itemText = item.textContent.toLowerCase();
+                const isVisible = itemText.includes(searchText);
+                item.style.display = isVisible ? 'block' : 'none';
+                if (isVisible) hasVisibleItems = true;
+            });
+            
+            if (searchText && hasVisibleItems) {
+                group.style.display = 'block';
+                const submenu = group.querySelector('.submenu');
+                if (submenu) {
+                    submenu.style.display = 'block';
+                    const icon = group.querySelector('.menu-header i');
+                    icon.classList.remove('fa-plus');
+                    icon.classList.add('fa-minus');
+                }
+            } else {
+                group.style.display = hasVisibleItems ? 'block' : 'none';
+            }
+        });
+    }
+
+    function resetSearch() {
+        const menuGroups = document.querySelectorAll('.menu-group');
+        menuGroups.forEach(group => {
+            group.style.display = 'block';
+            group.querySelectorAll('.craft-list-item').forEach(item => {
+                item.style.display = 'block';
+            });
+            
+            const submenu = group.querySelector('.submenu');
+            const icon = group.querySelector('.menu-header i');
+            if (submenu) {
+                submenu.style.display = 'none';
+                icon.classList.remove('fa-minus');
+                icon.classList.add('fa-plus');
+            }
+        });
+    }
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', () => {
+        // Тема
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+        
+        // Показываем первый предмет
+        const firstItem = document.querySelector('.craft-list-item');
+        if (firstItem) {
+            const craftId = firstItem.getAttribute('onclick').match(/\d+/)[0];
+            showCraftDetails(craftId);
+        }
+        
+        // Обработчики событий
+        document.querySelectorAll('.create-btn').forEach(btn => {
+            btn.addEventListener('click', craftItem);
+        });
+        
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', e => performSearch(e.target.value));
+        }
+        
+        // Обработка Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                const searchInput = document.querySelector('.search-input');
+                if (searchInput.style.display !== 'none') {
+                    toggleSearch();
+                }
+            }
+        });
+    });
+
+</script>
+
+{% endblock %}
+
+<!-- Scripts -->
+{% block scripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="/static/bg/js/main_js_others.js"></script>
+{% endblock %}
+
+</body>
+</html>

@@ -39,16 +39,23 @@
           <div class="container">
             <center><h1 class="author-credit">Добро пожаловать в базу знаний R2 Online</h1></center>
         </div>
-          <p>Social:</p>
+          <p class="author-social">Social:</p>
           <p>
             <span><a href="https://github.com/Aksel911/" target="_blank"><i class="fa-brands fa-github"></i></a></span>
             <span><a href="https://vk.com/r2genius/" target="_blank"><i class="fa-solid fa-compass"></i></a></span>
           </p>
+          
+          <div class="acknowledgments" style="margin-top: 20px;">
+            <p class="author-social" style="font-size: 14px; ">Особая благодарность:</p>
+            <p class="author-social" style="font-size: 14px;">
+              <a href="https://vk.com/trolll67" class="author-credit" target="_blank">TrollMd</a>
+              и 
+              <a href="https://vk.com/id46414942" class="author-credit" target="_blank">Никите Медведеву</a>
+            </p>
+          </div>
         </div>
       </div>
       
-
-
 
       <div class="author-box">
         <h2 class="author-credit">ᶜʳᵉᵃᵗᵉᵈ ᵇʸ <a href="https://vk.com/akselrus" target="_blank">ⱽᴾ</a></h2>
@@ -84,6 +91,19 @@
           font-weight: lighter;
           text-transform: uppercase;
           color: #eeeeee;
+        }
+
+        .dark-theme h1 {
+          color: transparent !important;
+        }
+
+        @media (max-width: 768px) { /* Настройка для экранов шириной до 768px */
+          h2 {
+            margin-top: 130px; /* Изменение отступа для мобильных устройств */
+          }
+          .avatar {
+            margin-bottom: -60px;
+          }
         }
         
         p {
@@ -161,6 +181,16 @@
             width: 100%;
             height: auto;
           }
+        }
+
+        author-social {
+          font-size: 14px;
+          font-weight: bold;
+          color: #333333;
+        }
+
+        .dark-theme .author-social {
+          color: #f1f1f1;
         }
       </style>
 
