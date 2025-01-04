@@ -1,5 +1,10 @@
 from flask import Blueprint, render_template, jsonify, request
-from services.craft_service import get_craft_data, get_group_names
+from services.craft_service import (
+    get_craft_data,
+    get_group_names,
+    get_group_items,
+    get_all_craft_data
+)
 
 bp = Blueprint('craft', __name__)
 
@@ -7,34 +12,42 @@ bp = Blueprint('craft', __name__)
 def craft_list():
     """Страница крафта"""
     try:
-        crafts = get_craft_data()
         group1_names, group2_names = get_group_names()
+        all_crafts = get_all_craft_data()
         
         return render_template(
             'craft_core/craft_page_route.html',
-            crafts=crafts,
             group1_names=group1_names,
             group2_names=group2_names,
+            all_crafts=all_crafts,
             enumerate=enumerate
         )
     except Exception as e:
         print(f"Error loading craft page: {e}")
         return str(e), 500
 
+@bp.route('/api/craft_group/<int:group_id>')
+def get_craft_group(group_id):
+    """API endpoint для получения предметов группы"""
+    try:
+        group2 = request.args.get('group2', None)
+        items, has_more = get_group_items(group_id, group2)
+        return jsonify({
+            'items': items,
+            'has_more': has_more
+        })
+    except Exception as e:
+        print(f"Error in get_craft_group: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @bp.route('/api/craft_details/<int:rid>')
 def get_craft_details(rid):
-    """Получение деталей крафта"""
+    """API endpoint для получения деталей крафта"""
     try:
-        crafts = get_craft_data()
-        
-        # Ищем крафт по rid
-        for group1 in crafts:
-            for group2 in crafts[group1]:
-                for craft in crafts[group1][group2]:
-                    if craft['rid'] == rid:
-                        return jsonify(craft)
-        
+        craft = get_craft_data(rid)
+        if craft:
+            return jsonify(craft)
         return jsonify({'error': 'Craft not found'}), 404
-        
     except Exception as e:
+        print(f"Error in get_craft_details: {e}")
         return jsonify({'error': str(e)}), 500

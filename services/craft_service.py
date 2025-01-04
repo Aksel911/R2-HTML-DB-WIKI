@@ -1,13 +1,39 @@
 from typing import List, Dict, Optional, Tuple
 from flask import current_app
 from services.database import execute_query
-from services.item_service import get_item_resource
-from services.item_service import get_item_name
 from services.utils import get_item_pic_url
+import time
 
+# Кеширование запросов
+CACHE_TIMEOUT = 3600  # 1 час
+
+class QueryCache:
+    def __init__(self):
+        self.cache = {}
+        self.timestamps = {}
+
+    def get(self, key):
+        if key in self.cache:
+            if time.time() - self.timestamps[key] < CACHE_TIMEOUT:
+                return self.cache[key]
+            else:
+                del self.cache[key]
+                del self.timestamps[key]
+        return None
+
+    def set(self, key, value):
+        self.cache[key] = value
+        self.timestamps[key] = time.time()
+
+query_cache = QueryCache()
 
 def get_group_names() -> Tuple[Dict[int, str], Dict[str, str]]:
     """Получение названий групп"""
+    cache_key = 'group_names'
+    cached_result = query_cache.get(cache_key)
+    if cached_result:
+        return cached_result
+
     group1_names = {
         0: 'Рефайн питомцев, материалы',
         1: 'Оружие',
@@ -34,20 +60,142 @@ def get_group_names() -> Tuple[Dict[int, str], Dict[str, str]]:
         '33': 'Кольца'
     }
     
-    return group1_names, group2_names
+    result = (group1_names, group2_names)
+    query_cache.set(cache_key, result)
+    return result
 
-def check_item_exists(item_id: int) -> bool:
-    """Проверка существования предмета в базе данных"""
-    query = "SELECT COUNT(*) as count FROM DT_Item WHERE IID = ?"
-    result = execute_query(query, (item_id,), fetch_one=True)
-    return result[0] > 0 if result else False
+def get_group_items(group_id: int, group2: str = None) -> Tuple[List[Dict], bool]:
+    """Получение предметов группы с пагинацией"""
+    try:
+        # Сначала проверяем наличие подгрупп для данной группы
+        subgroups_query = """
+        SELECT DISTINCT mGroup2 
+        FROM [dbo].[DT_RefineCreateInfo] WITH (NOLOCK)
+        WHERE mGroup1 = ?
+        """
+        
+        subgroups = execute_query(subgroups_query, (group_id,))
+        has_subgroups = len(subgroups) > 1  # Больше одной подгруппы
+        
+        if has_subgroups and not group2:
+            # Возвращаем список подгрупп
+            return [{'group2': row.mGroup2} for row in subgroups], False
+        else:
+            # Запрос предметов (либо для конкретной подгруппы, либо для всей группы)
+            items_query = """
+            SELECT DISTINCT
+                a.mRID,
+                a.mSort,
+                b.RItemID0,
+                b.RIsCreateCnt,
+                i1.IName as result_name
+            FROM [dbo].[DT_RefineCreateInfo] AS a WITH (NOLOCK)
+            INNER JOIN DT_Refine AS b WITH (NOLOCK) ON b.RID = a.mRID
+            INNER JOIN DT_Item AS i1 WITH (NOLOCK) ON b.RItemID0 = i1.IID
+            WHERE a.mGroup1 = ?
+            """ + (" AND a.mGroup2 = ?" if group2 else "") + """
+            ORDER BY a.mSort DESC
+            """
+            
+            params = (group_id, group2) if group2 else (group_id,)
+            rows = execute_query(items_query, params)
+            
+            items = [
+                {
+                    'rid': row.mRID,
+                    'result_item_id': row.RItemID0,
+                    'result_name': row.result_name,
+                    'result_pic': get_item_pic_url(row.RItemID0),
+                    'create_count': row.RIsCreateCnt
+                }
+                for row in rows
+            ]
+            
+            return items, len(items) >= 20
+            
+    except Exception as e:
+        print(f"Error getting group items: {e}")
+        return [], False
 
-def get_craft_data() -> Dict:
-    """Получение данных о крафте"""
+def get_craft_data(rid: int) -> Optional[Dict]:
+    """Получение данных конкретного крафта"""
+    cache_key = f'craft_data_{rid}'
+    cached_result = query_cache.get(cache_key)
+    if cached_result:
+        return cached_result
+
+    try:
+        # Получаем основные данные крафта
+        craft_query = """
+        SELECT
+            a.mIDX,
+            a.mRID,
+            a.mCost,
+            b.RItemID0,
+            b.RSuccess,
+            b.RIsCreateCnt,
+            i1.IName as result_name
+        FROM [dbo].[DT_RefineCreateInfo] AS a WITH (NOLOCK)
+        INNER JOIN DT_Refine AS b WITH (NOLOCK) ON b.RID = a.mRID
+        INNER JOIN DT_Item AS i1 WITH (NOLOCK) ON b.RItemID0 = i1.IID
+        WHERE a.mRID = ?
+        """
+        
+        craft_row = execute_query(craft_query, (rid,), fetch_one=True)
+        if not craft_row:
+            return None
+            
+        # Получаем материалы отдельным запросом
+        materials_query = """
+        SELECT
+            c.RItemID,
+            c.RNum,
+            c.ROrderNo,
+            i2.IName as material_name
+        FROM DT_RefineMaterial AS c WITH (NOLOCK)
+        INNER JOIN DT_Item AS i2 WITH (NOLOCK) ON c.RItemID = i2.IID
+        WHERE c.RID = ?
+        ORDER BY c.ROrderNo
+        """
+        
+        materials_rows = execute_query(materials_query, (rid,))
+        
+        result = {
+            'idx': craft_row.mIDX,
+            'rid': craft_row.mRID,
+            'cost': craft_row.mCost,
+            'result_item_id': craft_row.RItemID0,
+            'success_rate': craft_row.RSuccess,
+            'create_count': craft_row.RIsCreateCnt,
+            'result_name': craft_row.result_name,
+            'result_pic': get_item_pic_url(craft_row.RItemID0),
+            'materials': [
+                {
+                    'item_id': row.RItemID,
+                    'count': row.RNum,
+                    'order_no': row.ROrderNo,
+                    'name': row.material_name,
+                    'pic': get_item_pic_url(row.RItemID)
+                }
+                for row in materials_rows
+            ]
+        }
+        
+        query_cache.set(cache_key, result)
+        return result
+        
+    except Exception as e:
+        print(f"Error getting craft data: {e}")
+        print(f"Craft query: {craft_query}")
+        print(f"RID: {rid}")
+        return None
+
+
+def get_all_craft_data() -> Dict:
+    """Получение всех данных крафта"""
     try:
         query = """
         SELECT DISTINCT
-            a.mIDX,
             a.mRID,
             a.mGroup1,
             a.mGroup2,
@@ -56,101 +204,44 @@ def get_craft_data() -> Dict:
             b.RItemID0,
             b.RSuccess,
             b.RIsCreateCnt,
-            c.RItemID,
-            c.RNum,
-            c.ROrderNo
-        FROM
-            [dbo].[DT_RefineCreateInfo] AS a
-            INNER JOIN DT_Refine AS b ON ( b.RID = a.mRID )
-            INNER JOIN DT_RefineMaterial AS c ON ( c.RID = b.RID )
-            INNER JOIN DT_Item AS i1 ON ( b.RItemID0 = i1.IID )
-            INNER JOIN DT_Item AS i2 ON ( c.RItemID = i2.IID )
-        ORDER BY
-            a.mGroup1,
-            a.mGroup2,
-            a.mSort DESC
+            i1.IName as result_name
+        FROM [dbo].[DT_RefineCreateInfo] AS a WITH (NOLOCK)
+        INNER JOIN DT_Refine AS b WITH (NOLOCK) ON b.RID = a.mRID
+        INNER JOIN DT_Item AS i1 WITH (NOLOCK) ON b.RItemID0 = i1.IID
+        ORDER BY a.mGroup1, a.mGroup2, a.mSort DESC
         """
         
-        rows = execute_query(query)
+        all_items = execute_query(query)
         
-        # Группируем данные по Group1 и Group2
-        crafts_by_groups = {}
-        
-        for row in rows:
-            try:
-                group1 = row.mGroup1
-                group2 = row.mGroup2
-                result_item_id = row.RItemID0
-                material_item_id = row.RItemID
+        # Группируем данные
+        grouped_data = {}
+        for row in all_items:
+            group1 = row.mGroup1
+            group2 = str(row.mGroup2)
+            
+            if group1 not in grouped_data:
+                grouped_data[group1] = {}
                 
-                # Проверяем существование предметов
-                if not (result_item_id and material_item_id):
-                    continue
+            if group2 not in grouped_data[group1]:
+                grouped_data[group1][group2] = []
                 
-                if group1 not in crafts_by_groups:
-                    crafts_by_groups[group1] = {}
-                    
-                group_key = f"{group1}{group2}"
-                if group_key not in crafts_by_groups[group1]:
-                    crafts_by_groups[group1][group_key] = []
-                
-                # Находим существующий крафт или создаем новый
-                craft = None
-                for existing_craft in crafts_by_groups[group1][group_key]:
-                    if existing_craft['rid'] == row.mRID:
-                        craft = existing_craft
-                        break
-                        
-                if craft is None:
-                    result_name = get_item_name(result_item_id)
-                    if not result_name:
-                        continue
-                        
-                    craft = {
-                        'idx': row.mIDX,
-                        'rid': row.mRID,
-                        'sort': row.mSort,
-                        'cost': row.mCost,
-                        'result_item_id': result_item_id,
-                        'success_rate': row.RSuccess,
-                        'create_count': row.RIsCreateCnt,
-                        'result_name': result_name,
-                        'result_pic': get_item_pic_url(result_item_id),
-                        'materials': []
-                    }
-                    crafts_by_groups[group1][group_key].append(craft)
-                
-                # Добавляем материал
-                material_name = get_item_name(material_item_id)
-                if material_name:
-                    material = {
-                        'item_id': material_item_id,
-                        'count': row.RNum,
-                        'order_no': row.ROrderNo,
-                        'name': material_name,
-                        'pic': get_item_pic_url(material_item_id)
-                    }
-                    craft['materials'].append(material)
-                
-                # Сортируем материалы по order_no
-                craft['materials'].sort(key=lambda x: x['order_no'])
-                
-            except Exception as e:
-                print(f"Error processing row: {row}")
-                print(f"Error details: {e}")
-                continue
-        
-        return crafts_by_groups
+            item_data = {
+                'rid': row.mRID,
+                'result_item_id': row.RItemID0,
+                'result_name': row.result_name,
+                'result_pic': get_item_pic_url(row.RItemID0),
+                'create_count': row.RIsCreateCnt,
+                'cost': row.mCost,
+                'success_rate': row.RSuccess
+            }
+            
+            grouped_data[group1][group2].append(item_data)
+            
+        return grouped_data
         
     except Exception as e:
-        print(f"Error getting craft data: {e}")
-        raise e
-
-
-
-
-
-
+        print(f"Error getting all craft data: {e}")
+        return {}
 
 
 
