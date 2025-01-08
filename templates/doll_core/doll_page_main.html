@@ -1,0 +1,216 @@
+<!-- skill_tree_page_main.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}R2 Online Game{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="stylesheet" href="/static/bg/css/main_css.css">
+    <link rel="stylesheet" href="/static/bg/css/doll/doll.css">
+
+</head>
+<body>
+
+    <h1>{% block header %}{% endblock %}</h1>
+
+    {% include 'main_page_menu.html' %}
+
+    <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-adjust"></i>
+    </button>
+
+    {% block content %}
+    <div class="doll-layout" id="doll-layout">
+        <input type="hidden" name="doll-class" value="1" id="doll-class">
+        <div class="doll-top-line">
+            Character doll for 
+            Ranger
+            
+            
+            
+        </div>
+
+        <input type="hidden" name="id-doll" value="0" id="id-doll">
+
+        <div class="doll-content">
+<div class="leftside">
+<div class="char-block">
+<div class="left-block">
+<div class="level-char">
+Level<div class="def-number-input number-input safari_only">
+<button onclick="this.parentNode.querySelector('input[type=number]').stepDown()" id="minus" class="minus"></button>
+<input class="quantity" min="1" max="250" name="quantity" id="level" value="1" type="number">
+<button onclick="this.parentNode.querySelector('input[type=number]').stepUp()" id="plus" class="plus"></button>
+</div>
+</div>
+
+<div class="stat-list">
+<ul class="list-desc">
+<li>
+    <center> Characteristic</center>
+</li>
+ <li>
+    MP: <span id="mp">51</span>
+</li>
+<li>
+    HP: <span id="hp">79</span>
+</li>
+<li>
+     Weight: <span id="weight">3315</span>
+</li>
+<li>
+     Strength: <span id="str">10</span>
+</li>
+<li>
+     Agility: <span id="dex">15</span>
+</li>
+<li>
+     Intellect: <span id="iint">10</span>
+</li>
+<li>
+     Protection: <span id="pv">1</span>
+</li> 
+</ul>
+</div>
+</div>
+<div class="right-block">
+<div class="person">
+
+<div class="doll-field pic-1 select-item" data-type="helmet" data-num="0001">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-2 select-item" data-type="cloak" data-num="0002">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-3 select-item" data-type="armor" data-num="0003">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-4 select-item" data-type="shield" data-num="0004">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-5 select-item" data-type="belt" data-num="0005">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-6 select-item" data-type="gloves" data-num="0006">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-7 select-item" data-type="boots" data-num="0007">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-8 select-item" data-type="ring" data-num="0008">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-9 select-item" data-type="neckl" data-num="0009">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-10 select-item" data-type="weapon" data-num="0010">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-11 select-item" data-type="ring" data-num="0011">
+<div class="active-item"></div>                    </div>
+
+<div class="doll-field pic-12 select-item" data-type="earring" data-num="0020">
+<div class="active-item"></div>                    </div>
+</div>
+</div>
+</div>
+<div class="sph-block">
+<div class="top-line">
+<div class="main-sphs">
+<div class="select-item sph num-1" data-type="main-sph" data-num="0015">
+<div class="active-item"></div>                    </div>
+</div>
+</div>
+<div class="bottom-line">
+<div class="ext-sphs">
+<div class="select-item sph num-1" data-type="ext-sph" data-num="0013">
+<div class="active-item"></div>                    </div>
+<div class="select-item sph num-2" data-type="morph" data-num="0012">
+<div class="active-item"></div>                    </div>
+<div class="select-item sph num-3" data-type="ext-sph" data-num="0014">
+<div class="active-item"></div>                    </div>
+</div>
+<div class="main-sphs">
+
+<div class="selection-bonus">
+                    </div>
+
+<div class="select-item sph num-2" data-type="main-sph" data-num="0016">
+<div class="active-item"></div>                    </div>
+<div class="select-item sph num-3" data-type="main-sph" data-num="0017">
+<div class="active-item"></div>                    </div>
+<div class="select-item sph num-4" data-type="main-sph" data-num="0018">
+<div class="active-item"></div>                    </div>
+<div class="select-item sph num-5" data-type="main-sph" data-num="0019">
+<div class="active-item"></div>                    </div>
+</div>
+</div>
+
+<div class="btn-set">		
+<div class="btn-r2-big" id="set-screenshot" style="width: 148px; float: left;"><span class="hover"></span>Doll Screenshot</div>
+
+</div>
+</div>
+
+
+</div>
+<div class="rightside">
+<div class="item-list-block">
+
+
+<div class="classes-tabs">
+<ul>
+<li data-id="full-info-doll" data-id-not="load-items" class="select-class">
+<a href="#" class="change-rightside">General information</a>
+</li>
+<li data-id="load-items" data-id-not="full-info-doll" class="select-class active">
+<a href="#" class="change-rightside">List of items</a>
+</li>
+</ul>
+</div>
+
+<div class="simple-search active" style="display: block;">
+<input type="text" id="s-s" placeholder="Quick list search">
+<i class="fa fa-search"></i>
+</div>
+
+<div id="load-items" data-html2canvas-ignore="true" data-actual-type="" style="">
+<p style="font-size: 12px;padding-top: 11px;">
+Please select the type of item you want to watch.
+Click on any cell on the character.
+</p>
+</div>
+
+<div id="full-info-doll" style="display: none;">
+Welcome to our test doll. <br>
+In order to start using the doll, you must authorize on site and select the type of placement on the left. 
+
+</div>
+</div>
+</div>
+</div>
+
+<div id="bg-layout-app"></div>
+
+<script>
+LoadDollParams = false;
+</script>
+    </div>
+    {% endblock %}
+    
+
+
+    <!-- Scripts -->
+    {% block scripts %}
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+        <script src="/static/bg/js/doll/doll.js" defer></script>
+    {% endblock %}
+
+</body>
+</html>

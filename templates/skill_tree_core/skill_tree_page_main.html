@@ -1,0 +1,101 @@
+<!-- skill_tree_page_main.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}R2 Online Game{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="stylesheet" href="/static/bg/css/main_css.css">
+    <link rel="stylesheet" href="/static/bg/css/skill_tree/skill_tree.css">
+
+</head>
+<body>
+
+    <h1>{% block header %}{% endblock %}</h1>
+
+    {% include 'main_page_menu.html' %}
+
+    <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-adjust"></i>
+    </button>
+
+    {% block content %}
+
+        <div id="skills-trees">
+            <section id="main-window">
+                <!-- Borders -->
+                <div class="border border-vertical border-left"></div>
+                <div class="border border-vertical border-right"></div>
+                <div class="border border-horizontal border-top"></div>
+                <div class="border border-horizontal border-bottom"></div>
+
+                <div class="layout">
+                    <div class="title">Древо умений</div>
+
+                    <!-- Class tabs -->
+                    <div class="classes-tabs">
+                        <ul>
+                            <li class="active" data-class="knight">Рыцарь</li>
+                            <li data-class="mage">Маг</li>
+                            <li data-class="assassin">Ассасин</li>
+                            <li data-class="summoner">Призыватель</li>
+                            <li data-class="ranger">Рейнджер</li>
+                            <li data-class="guild">Гильдия</li>
+                            <li data-class="pet">Питомец</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tree titles -->
+                    <div class="tree-titles">
+                        <div>Общее древо</div>
+                        <div></div>
+                        <div></div>
+                    </div>
+
+                    <!-- Skills container -->
+                    <div class="trees-layout">
+                        {% for tree_id in range(1, 66) %}
+                        <div class="skill-group" data-tree="{{ tree_id }}">
+                            <div class="skills-list" id="tree-{{ tree_id }}"></div>
+                            <button class="trees-btn trees-btn-long">Очистить ветку</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="footer">
+                        Доступные очки: <span id="available" data-active-point="80">80</span> / <span id="all-available">80</span>
+                    </div>
+                </div>
+
+                <!-- Reset button -->
+                <button id="clear-tree" class="clear-skills-btn">Сбросить древо</button>
+            </section>
+        </div>
+
+        <!-- Loading overlay -->
+        <div class="preloader" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+        <div class="preloader-bg" style="display: none;"></div>
+        {% endblock %}
+
+    <!-- Scripts -->
+    {% block scripts %}
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+        <script>
+            window.TREE_TYPES = {{ tree_types|tojson|safe }};
+            window.SKILL_TREES = {{ skill_trees|tojson|safe }};
+        </script>
+        <script src="/static/bg/js/skill_tree/skill_tree.js" defer></script>
+        <script src="/static/bg/js/main_js.js" defer></script>
+    {% endblock %}
+
+</body>
+</html>

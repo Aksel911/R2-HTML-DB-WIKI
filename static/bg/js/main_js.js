@@ -1,85 +1,123 @@
-// Проверка темы до загрузки DOM
-(function() {
-    if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.classList.add('dark-theme');
-        document.body.classList.add('dark-theme');
-    }
-})();
-
-// Utility function для поиска
-function highlightMatch(text, searchTerm) {
-    if (!searchTerm) return text;
-    const escapedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escapedSearchTerm})`, 'gi');
-    return text.replace(regex, '<span class="highlight">$1</span>');
-}
-
-// Инициализация всей функциональности когда документ готов
-$(document).ready(function() {
-    // Инициализация компонентов с проверкой существования каждой функции
-    if (typeof initializeKeyboardNavigation === 'function') {
-        initializeKeyboardNavigation();
-    }
+// Модуль управления темой
+var ThemeManager = {
+    THEME_KEY: 'theme',
+    DARK_THEME_CLASS: 'dark-theme',
     
-    if (typeof initializeDropdownMenu === 'function') {
-        initializeDropdownMenu();
-    }
-    
-    if (typeof initializeTooltips === 'function') {
-        initializeTooltips();
-    }
-    
-    if (typeof initializeSpoilers === 'function') {
-        initializeSpoilers();
-    }
-
-    if (typeof initializeSearch === 'function') {
-        initializeSearch();
-    }
-
-});
-
-
-
-// Инициализация тултипов
-function initializeTooltips() {
-    $('[data-toggle="tooltip"]').tooltip();
-}
-
-
-// Функциональность переключения темы
-function initializeThemeToggle() {
-    const toggleButton = document.getElementById('theme-toggle');
-    if (!toggleButton) return;
-
-    // Добавляем звуковой эффект при клике
-    const soundEffect = new Audio('https://www.soundjay.com/buttons/sounds/button-30.mp3');
-
-    toggleButton.addEventListener('click', () => {
-        // Переключаем тему
-        document.documentElement.classList.toggle('dark-theme');
-        document.body.classList.toggle('dark-theme');
+    // Метод инициализации темы до загрузки DOM
+    initThemeImmediately: function() {
+        var savedTheme = localStorage.getItem(this.THEME_KEY);
         
-        // Сохраняем состояние
-        localStorage.setItem(
-            'theme',
-            document.documentElement.classList.contains('dark-theme') ? 'dark' : 'light'
-        );
+        // Если тема темная, добавляем классы немедленно
+        if (savedTheme === 'dark') {
+            // Добавляем классы до загрузки документа
+            document.documentElement.classList.add(this.DARK_THEME_CLASS);
+            document.body.classList.add(this.DARK_THEME_CLASS);
+            
+            // Добавляем критические стили для предотвращения мигания
+            var style = document.createElement('style');
+            
+            document.head.appendChild(style);
+        }
+    },
+
+    // Метод переключения темы
+    toggleTheme: function() {
+        // Звуковой эффект
+        var soundEffect = new Audio('https://www.soundjay.com/buttons/sounds/button-30.mp3');
+
+        // Проверяем текущее состояние темы
+        var isDarkTheme = document.documentElement.classList.contains(this.DARK_THEME_CLASS);
+        
+        // Переключаем тему
+        if (isDarkTheme) {
+            document.documentElement.classList.remove(this.DARK_THEME_CLASS);
+            document.body.classList.remove(this.DARK_THEME_CLASS);
+            localStorage.setItem(this.THEME_KEY, 'light');
+        } else {
+            document.documentElement.classList.add(this.DARK_THEME_CLASS);
+            document.body.classList.add(this.DARK_THEME_CLASS);
+            localStorage.setItem(this.THEME_KEY, 'dark');
+        }
 
         // Воспроизводим звук
-        soundEffect.play().catch(() => {}); // Игнорируем ошибки воспроизведения
+        soundEffect.play().catch(function() {}); 
 
-        // Добавляем эффект подпрыгивания
-        toggleButton.classList.toggle('bouncing');
-        setTimeout(() => toggleButton.classList.remove('bouncing'), 1000);
+        // Добавляем эффект подпрыгивания кнопки
+        var themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.classList.add('bouncing');
+            setTimeout(function() {
+                themeToggle.classList.remove('bouncing');
+            }, 1000);
+        }
+    }
+};
+
+// Утилиты
+var SearchUtils = {
+    // Функция подсветки совпадений при поиске
+    highlightMatch: function(text, searchTerm) {
+        if (!searchTerm) return text;
+        var escapedSearchTerm = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var regex = new RegExp('(' + escapedSearchTerm + ')', 'gi');
+        return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+};
+
+// Менеджер инициализации компонентов
+var ComponentInitializer = {
+    // Список компонентов для инициализации с проверкой
+    components: [
+        'initializeKeyboardNavigation',
+        'initializeDropdownMenu', 
+        'initializeTooltips', 
+        'initializeSpoilers', 
+        'initializeSearch'
+    ],
+
+    // Метод инициализации всех компонентов
+    initializeAll: function() {
+        this.components.forEach(function(componentFunc) {
+            if (typeof window[componentFunc] === 'function') {
+                window[componentFunc]();
+            }
+        });
+    }
+};
+
+// Общие утилиты для инициализации
+var CommonUtils = {
+    // Инициализация тултипов (если используется Bootstrap)
+    initializeTooltips: function() {
+        if ($ && $.fn.tooltip) {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+    }
+};
+
+// Вызываем метод инициализации темы немедленно
+ThemeManager.initThemeImmediately();
+
+// Главный модуль инициализации
+document.addEventListener('DOMContentLoaded', function() {
+    // Настраиваем кнопку переключения темы
+    var themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            ThemeManager.toggleTheme();
+        });
+    }
+
+    // Инициализируем jQuery-компоненты
+    $(document).ready(function() {
+        // Инициализируем общие компоненты
+        if (typeof ComponentInitializer !== 'undefined') {
+            ComponentInitializer.initializeAll();
+        }
+        
+        // Инициализируем тултипы
+        if (typeof CommonUtils !== 'undefined') {
+            CommonUtils.initializeTooltips();
+        }
     });
-}
-
-// Инициализируем переключатель темы при загрузке DOM
-document.addEventListener('DOMContentLoaded', initializeThemeToggle);
-
-
-
-
-
-
+});

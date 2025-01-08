@@ -75,8 +75,8 @@ def get_monster_pic_url(monster_id: int):
 
 
 
-
-def get_item_resource(item_ids: Union[int, List[int]]) -> Union[Optional[DT_ItemResource], Dict[int, DT_ItemResource]]:
+# ! ITEM RESOURCE LOGIC
+def get_item_resource(item_ids: Union[int, List[int]], r_type: int = 2) -> Union[Optional[DT_ItemResource], Dict[int, DT_ItemResource]]:
     """Get item resource by ID with caching. Now supports both single ID and list of IDs"""
     single_id = isinstance(item_ids, int)
     ids = [item_ids] if single_id else item_ids
@@ -85,9 +85,9 @@ def get_item_resource(item_ids: Union[int, List[int]]) -> Union[Optional[DT_Item
         return None if single_id else {}
         
     placeholders = ','.join('?' * len(ids))
-    query = f"SELECT * FROM DT_ItemResource WHERE ROwnerID IN ({placeholders}) AND RType = 2"
+    query = f"SELECT * FROM FNLInfodatGenTest.dbo.DT_ItemResource WHERE ROwnerID IN ({placeholders}) AND RType = ?"
     
-    rows = execute_query(query, ids, fetch_one=False)
+    rows = execute_query(query, ids + [r_type], fetch_one=False)
     
     # Создаем словарь id -> resource
     resources_dict = {}
@@ -102,10 +102,11 @@ def get_item_resource(item_ids: Union[int, List[int]]) -> Union[Optional[DT_Item
     if single_id:
         return resources_dict.get(item_ids)
     return resources_dict
-# * Получаем ссылку на изображение предмета, по его IID (сам найдет все, чисто айди только)
-def get_item_pic_url(item_id):
+
+def get_item_pic_url(item_id, r_type: int = 2):
+    """Получаем ссылку на изображение предмета по его ID"""
     if isinstance(item_id, int):
-        item_id = get_item_resource(item_id)
+        item_id = get_item_resource(item_id, r_type=r_type)
     
     if hasattr(item_id, 'RFileName') and hasattr(item_id, 'RPosX') and hasattr(item_id, 'RPosY'):
         item_pic_url = f"{current_app.config['GITHUB_URL']}{item_id.RFileName}_{item_id.RPosX}_{item_id.RPosY}.png"
@@ -114,4 +115,3 @@ def get_item_pic_url(item_id):
         print(f"Объект item_id ({item_id}) не содержит необходимых атрибутов (RFileName, RPosX, RPosY)")
         no_pic = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
         return no_pic
-        

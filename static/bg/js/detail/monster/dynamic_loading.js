@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    
     const monsterId = document.body.dataset.monsterId;
 
     // Конфигурация секций для загрузки
@@ -83,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (html.trim()) {
                         element.innerHTML = html;
                         element.classList.remove('loading');
-                        initializeSpoilers(element);
+                        window.initializeSpoilers(element);
                     } else {
                         element.style.display = 'none';
                     }
@@ -98,6 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    
     // Загружаем все секции параллельно
     Promise.all(sections.map(section => loadSection(section)));
 });
+
+

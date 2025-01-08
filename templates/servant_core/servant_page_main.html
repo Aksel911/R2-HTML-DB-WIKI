@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}R2 Online Game{% endblock %}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="stylesheet" href="/static/bg/css/main_css.css">
+    <style>
+        .servant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .servant-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        .servant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .servant-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: var(--image-bg);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        
+        .servant-stats {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .stat-name {
+            color: var(--text-muted);
+        }
+        
+        .stat-value {
+            color: var(--text-highlight);
+            text-align: right;
+        }
+        
+        .stat-value.positive {
+            color: #28a745;
+        }
+        
+        .servant-evolution {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-adjust"></i>
+    </button>
+
+    <h1>{% block header %}{% endblock %}</h1>
+
+    {% include 'main_page_menu.html' %}
+
+    <!-- Main Content -->
+    
+{% block content %}
+<div class="servants-grid">
+    {% for servant in servants %}
+    <div class="atropos">
+        <div class="atropos-inner" data-stid2="{{ servant.element_id }}">
+            <!-- Servant Image -->
+            <div class="servant-image">
+                <img src="{{ servant.image_url }}" alt="{{ servant.name }}" />
+            </div>
+            
+            <!-- Primary Title -->
+            <div class="servant-info">
+                <h3 class="servant-name">[{{ servant.id }}] {{ servant.name }}</h3>
+                {% if servant.element_info %}
+                    <div class="element-info">{{ servant.element_info }}</div>
+                {% endif %}
+            </div>
+
+            <!-- Skills by Level -->
+            <div class="skills-section">
+                {% for level, abilities in servant.skills_by_level.items() %}
+                    <div class="skill-group-container">
+                        <div class="skill-group-header" onclick="toggleSkillGroup(this)">
+                            <span class="group-name">{{ level }}</span>
+                            <span class="toggle-icon">▼</span>
+                        </div>
+                        <div class="skill-group-content">
+                            {% for ability in abilities %}
+                                <div class="skill-ability">
+                                    <span class="ability-module-name">{{ ability.module_name }}</span>
+                                    <span class="ability-param-name">{{ ability.param_name }}</span>
+                                    {% if ability.value is not none %}
+                                        <span class="ability-value {% if ability.value > 0 %}positive{% endif %}">
+                                            {% if ability.value > 0 %}+{% endif %}{{ ability.value }}
+                                            {%- if ability.is_percentage %}%{% endif -%}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Evolution Info -->
+            <div class="evolution-section">
+                <div class="evolution-header">Эволюция:</div>
+                {% if servant.evolution_stage %}
+                    <div class="evolution-target">→ {{ servant.evolution_stage }}</div>
+                {% endif %}
+            </div>
+            
+            <!-- Details Button -->
+            <div class="card-actions">
+                <button class="details-btn" onclick="showDetails({{ servant.id }})">
+                    <i class="fas fa-info-circle"></i> Подробнее
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% endblock %}
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+    <script src="/static/bg/js/main_js.js"></script>
+
+<style>
+    :root {
+        --primary-color: #3182ce;
+        --secondary-color: #2c5282;
+        --card-bg-light: rgba(255, 255, 255, 0.97);
+        --card-bg-dark: rgba(30, 31, 35, 0.95);
+        --text-color-light: #2d3748;
+        --text-color-dark: #fff;
+        --border-color-light: rgba(230, 230, 230, 0.5);
+        --border-color-dark: rgba(255, 255, 255, 0.1);
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --card-border-glow: 0 0 15px;
+    }
+    
+
+        /* Основная сетка */
+        .servants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Базовые направления */
+        .servant-card[data-type="base"] {
+            order: 1;
+        }
+
+        /* Элементы первого уровня */
+        .servant-card[data-type="element-1"] {
+            order: 2;
+        }
+
+        /* Элементы второго уровня */
+        .servant-card[data-type="element-2"] {
+            order: 3;
+        }
+
+        /* Карточка слуги */
+        .atropos {
+            height: 100%;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: servantFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation-delay: calc(var(--index) * 100ms);
+            perspective: 1000px;
+        }
+
+        .atropos-inner {
+            height: 100%;
+            min-height: 550px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 16px;
+            /* Убираем градиент из background, теперь он будет в псевдоэлементе */
+            background: transparent;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color-light);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            /* Отдельные transition для разных свойств */
+            transition: transform 0.3s ease, 
+                        box-shadow 0.3s ease,
+                        border-color 0.3s ease;
+        }
+        
+        .atropos-inner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(145deg, var(--card-bg-light, rgba(250, 250, 250, 0.95)), rgba(250, 250, 250, 0.95));
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .dark-theme .atropos-inner::before {
+            background: linear-gradient(145deg, rgba(30, 31, 35, 0.95), rgba(20, 21, 25, 0.98));
+        }
+
+        .theme-transition-active .atropos-inner,
+        .theme-transition-active .atropos-inner::before {
+            transition: none !important;
+        }
+
+        .atropos-inner:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
+        }
+
+        /* Изображение */
+        .servant-image {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto;
+            padding: 1rem;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+
+        .servant-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+            transition: var(--transition-smooth);
+        }
+
+        .atropos-inner:hover .servant-image img {
+            transform: scale(1.05);
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Информация */
+        .servant-info {
+            text-align: center;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+        }
+
+        .servant-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--text-color-light);
+            margin: 0;
+            line-height: 1.4;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .element-info {
+            font-size: 1rem;
+            color: var(--primary-color);
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Секция навыков */
+        .skills-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .skill-group-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .skill-group-header {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: var(--text-color-light);
+            transition: var(--transition-smooth);
+        }
+
+        .skill-group-header:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .dark-theme .skill-group-header {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1); /* Лёгкий светлый фон для тёмной темы */
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: var(--text-color-dark); /* Тёмный текст адаптирован для контраста */
+            transition: var(--transition-smooth);
+        }
+        
+        .dark-theme .skill-group-header:hover {
+            background: rgba(255, 255, 255, 0.15); /* Чуть более яркий фон при наведении */
+        }
+        
+
+        .skill-group-content {
+            height: 0;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .skill-group-content-inner {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .skill-ability {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            transition: var(--transition-smooth);
+        }
+        
+        .ability-module-name {
+            font-size: 0.95rem;
+            color: var(--text-color-light);
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .ability-param-name {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-color-light);
+            opacity: 0.7;
+            margin-top: 0.2rem;
+            font-style: italic;
+        }
+
+        .ability-value {
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .ability-value.positive {
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        /* Эволюция */
+        .evolution-section {
+            margin-top: auto;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+        }
+
+        .evolution-header {
+            font-weight: 600;
+            color: var(--text-color-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .dark-theme .evolution-header {
+            font-weight: 600;
+            color: var(--text-color-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .evolution-target {
+            color: var(--primary-color);
+            font-size: 0.95rem;
+        }
+
+        /* Кнопка подробнее */
+        .details-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .details-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+        }
+
+        .details-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 255, 255, 0.2), transparent);
+            clip-path: polygon(0 0, 100% 0, 100% 30%, 0 70%);
+            transition: var(--transition-smooth);
+        }
+
+        .details-btn:hover::after {
+            transform: translateY(100%);
+        }
+
+        /* Темная тема */
+        .dark-theme .atropos-inner {
+            background: linear-gradient(145deg, var(--card-bg-dark), rgba(40, 41, 45, 0.97));
+            border-color: var(--border-color-dark);
+        }
+
+        .dark-theme .servant-name {
+            color: var(--text-color-dark);
+        }
+
+        .dark-theme .ability-module-name {
+            color: var(--text-color-dark);
+        }
+
+        .dark-theme .ability-param-name {
+            color: var(--text-color-dark);
+        }
+
+        .dark-theme .skill-ability {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Анимации */
+        @keyframes servantFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Медиа-запросы */
+        /* Адаптивная верстка */
+        @media (max-width: 1200px) {
+            .servants-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1.5rem;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .servants-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .atropos-inner {
+                min-height: auto;
+                padding: 1rem;
+            }
+            
+            .servant-image {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .servant-name {
+                font-size: 1.1rem;
+            }
+            
+            .skill-group-header {
+                padding: 0.75rem;
+            }
+            
+            .skill-ability {
+                padding: 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .servants-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0.75rem;
+            }
+            
+            .servant-image {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .skill-ability {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .ability-value {
+                align-self: flex-end;
+                margin-top: 0.25rem;
+            }
+        }
+
+        /* Фиксированная высота для мобильных */
+        @media (max-width: 768px) {
+            .atropos-inner {
+                height: auto;
+                min-height: 450px;
+            }
+            
+            .skills-section {
+                max-height: 300px;
+                overflow-y: auto;
+            }
+            
+            .skills-section::-webkit-scrollbar {
+                width: 4px;
+            }
+            
+            .skills-section::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.1);
+            }
+            
+            .skills-section::-webkit-scrollbar-thumb {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 2px;
+            }
+        }
+</style>
+
+<style>
+
+   
+/* Base Elements (15, 16, 17) */
+.atropos-inner[data-stid2="15"]:hover,
+.atropos-inner[data-stid2="16"]:hover,
+.atropos-inner[data-stid2="17"]:hover {
+    border-color: rgba(158, 158, 158, 0.5);
+    box-shadow: var(--card-border-glow) rgba(158, 158, 158, 0.3);
+    background: linear-gradient(145deg, rgba(70, 70, 70, 0.1), rgba(82, 75, 74, 0.2));
+}
+
+/* Fire Level I (18, 30, 42) */
+.atropos-inner[data-stid2="18"]:hover,
+.atropos-inner[data-stid2="30"]:hover,
+.atropos-inner[data-stid2="42"]:hover {
+    border-color: rgba(255, 87, 34, 0.5);
+    box-shadow: var(--card-border-glow) rgba(255, 87, 34, 0.3);
+    background: linear-gradient(145deg, rgba(255, 117, 76, 0.1), rgba(255, 87, 51, 0.2));
+}
+
+/* Fire Level II (19, 31, 43) */
+.atropos-inner[data-stid2="19"]:hover,
+.atropos-inner[data-stid2="31"]:hover,
+.atropos-inner[data-stid2="43"]:hover {
+    border-color: rgba(255, 0, 0, 0.5);
+    box-shadow: var(--card-border-glow) rgba(255, 0, 0, 0.3);
+    background: linear-gradient(145deg, rgba(255, 61, 0, 0.15), rgba(255, 0, 0, 0.25));
+}
+
+/* Water Level I (20, 32, 44) */
+.atropos-inner[data-stid2="20"]:hover,
+.atropos-inner[data-stid2="32"]:hover,
+.atropos-inner[data-stid2="44"]:hover {
+    border-color: rgba(33, 150, 243, 0.5);
+    box-shadow: var(--card-border-glow) rgba(33, 150, 243, 0.3);
+    background: linear-gradient(145deg, rgba(33, 150, 243, 0.1), rgba(41, 182, 246, 0.2));
+}
+
+/* Water Level II (21, 33, 45) */
+.atropos-inner[data-stid2="21"]:hover,
+.atropos-inner[data-stid2="33"]:hover,
+.atropos-inner[data-stid2="45"]:hover {
+    border-color: rgba(21, 101, 192, 0.5);
+    box-shadow: var(--card-border-glow) rgba(21, 101, 192, 0.3);
+    background: linear-gradient(145deg, rgba(21, 101, 192, 0.15), rgba(30, 136, 229, 0.25));
+}
+
+/* Earth Level I (22, 34, 46) */
+.atropos-inner[data-stid2="22"]:hover,
+.atropos-inner[data-stid2="34"]:hover,
+.atropos-inner[data-stid2="46"]:hover {
+    border-color: rgba(139, 195, 74, 0.5);
+    box-shadow: var(--card-border-glow) rgba(139, 195, 74, 0.3);
+    background: linear-gradient(145deg, rgba(139, 195, 74, 0.1), rgba(156, 204, 101, 0.2));
+}
+
+/* Earth Level II (23, 35, 47) */
+.atropos-inner[data-stid2="23"]:hover,
+.atropos-inner[data-stid2="35"]:hover,
+.atropos-inner[data-stid2="47"]:hover {
+    border-color: rgba(104, 159, 56, 0.5);
+    box-shadow: var(--card-border-glow) rgba(104, 159, 56, 0.3);
+    background: linear-gradient(145deg, rgba(104, 159, 56, 0.15), rgba(85, 139, 47, 0.25));
+}
+
+/* Moon Level I (24, 36, 48) */
+.atropos-inner[data-stid2="24"]:hover,
+.atropos-inner[data-stid2="36"]:hover,
+.atropos-inner[data-stid2="48"]:hover {
+    border-color: rgba(186, 104, 200, 0.5);
+    box-shadow: var(--card-border-glow) rgba(186, 104, 200, 0.3);
+    background: linear-gradient(145deg, rgba(186, 104, 200, 0.1), rgba(171, 71, 188, 0.2));
+}
+
+/* Moon Level II (25, 37, 49) */
+.atropos-inner[data-stid2="25"]:hover,
+.atropos-inner[data-stid2="37"]:hover,
+.atropos-inner[data-stid2="49"]:hover {
+    border-color: rgba(142, 36, 170, 0.5);
+    box-shadow: var(--card-border-glow) rgba(142, 36, 170, 0.3);
+    background: linear-gradient(145deg, rgba(142, 36, 170, 0.15), rgba(123, 31, 162, 0.25));
+}
+
+/* Sun Level I (26, 38, 50) */
+.atropos-inner[data-stid2="26"]:hover,
+.atropos-inner[data-stid2="38"]:hover,
+.atropos-inner[data-stid2="50"]:hover {
+    border-color: rgba(255, 235, 59, 0.5);
+    box-shadow: var(--card-border-glow) rgba(255, 235, 59, 0.3);
+    background: linear-gradient(145deg, rgba(255, 235, 59, 0.1), rgba(255, 193, 7, 0.2));
+}
+
+/* Sun Level II (27, 39, 51) */
+.atropos-inner[data-stid2="27"]:hover,
+.atropos-inner[data-stid2="39"]:hover,
+.atropos-inner[data-stid2="51"]:hover {
+    border-color: rgba(255, 193, 7, 0.5);
+    box-shadow: var(--card-border-glow) rgba(255, 193, 7, 0.3);
+    background: linear-gradient(145deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.25));
+}
+
+/* Wind Level I (28, 40, 52) */
+.atropos-inner[data-stid2="28"]:hover,
+.atropos-inner[data-stid2="40"]:hover,
+.atropos-inner[data-stid2="52"]:hover {
+    border-color: rgba(178, 223, 219, 0.5);
+    box-shadow: var(--card-border-glow) rgba(178, 223, 219, 0.3);
+    background: linear-gradient(145deg, rgba(178, 223, 219, 0.1), rgba(128, 203, 196, 0.2));
+}
+
+/* Wind Level II (29, 41, 53) */
+.atropos-inner[data-stid2="29"]:hover,
+.atropos-inner[data-stid2="41"]:hover,
+.atropos-inner[data-stid2="53"]:hover {
+    border-color: rgba(128, 203, 196, 0.5);
+    box-shadow: var(--card-border-glow) rgba(128, 203, 196, 0.3);
+    background: linear-gradient(145deg, rgba(128, 203, 196, 0.15), rgba(77, 182, 172, 0.25));
+}
+
+/* Add transition to all element cards */
+.atropos-inner[data-stid2] {
+    transition: all 0.3s ease;
+}
+
+/* Dark theme specific overrides */
+.dark-theme .atropos-inner[data-stid2]:hover {
+    background-blend-mode: screen;
+}
+</style>
+
+
+
+<script>
+    function toggleSkillGroup(header) {
+        const container = header.closest('.skill-group-container');
+        const content = container.querySelector('.skill-group-content');
+        const contentInner = container.querySelector('.skill-group-content-inner') || content;
+        const isActive = container.classList.contains('active');
+        
+        // Закрываем все другие группы в этой карточке
+        const card = header.closest('.atropos-inner');
+        card.querySelectorAll('.skill-group-container').forEach(otherContainer => {
+            if (otherContainer !== container && otherContainer.classList.contains('active')) {
+                const otherContent = otherContainer.querySelector('.skill-group-content');
+                otherContainer.classList.remove('active');
+                otherContent.style.height = '0';
+                otherContainer.querySelector('.toggle-icon').style.transform = 'rotate(0deg)';
+            }
+        });
+        
+        // Переключаем текущую группу
+        if (!isActive) {
+            // Открываем группу
+            container.classList.add('active');
+            const height = contentInner.scrollHeight;
+            content.style.height = `${height}px`;
+            container.querySelector('.toggle-icon').style.transform = 'rotate(180deg)';
+        } else {
+            // Закрываем группу
+            container.classList.remove('active');
+            content.style.height = '0';
+            container.querySelector('.toggle-icon').style.transform = 'rotate(0deg)';
+        }
+    }
+
+    document.querySelector('.theme-toggle')?.addEventListener('click', () => {
+        // Добавляем класс для блокировки transitions
+        document.body.classList.add('theme-transition-active');
+        
+        // Переключаем тему
+        document.body.classList.toggle('dark-theme');
+        
+        // Убираем класс блокировки через небольшую задержку
+        setTimeout(() => {
+            document.body.classList.remove('theme-transition-active');
+        }, 100);
+    });
+    
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация начального состояния
+        document.querySelectorAll('.skill-group-content').forEach(content => {
+            content.style.height = '0';
+        });
+
+        // Добавляем эффект появления карточек
+        document.querySelectorAll('.atropos').forEach((card, index) => {
+            card.style.setProperty('--index', index);
+        });
+
+        // Обработчик изменения размера окна
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                document.querySelectorAll('.skill-group-container.active').forEach(container => {
+                    const content = container.querySelector('.skill-group-content');
+                    const contentInner = container.querySelector('.skill-group-content-inner') || content;
+                    content.style.height = `${contentInner.scrollHeight}px`;
+                });
+            }, 150);
+        });
+    });
+</script>
+
+</body>
+</html>

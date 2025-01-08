@@ -351,6 +351,9 @@ def api_response(func):
             return jsonify({'error': str(e)}), 500
     return wrapper
 
+
+
+
 @bp.route('/api/item/<int:item_id>/bead-hole')
 @api_response
 def get_item_bead_hole_data(item_id):
@@ -432,13 +435,22 @@ def get_item_sources_data(item_id):
         'merchant_sellers': sellers
     }
 
-@bp.route('/api/item/<int:item_id>/protect-penality')
+@bp.route('/api/item/<int:item_id>/protect')
 @api_response
-def get_item_protect_penality_data(item_id):
+def get_item_protection_data(item_id):
     protect_data = get_item_protect_data(item_id)
-    penality_data = get_item_panalty_data(item_id)
+
     return {
-        'item_protect_data': protect_data,
+        'item_protect_data': protect_data
+    }
+
+@bp.route('/api/item/<int:item_id>/penality')
+@api_response
+def get_item_penality_data(item_id):
+    penality_data = get_item_panalty_data(item_id)
+    
+    print(f"XYUUAUUDS {penality_data}")
+    return {
         'item_panalty_data': penality_data
     }
 

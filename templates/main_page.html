@@ -1,153 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
     <title>R2 Online Knowledge Base</title>
-
-    <!-- Required CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    
+    <!-- Viewport and Mobile Optimizations -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    {% include "favicon.html" %}
-
+    <!-- External CSS Dependencies -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="/static/bg/css/main_css.css">
 
-</head>
-  <body>
-      {% include 'main_page_menu.html' %}
+    <!-- Favicon -->
+    {% include "favicon.html" %}
 
-
-    <button class="main-theme-toggle" id="theme-toggle">
-      <i class="fas fa-adjust"></i>
-    </button>
-
-
-
-      <div class="container">
-        <div class="avatar">
-          <a href="https://vk.com/akselrus/">
-            <img src="https://avatars.githubusercontent.com/u/98168047?s=400&u=d1daa76c85482e879e00c92b13496f5660ef88af&v=4" alt="Skytsunami" />
-          </a>
-        </div>
-        <div class="content">
-          <div class="container">
-            <center><h1 class="author-credit">Добро пожаловать в базу знаний R2 Online</h1></center>
-        </div>
-          <p class="author-social">Social:</p>
-          <p>
-            <span><a href="https://github.com/Aksel911/" target="_blank"><i class="fa-brands fa-github"></i></a></span>
-            <span><a href="https://vk.com/r2genius/" target="_blank"><i class="fa-solid fa-compass"></i></a></span>
-          </p>
-          
-          <div class="acknowledgments" style="margin-top: 20px;">
-            <p class="author-social" style="font-size: 14px; ">Особая благодарность:</p>
-            <p class="author-social" style="font-size: 14px;">
-              <a href="https://vk.com/trolll67" class="author-credit" target="_blank">TrollMd</a>
-              и 
-              <a href="https://vk.com/id46414942" class="author-credit" target="_blank">Никите Медведеву</a>
-            </p>
-          </div>
-        </div>
-      </div>
-      
-
-      <div class="author-box">
-        <h2 class="author-credit">ᶜʳᵉᵃᵗᵉᵈ ᵇʸ <a href="https://vk.com/akselrus" target="_blank">ⱽᴾ</a></h2>
-      </div>
-
-      <!-- Required JS -->
-      {% block scripts %}
-          <!-- jQuery -->
-          <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-              
-          <!-- DataTables -->
-          <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
-          <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-          <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-
-          <script src="/static/bg/js/main_js.js"></script>
-      {% endblock %}
-
-
-      <style>
-        body,
-        html {
+    <style>
+      /* Global Styles */
+      body, html {
           height: 100%;
           margin: 0;
           padding: 0;
-        }
-        
-        h1 {
+          font-family: 'Didact Gothic', sans-serif;
+      }
+      
+      /* Heading Styles */
+      h1 {
           margin: 10px 0 0 0;
           font-weight: lighter;
           text-transform: uppercase;
           color: #eeeeee;
-        }
-
-        .dark-theme h1 {
+      }
+      
+      .dark-theme h1 {
           color: transparent !important;
-        }
-
-        @media (max-width: 768px) { /* Настройка для экранов шириной до 768px */
-          h2 {
-            margin-top: 130px; /* Изменение отступа для мобильных устройств */
-          }
-          .avatar {
-            margin-bottom: -60px;
-          }
-        }
-        
-        p {
+      }
+      
+      /* Paragraph Styles */
+      p {
           font-size: 12px;
           font-weight: light;
           color: #333333;
-        }
-        
-        span a {
+      }
+      
+      .author-social {
+          font-size: 14px;
+          font-weight: bold;
+          color: #333333;
+      }
+      
+      .dark-theme .author-social {
+          color: #f1f1f1;
+      }
+      
+      /* Social Link Styles */
+      .social-links span a {
           font-size: 18px;
           color: #cccccc;
           text-decoration: none;
           margin: 0 10px;
           transition: all 0.4s ease-in-out;
-          &:hover {
-            color: #ffffff;
-          }
-        }
-        
-        @keyframes float {
+      }
+      
+      .social-links span a:hover {
+          color: #ffffff;
+      }
+      
+      /* Avatar Animation */
+      @keyframes float {
           0% {
-            box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
-            transform: translatey(0px);
+              box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
+              transform: translatey(0px);
           }
           50% {
-            box-shadow: 0 25px 15px 0px rgba(0,0,0,0.2);
-            transform: translatey(-20px);
+              box-shadow: 0 25px 15px 0px rgba(0,0,0,0.2);
+              transform: translatey(-20px);
           }
           100% {
-            box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
-            transform: translatey(0px);
+              box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
+              transform: translatey(0px);
           }
-        }
-        
-        .container {
+      }
+      
+      /* Container Styles */
+      .container {
           width: 100%;
           height: 100%;
           display: flex;
           flex-direction: column;
           justify-content: center;
           align-items: center;
-        }
-        
-        .avatar {
+      }
+      
+      /* Avatar Styles */
+      .avatar {
           width: 150px;
           height: 150px;
           box-sizing: border-box;
@@ -157,106 +109,135 @@
           box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);
           transform: translatey(0px);
           animation: float 6s ease-in-out infinite;
-          img { width: 100%; height: auto; }
-        }
-        
-        .content {
+      }
+      
+      .avatar img {
+          width: 100%;
+          height: auto;
+      }
+      
+      /* Content Styles */
+      .content {
           width: 100%;
           max-width: 600px;
           padding: 20px 40px;
           box-sizing: border-box;
           text-align: center;
-        }
-        
-        .suppoprt-me {
-          display: inline-block;
+      }
+      
+      /* Theme Toggle Button Styles */
+      .main-theme-toggle {
           position: fixed;
-          bottom: 10px;
-          left: 10px;
-          width: 20vw;
-          max-width: 250px;
-          min-width: 200px;
-          z-index: 9;
-          img {
-            width: 100%;
-            height: auto;
-          }
-        }
-
-        author-social {
-          font-size: 14px;
-          font-weight: bold;
-          color: #333333;
-        }
-
-        .dark-theme .author-social {
+          bottom: 5px;
+          right: 20px;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #f1f1f1, #e0e0e0);
+          border: 0;
+          cursor: pointer;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+          transition: all 0.3s ease, transform 0.2s ease-in-out;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          z-index: 9999;
+      }
+      
+      .main-theme-toggle i {
+          font-size: 22px;
+          line-height: 1;
+          color: #333;
+          transition: color 0.3s ease;
+      }
+      
+      .main-theme-toggle:hover {
+          background: linear-gradient(135deg, rgb(0, 174, 255), #0077cc);
+          color: #fff;
+          transform: rotate(360deg) scale(1.1);
+      }
+      
+      .main-theme-toggle:active {
+          background: linear-gradient(135deg, #0077cc, rgb(0, 174, 255));
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+          transform: scale(0.95);
+      }
+      
+      body.dark-theme .main-theme-toggle {
+          background: linear-gradient(135deg, #333, #555);
           color: #f1f1f1;
-        }
-      </style>
+      }
+      
+      body.dark-theme .main-theme-toggle:hover {
+          background: linear-gradient(135deg, #555, #777);
+      }
+      
+      @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+      }
+      
+      .main-theme-toggle.bouncing {
+          animation: bounce 1s infinite;
+      }
+      
+      /* Responsive Adjustments */
+      @media (max-width: 768px) {
+          h2 {
+              margin-top: 130px;
+          }
+          .avatar {
+              margin-bottom: -60px;
+          }
+      }
+  </style>
+</head>
+<body>
+    <!-- Main Page Menu -->
+    {% include 'main_page_menu.html' %}
 
+    <!-- Theme Toggle Button -->
+    <button class="main-theme-toggle" id="theme-toggle">
+        <i class="fas fa-adjust"></i>
+    </button>
 
-      <style>
-        .main-theme-toggle {
-            position: fixed; /* Changed to fixed for always staying in the viewport */
-            bottom: 5px;
-            right: 20px;
-            width: 50px; /* Slightly larger size for better visibility */
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f1f1f1, #e0e0e0); /* Gradient for fun */
-            border: 0;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease, transform 0.2s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            z-index: 9999;
-        }
-    
-        .main-theme-toggle i {
-            font-size: 22px; /* Larger icon */
-            line-height: 1;
-            color: #333;
-            transition: color 0.3s ease;
-        }
-    
-        .main-theme-toggle:hover {
-            background: linear-gradient(135deg, rgb(0, 174, 255), #0077cc);
-            color: #fff;
-            transform: rotate(360deg) scale(1.1); /* Added scale for pop effect */
-        }
-    
-        .main-theme-toggle:active {
-            background: linear-gradient(135deg, #0077cc, rgb(0, 174, 255));
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            transform: scale(0.95); /* Slight shrink on click */
-        }
-    
-        body.dark-theme .main-theme-toggle {
-            background: linear-gradient(135deg, #333, #555); /* Dark mode styling */
-            color: #f1f1f1;
-        }
-    
-        body.dark-theme .main-theme-toggle:hover {
-            background: linear-gradient(135deg, #555, #777);
-        }
-    
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-    
-        .main-theme-toggle.bouncing {
-            animation: bounce 1s infinite;
-        }
-    </style>
+    <div class="container">
+        <!-- Avatar Section -->
+        <div class="avatar">
+            <a href="https://vk.com/akselrus/">
+                <img src="https://avatars.githubusercontent.com/u/98168047?s=400&u=d1daa76c85482e879e00c92b13496f5660ef88af&v=4" alt="Skytsunami" loading="lazy">
+            </a>
+        </div>
 
+        <!-- Content Section -->
+        <div class="content">
+            <center><h1 class="author-credit">Добро пожаловать в базу знаний R2 Online</h1></center>
+            <p class="author-social">Social:</p>
+            <div class="social-links">
+                <span><a href="https://github.com/Aksel911/" target="_blank"><i class="fa-brands fa-github"></i></a></span>
+                <span><a href="https://vk.com/r2genius/" target="_blank"><i class="fa-solid fa-compass"></i></a></span>
+            </div>
+            <div class="acknowledgments" style="margin-top: 20px;">
+                <p class="author-social">Особая благодарность:</p>
+                <p class="author-social">
+                    <a href="https://vk.com/trolll67" class="author-credit" target="_blank">TrollMd</a> и 
+                    <a href="https://vk.com/id46414942" class="author-credit" target="_blank">Никите Медведеву</a>
+                </p>
+            </div>
+        </div>
+    </div>
 
-  </body>
+    <div class="author-box">
+        <h2 class="author-credit">ᶜʳᵉᵃᵗᵉᵈ ᵇʸ <a href="https://vk.com/akselrus" target="_blank">ⱽᴾ</a></h2>
+    </div>
+
+    <!-- Required JS -->
+    {% block scripts %}
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" defer></script>
+        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js" defer></script>
+        
+        <script src="/static/bg/js/main_js.js" defer></script>
+    {% endblock %}
+</body>
 </html>

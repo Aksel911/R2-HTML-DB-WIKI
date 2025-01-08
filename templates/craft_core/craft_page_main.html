@@ -1012,9 +1012,10 @@ function craftItem(event) {
     
     let success = true;
     if (successRateMatch) {
-        const successRate = parseInt(successRateMatch[1]);
+        const successRate = parseFloat(successRateMatch[1]); // Используем parseFloat для обработки float
         success = (Math.random() * 100) <= successRate;
     }
+
     
     // Анимация нажатия кнопки
     button.style.transform = 'scale(0.95)';
