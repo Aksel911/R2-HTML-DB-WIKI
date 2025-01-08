@@ -85,7 +85,7 @@ def get_item_resource(item_ids: Union[int, List[int]], r_type: int = 2) -> Union
         return None if single_id else {}
         
     placeholders = ','.join('?' * len(ids))
-    query = f"SELECT * FROM FNLInfodatGenTest.dbo.DT_ItemResource WHERE ROwnerID IN ({placeholders}) AND RType = ?"
+    query = f"SELECT * FROM DT_ItemResource WHERE ROwnerID IN ({placeholders}) AND RType = ?"
     
     rows = execute_query(query, ids + [r_type], fetch_one=False)
     
