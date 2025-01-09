@@ -10,7 +10,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
     <link rel="stylesheet" href="/static/bg/css/main_css_others.css">
-    <!-- Стили -->
     <link rel="stylesheet" href="/static/bg/css/chest/chest.css">
 </head>
 <body>
@@ -21,7 +20,6 @@
     <button class="theme-toggle" id="theme-toggle">
         <i class="fas fa-adjust"></i>
     </button>
-    
     
     <div class="chest-container">
         {% for i in range(ChestMid|length) %}
@@ -63,38 +61,71 @@
                             <div class="chance-tooltip">
                                 <div class="tooltip-content">
                                     <div class="tooltip-row">
-                                        <span class="tooltip-label">Шанс выпадения:</span>
-                                        <span class="tooltip-value">{{ (item.drop_chance/100)|round(1) }}%</span>
+                                        <div class="tooltip-label-wrapper">
+                                            <i class="tooltip-icon fas fa-info-circle"></i><span class="tooltip-label">Предмет:</span>
+                                        </div>
+                                        <span class="tooltip-value">{{ item.item_name }}</span>
                                     </div>
-                                    <div class="tooltip-divider"></div>
+                                    
                                     <div class="tooltip-row">
-                                        <span class="tooltip-label">Базовый шанс:</span>
-                                        <span class="tooltip-value">{{ item.drop_chance }} / 1250</span>
+                                        <div class="tooltip-label-wrapper">
+                                            <i class="tooltip-icon fas fa-percentage"></i><span class="tooltip-label">Базовый шанс:</span>
+                                        </div>
+                                        <span class="tooltip-value">
+                                            {{ "{:.2f}".format(item.drop_chance / 100) }}%
+                                            <span style="color: rgba(255,255,255,0.5); margin-left: 5px;">
+                                                от {{ item.total_chance }}
+                                            </span>
+                                        </span>
                                     </div>
+                                    
                                     <div class="tooltip-row">
-                                        <span class="tooltip-label">Редкость:</span>
+                                        <div class="tooltip-label-wrapper">
+                                            <i class="tooltip-icon fas fa-gem"></i><span class="tooltip-label">Редкость:</span>
+                                        </div>
                                         <span class="tooltip-value" data-rarity="{{ item.drop_chance }}">
-                                            {% if item.drop_chance >= 1000 %}
+                                            {% if item.drop_chance == 10000 %}
+                                                Гарантированный
+                                            {% elif item.drop_chance >= 9000 %}
                                                 Обычный
-                                            {% elif item.drop_chance >= 500 %}
+                                            {% elif item.drop_chance >= 8000 %}
+                                                Необычный
+                                            {% elif item.drop_chance >= 7000 %}
                                                 Редкий
-                                            {% elif item.drop_chance >= 100 %}
+                                            {% elif item.drop_chance >= 6000 %}
                                                 Эпический
-                                            {% else %}
+                                            {% elif item.drop_chance >= 5000 %}
+                                                Мифический
+                                            {% elif item.drop_chance >= 4000 %}
                                                 Легендарный
+                                            {% elif item.drop_chance >= 3000 %}
+                                                Ультра-легендарный
+                                            {% elif item.drop_chance >= 2000 %}
+                                                Низкий
+                                            {% elif item.drop_chance >= 1000 %}
+                                                Очень низкий
+                                            {% else %}
+                                                Невозможный
                                             {% endif %}
                                         </span>
+                                    </div>
+                                
+                                    <div class="tooltip-row">
+                                        <div class="tooltip-label-wrapper">
+                                            <i class="tooltip-icon fas fa-box-open"></i><span class="tooltip-label">Количество:</span>
+                                        </div>
+                                        <span class="tooltip-value">{{ item.count or 1 }}</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="chance-bar">
                                 <div class="chance-fill"
-                                     style="width: {{ (item.drop_chance/1250)*100 }}%"
+                                     style="width: {{ (item.drop_chance / 100)|round(2) }}%"
                                      data-chance="{{ item.drop_chance }}"></div>
                             </div>
                             <div class="rarity-info">
                                 <span class="rarity-badge"></span>
-                                <span>{{ (item.drop_chance/100)|round(1) }}%</span>
+                                <span>{{ "{:.2f}".format(item.drop_chance / 100) }}%</span>
                             </div>
                         </div>
                     </div>
@@ -104,10 +135,7 @@
         </div>
         {% endif %}
         {% endfor %}
-        
     </div>
-
-
 
     <div id="chestEditor" class="modal">
         <div class="modal-content">
@@ -118,10 +146,10 @@
                 </div>
                 <div id="itemsList"></div>
                 <div class="item-edit-row">
-                    <input type="text" id="newItemId" placeholder="ID предмета" required>
+                    <input type="text" id="newItemId" placeholder="ID предмета">
                     <input type="text" id="newItemName" placeholder="Название">
-                    <input type="number" id="newItemCount" placeholder="Количество" min="1" max="32766" required>
-                    <input type="number" id="newItemChance" placeholder="Шанс (%)" min="0" max="100" required>
+                    <input type="number" id="newItemCount" placeholder="Количество" min="1" max="32766">
+                    <input type="number" id="newItemChance" placeholder="Шанс (0-10000)" min="0" max="10000">
                     <select id="newItemStatus">
                         <option value="0">Проклятый</option>
                         <option value="1" selected>Обычный</option>
@@ -140,8 +168,6 @@
         </div>
     </div>
 
-
-    <!-- Required JS -->
     {% block scripts %}
         <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
@@ -149,7 +175,6 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
         
-        <!-- Скрипты -->
         <script src="/static/bg/js/main_js_others.js"></script>
         <script src="/static/bg/js/chest/chest.js"></script>
     {% endblock %}

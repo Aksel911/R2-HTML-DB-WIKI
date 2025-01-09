@@ -151,17 +151,17 @@ def get_servants_list() -> List[Dict]:
     INNER JOIN TP_ModuleType AS t1 ON (t1.MType = t.MType)
     ORDER BY e.mName, v.mLevel, a.IID
     """
-    
+   
     rows = execute_query(query)
     servant_groups = {}
-    
+   
     for row in rows:
         name = row.STID1_mName.split('(')[0].strip() if row.STID1_mName else ""
         element = get_element_sort_order(row.STID2_mName, row.STID2)
         level = f"Ур. {row.mLevel}" if row.mLevel else "Основные"
-        
-        group_key = f"{name}_{element}"
-        
+       
+        group_key = f"{name}{element}"
+       
         if group_key not in servant_groups:
             servant_groups[group_key] = {
                 'id': row.IID,
@@ -173,14 +173,13 @@ def get_servants_list() -> List[Dict]:
                 'evolution_target': row.AfterCraftPetName,
                 'image_url': get_item_pic_url(row.IID, r_type=1),
                 'skills_by_level': {},
-                'base_priority': get_base_type_priority(name), 
+                'base_priority': get_base_type_priority(name),
                 'element_sort': get_element_sort_order(element)
             }
-        
+       
         if level not in servant_groups[group_key]['skills_by_level']:
             servant_groups[group_key]['skills_by_level'][level] = []
-        
-        # Добавляем характеристики
+       
         ModuleType = row.MType
         ModuleName = row.MName
         for param_name, param_value in [
@@ -197,17 +196,42 @@ def get_servants_list() -> List[Dict]:
                 }
                 if not any(a['param_name'] == ability['param_name'] for a in servant_groups[group_key]['skills_by_level'][level]):
                     servant_groups[group_key]['skills_by_level'][level].append(ability)
-    
-    # Преобразуем в список и сортируем
+                    
+    for group_key, servant_data in servant_groups.items():
+        levels = list(servant_data['skills_by_level'].keys())
+        levels.sort(key=lambda x: int(x.split()[-1]) if 'Ур.' in x else 0)
+        
+        total_stats = {
+            'level': f'{name}',
+            'stats': []
+        }
+        
+        # Собираем информацию по всем уровням
+        for level in levels:
+            for ability in servant_data['skills_by_level'][level]:
+                ability_stats = next((s for s in total_stats['stats'] if s['param_name'] == ability['param_name']), None)
+                if ability_stats:
+                    ability_stats['value'] += ability['value']
+                else:
+                    total_stats['stats'].append({
+                        'module_name': ability['module_name'],
+                        'module_type': ability['module_type'], 
+                        'param_name': ability['param_name'],
+                        'value': ability['value']
+                    })
+                    
+        servant_data['total_stats'] = total_stats if total_stats['stats'] else None
+
+   
     result = list(servant_groups.values())
     
-    # Сортируем результат
     result.sort(key=lambda x: (
-        x['base_priority'],  # Сначала базовые типы (Сила, Интеллект, Ловкость)
-        get_sort_order_priority(x['element_info']),  # Затем по порядку элементов
-        x['name']  # И наконец по имени
+        x['base_priority'], 
+        get_sort_order_priority(x['element_info']),
+        x['name']
     ))
     
+    print(result)
     return result
 
 def servant_to_dict(servant: Dict) -> Dict:

@@ -196,21 +196,49 @@
     transition: all 0.3s ease;
 }
 
-/* Rarity colors */
+/* Progress Bar Colors */
+.rarity-guaranteed .chance-fill {
+    background: linear-gradient(90deg, #16a085, #1abc9c); /* Гарантированный */
+}
+
 .rarity-common .chance-fill {
-    background: linear-gradient(90deg, #95a5a6, #bdc3c7); /* Нейтральные цвета для обычных предметов */
+    background: linear-gradient(90deg, #bdc3c7, #ecf0f1); /* Обычный */
+}
+
+.rarity-uncommon .chance-fill {
+    background: linear-gradient(90deg, #27ae60, #2ecc71); /* Необычный */
 }
 
 .rarity-rare .chance-fill {
-    background: linear-gradient(90deg, #2980b9, #6dd5fa); /* Глубокий синий, переходящий в яркий небесный */
+    background: linear-gradient(90deg, #2980b9, #6dd5fa); /* Редкий */
 }
 
 .rarity-epic .chance-fill {
-    background: linear-gradient(90deg, #8e44ad, #c77df3); /* Насыщенный фиолетовый с магическим свечением */
+    background: linear-gradient(90deg, #8e44ad, #c77df3); /* Эпический */
+}
+
+.rarity-mythical .chance-fill {
+    background: linear-gradient(90deg, #e74c3c, #f77777); /* Мифический */
 }
 
 .rarity-legendary .chance-fill {
-    background: linear-gradient(90deg, #f39c12, #f1c40f); /* Яркое золото для легендарных предметов */
+    background: linear-gradient(90deg, #f39c12, #f1c40f); /* Легендарный */
+}
+
+.rarity-ultra-legendary .chance-fill {
+    background: linear-gradient(90deg, #f4d03f, #f5b041); /* Ультра-легендарный */
+}
+
+.rarity-low .chance-fill {
+    background: linear-gradient(90deg, #7f8c8d, #95a5a6); /* Низкий */
+}
+
+.rarity-very-low .chance-fill {
+    background: linear-gradient(90deg, #34495e, #5d6d7e); /* Очень низкий */
+}
+
+.rarity-almost-impossible .chance-fill {
+    background: linear-gradient(90deg, #2c3e50, #4a6fa5); /* Почти невозможный */
 }
 
 /* Стили для разных типов предметов */
@@ -332,10 +360,11 @@
 
 
 /* Добавьте эти стили в секцию стилей */
+/* Tooltip */
 .chance-tooltip {
-    position: fixed;
+    position: absolute; /* Меняем с fixed на absolute */
     padding: 10px 15px;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.75);
     border-radius: 8px;
     color: white;
     font-size: 12px;
@@ -347,6 +376,10 @@
     min-width: 200px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     transform: translate3d(0, 0, 0);
+    /* Добавляем позиционирование */
+    top: -50px; /* Поднимаем тултип выше */
+    left: 60%;
+    transform: translateX(-50%);
 }
 
 .chance-container {
@@ -487,13 +520,24 @@
 .modal {
     display: none;
     position: fixed;
-    top: 0;
+    z-index: 1000;
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(2px);
+    transition: background-color 0.3s ease-in-out;
+}
+
+.modal.show {
+    display: block;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal.show .modal-content {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .dark-theme .modal {
@@ -502,24 +546,31 @@
 
 /* Modal Window */
 .modal-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #FFFFFF;
-    padding: 2.5rem;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 1100px;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    animation: modalSlideIn 0.3s ease-out;
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 1000px;
+    position: relative;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease-in-out;
+    margin-top: 200px;
 }
+
 
 .dark-theme .modal-content {
     background: #1a1a1a;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.modal .close-button {
+    transition: transform 0.2s ease-in-out;
+}
+
+.modal .close-button:hover {
+    transform: scale(1.1);
 }
 
 /* Modal Header */
@@ -793,4 +844,19 @@
     .btn {
         width: 100%;
     }
+}
+
+.totalChance {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px;
+    color: rgba(107, 114, 128, 0.95);
+    line-height: 1.5;
+    margin-top: 8px;
+    opacity: 0.5;
+    letter-spacing: 0.01em;
+    transition: opacity 0.2s ease;
+}
+
+.totalChance:hover {
+    opacity: 1;
 }

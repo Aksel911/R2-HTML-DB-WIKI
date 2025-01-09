@@ -7,6 +7,10 @@ from services.utils import get_monster_pic_url, get_item_pic_url
 import re
 from datetime import datetime
 
+
+
+
+
 # Получаем диалог скрипты по MID
 def get_chest_script(chest_mid: int) -> Optional[str]:
     """Получаем диалог скрипты по MID"""
@@ -20,57 +24,68 @@ def get_chest_script(chest_mid: int) -> Optional[str]:
 
 # Парсим диалог скрипты
 def parse_script(script: str, chest_mid: int) -> List[Dict]:
-   # Если скрипт пустой или None, возвращаем пустые значения
-   if not script:
-       return [], None
-       
-   drops = []
-   current_item = None
-   item_pic = None
-   
-   chest_mid_mname = None
-   chest_mid_mname = get_monster_name(chest_mid)
-   
-   chest_mid_pic = None
-   chest_mid_pic = get_monster_pic_url(chest_mid)
-   
-   try:
-       # Разбиваем скрипт на строки
-       lines = [line.strip() for line in script.split('\n') if line.strip()]
-       
-       for i, line in enumerate(lines):
-           # Ищем pushitem2
-           if 'pushitem2(' in line:
-               match = re.search(r'pushitem2\((\d+),', line)
-               if match:
-                   current_item = int(match.group(1))
-                   # Ищем шанс в следующих строках
-                   for next_line in lines[i:i+3]:  # Проверяем следующие 3 строки
-                       if 'rand <=' in next_line:
-                           chance_match = re.search(r'rand <= (\d+)', next_line)
-                           if chance_match:
-                               chance = int(chance_match.group(1))
-                               item_name = get_item_name(current_item)
-                               item_pic = get_item_pic_url(current_item)
-                               drops.append({
-                                   'MID': chest_mid,
-                                   'MID_pic': chest_mid_pic,
-                                   'MName': chest_mid_mname,
-                                   'item_id': current_item,
-                                   'item_name': item_name,
-                                   'item_pic': item_pic,
-                                   'drop_chance': chance
-                               })
-                               break
+    if not script:
+        return [], None
+        
+    drops = []
+    current_item = None
+    item_pic = None
+    total_chance = 10000
+    
+    chest_mid_mname = get_monster_name(chest_mid)
+    chest_mid_pic = get_monster_pic_url(chest_mid)
 
-       # Сортируем по шансу от большего к меньшему
-       drops.sort(key=lambda x: x['drop_chance'], reverse=True)
-       return drops, item_pic
-       
-   except Exception as e:
-       print(f"Error parsing script for chest {chest_mid}: {e}")
-       print(f"Script content: {script}")
-       return [], None
+    try:
+        lines = [line.strip() for line in script.split('\n') if line.strip()]
+        
+        # Находим общий шанс
+        for line in lines:
+            if 'getlgrandom() %' in line:
+                rand_match = re.search(r'getlgrandom\(\)\s*%\s*(\d+)', line)
+                if rand_match:
+                    total_chance = int(rand_match.group(1))
+                    break
+        
+        for i, line in enumerate(lines):
+            if 'pushitem2(' in line:
+                match = re.search(r'pushitem2\((\d+),\s*(\d+),\s*\d+,\s*(\d+)\)', line)
+                if match:
+                    current_item = int(match.group(1))
+                    count = int(match.group(2))
+                    status = int(match.group(3))
+                    
+                    # Ищем шанс в предыдущей строке
+                    if i > 0:  # Проверяем, что есть предыдущая строка
+                        prev_line = lines[i-1].strip()
+                        if 'rand <=' in prev_line:
+                            chance_match = re.search(r'rand <= (\d+)', prev_line)
+                            if chance_match:
+                                chance = int(chance_match.group(1))
+                                
+                                item_name = get_item_name(current_item)
+                                item_pic = get_item_pic_url(current_item)
+                                
+                                drops.append({
+                                    'MID': chest_mid,
+                                    'MID_pic': chest_mid_pic,
+                                    'MName': chest_mid_mname,
+                                    'item_id': current_item,
+                                    'item_name': item_name,
+                                    'item_pic': item_pic,
+                                    'count': count,
+                                    'status': status,
+                                    'drop_chance': chance,
+                                    'total_chance': total_chance
+                                })
+
+        # Сортируем по шансу от большего к меньшему
+        drops.sort(key=lambda x: x['drop_chance'], reverse=True)
+        return drops, item_pic
+        
+    except Exception as e:
+        print(f"Error parsing script for chest {chest_mid}: {e}")
+        print(f"Script content: {script}")
+        return [], None
    
 
 def analyze_drops(mid: int) -> Tuple[List[Dict], Optional[str]]:
@@ -120,12 +135,7 @@ def get_chest_route_call(chest_mids: List[int]) -> Tuple[List[Dict], Set[str]]:
 
 
 
-
-
-
-
-
-def generate_dialog_script(items: List[Dict]) -> str:
+def generate_dialog_script(items: List[Dict], main_chance: int) -> str:
     """Генерация скрипта диалога для сундука"""
     script = """var param menu
 var int u_name
@@ -163,7 +173,13 @@ elseif menu == 2
 
     # Добавляем предметы
     for i, item in enumerate(items):
-        chance = int(float(item['dropChance']) * 100)  # Конвертируем проценты в базовые единицы
+        if int(item['dropChance']) == 0:
+            item['dropChance'] = 1
+        
+        #chance = int(float(item['dropChance']) * 100)  # Конвертируем проценты в базовые единицы
+        chance = int(float(item['dropChance']) * 100)
+        print(f"generate_dialog_script: {chance}, {item['dropChance'] }, {main_chance}")
+        
         condition = "if" if i == 0 else "elseif"
         script += f"  {condition} rand <= {chance}\n"
         script += f"   result = pushitem2({item['itemId']},{item['count']},18,{item['status']})\n"
@@ -274,7 +290,7 @@ def generate_additional_dialog_texts() -> str:
 
 def update_chest_database(mid: int, script_text: str, dialog_text: str) -> bool:
     """Обновление данных сундука в базе данных через удаление и вставку"""
-    
+    print(mid)
     try:
         # Удаляем старые записи и получаем количество удаленных строк
         deleted_script = execute_query(
@@ -319,11 +335,11 @@ def update_chest_database(mid: int, script_text: str, dialog_text: str) -> bool:
         return False
     
     
-def update_chest_loot(mid: int, items: List[Dict]) -> bool:
+def update_chest_loot(mid: int, items: List[Dict], main_chance: int) -> bool:
     """Обновление содержимого сундука"""
     try:
         # Генерируем новые тексты
-        script_text = generate_dialog_script(items)
+        script_text = generate_dialog_script(items, main_chance)
         dialog_text = generate_dialog_gui(items)
         
         # Обновляем базу данных

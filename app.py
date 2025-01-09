@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, json, render_template, request
 from routes import register_routes
 from config.settings import load_config
 from os.path import splitext, exists

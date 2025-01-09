@@ -354,3 +354,117 @@ def check_next_craft_item(item_id: int) -> List[Dict]:
             }
 
     return list(unique_results.values())
+
+
+
+
+
+
+
+# ! Recursive 
+def check_all_base_items_for_craft(item_id: int) -> List[Dict]:
+    query = """
+    WITH RecursiveCraft AS (
+        -- Base item (Level 1)
+        SELECT
+            a.RID,
+            a.RItemID0,
+            b.IName,
+            c.RItemID,
+            b1.IName AS CraftItems,
+            a.RSuccess,
+            a.RIsCreateCnt,
+            c.ROrderNo,
+            c.RNum,
+            1 as Level
+        FROM DT_Refine AS a
+        INNER JOIN DT_Item AS b ON (a.RItemID0 = b.IID)
+        INNER JOIN DT_RefineMaterial AS c ON (a.RID = c.RID)
+        INNER JOIN DT_Item AS b1 ON (c.RItemID = b1.IID)
+        WHERE a.RItemID0 = ?
+        UNION ALL
+        -- Recursive materials (Level 2+)
+        SELECT
+            a.RID,
+            a.RItemID0,
+            b.IName,
+            c.RItemID,
+            b1.IName AS CraftItems,
+            a.RSuccess,
+            a.RIsCreateCnt,
+            c.ROrderNo,
+            c.RNum,
+            r.Level + 1
+        FROM DT_Refine AS a
+        INNER JOIN DT_Item AS b ON (a.RItemID0 = b.IID)
+        INNER JOIN DT_RefineMaterial AS c ON (a.RID = c.RID)
+        INNER JOIN DT_Item AS b1 ON (c.RItemID = b1.IID)
+        INNER JOIN RecursiveCraft r ON a.RItemID0 = r.RItemID
+        WHERE r.Level < 5  -- Ограничиваем глубину рекурсии до 5 уровней
+    )
+    SELECT DISTINCT
+        RID,
+        RItemID0,
+        IName,
+        RItemID,
+        CraftItems,
+        RSuccess,
+        RIsCreateCnt,
+        ROrderNo,
+        RNum,
+        Level
+    FROM RecursiveCraft
+    ORDER BY Level, ROrderNo
+    """
+    
+    results = execute_query(query, (item_id,))
+    
+    # Структурируем данные по уровням
+    craft_structure = {}
+    
+    for row in results:
+        level = row[9]  # Level
+        if level not in craft_structure:
+            craft_structure[level] = {
+                'main_items': {},
+                'materials': {}
+            }
+            
+        # Определяем основной предмет для уровня
+        item_id = row[1]  # RItemID0
+        if item_id not in craft_structure[level]['main_items']:
+            craft_structure[level]['main_items'][item_id] = {
+                'id': item_id,
+                'name': row[2],  # IName
+                'image': get_item_pic_url(item_id),
+                'count': row[6],  # RIsCreateCnt
+                'success_rate': row[5]  # RSuccess
+            }
+        
+        # Добавляем материал
+        material_id = row[3]  # RItemID
+        if material_id not in craft_structure[level]['materials']:
+            craft_structure[level]['materials'][material_id] = {
+                'id': material_id,
+                'name': row[4],  # CraftItems
+                'image': get_item_pic_url(material_id),
+                'count': row[8],  # RNum
+                'success_rate': row[5],  # RSuccess
+                'order': row[7]  # ROrderNo
+            }
+
+    # Преобразуем в список и сортируем
+    craft_tree = []
+    for level in sorted(craft_structure.keys()):
+        level_data = craft_structure[level]
+        main_items = list(level_data['main_items'].values())
+        materials = sorted(level_data['materials'].values(), key=lambda x: x['order'])
+        
+        craft_tree.append({
+            'level': level,
+            'main_item': main_items[0] if main_items else None,
+            'materials': materials
+        })
+        
+    
+    return craft_tree

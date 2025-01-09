@@ -26,7 +26,9 @@ def execute_query(query: str, params=None, fetch_one=False):
             query_type = query.strip().upper().split()[0]
             
             # Для SELECT запросов возвращаем результаты
-            if query_type == 'SELECT':
+
+            #print(query_type)
+            if query_type == 'SELECT' or query_type == 'WITH':
                 if fetch_one:
                     return cursor.fetchone()
                 return cursor.fetchall()
@@ -45,3 +47,5 @@ def execute_query(query: str, params=None, fetch_one=False):
             print(f"Query: {query}")
             print(f"Params: {params}")
             raise
+        
+        

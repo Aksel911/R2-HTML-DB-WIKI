@@ -1,0 +1,186 @@
+<!-- servant_core/detail/servant_page_craft_detail.html -->
+{% if craft_result is defined and craft_result %}
+<div class="craft-tree">
+    {% for level in craft_result %}
+        <div class="tree-level level-{{ level.level }}">
+            <!-- Основные предметы уровня -->
+            {% if level.main_item %}
+                <div class="main-item">
+                    <div class="item-box">
+                        <img src="{{ level.main_item.image }}" alt="{{ level.main_item.name }}">
+                        <div class="item-info">
+                            <a href="/item/{{ level.main_item.id }}" class="item-name">{{ level.main_item.name }}</a>
+                            <div class="item-count">{{ level.main_item.count }} шт.</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Материалы уровня -->
+            <div class="materials-container">
+                {% for material in level.materials %}
+                    <div class="material-item">
+                        <div class="item-box">
+                            <img src="{{ material.image }}" alt="{{ material.name }}">
+                            <div class="item-info">
+                                <a href="/item/{{ material.id }}" class="item-name">{{ material.name }}</a>
+                                <div class="item-count">{{ material.count }} шт.</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+
+
+
+
+
+
+
+{% if craft_next is defined and craft_next %}
+<div class="skill-section fadeIn">
+    <p class="section-star">★</p>
+    <h2 class="section-title">Следующая эволюция:</h2>
+    <div class="skill-content">
+        {% for craft in craft_next %}
+        <div class="item-row">
+            <img class="item-icon"
+                 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'"
+                 src="{{ craft.ImagePath }}">
+            <a href="{{ url_for('items.item_detail', item_id=craft.RItemID0) }}" class="item-name">{{ craft.IName }}</a>
+            <span class="stat-value">{{ craft.RSuccess }} %</span>
+            <span class="stat-value">{{ craft.RIsCreateCnt }} шт.</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+
+<style>
+    /* Light Theme Styles */
+    .craft-tree {
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        color: #333;
+    }
+   
+    .tree-level {
+        position: relative;
+        margin-bottom: 30px;
+        padding-left: 30px;
+    }
+   
+    .tree-level::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: rgba(212, 175, 55, 0.3);
+    }
+   
+    .item-box {
+        display: flex;
+        align-items: center;
+        padding: 8px;
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+   
+    .item-box img {
+        width: 48px;
+        height: 48px;
+        margin-right: 10px;
+        border-radius: 4px;
+    }
+   
+    .item-info {
+        text-align: left;
+    }
+   
+    .item-name {
+        color: #8B6F24;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+   
+    .item-name:hover {
+        color: #D4AF37;
+    }
+   
+    .item-count {
+        color: #666;
+        font-size: 12px;
+    }
+   
+    .materials-container {
+        padding-left: 40px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+   
+    .material-item {
+        position: relative;
+    }
+   
+    .material-item::before {
+        content: '';
+        position: absolute;
+        left: -20px;
+        top: 50%;
+        width: 20px;
+        height: 2px;
+        background: rgba(212, 175, 55, 0.3);
+    }
+
+    /* Dark Theme Styles */
+    .dark-theme .craft-tree {
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        color: #e0e0e0;
+    }
+   
+    .dark-theme .tree-level::before {
+        background: rgba(212, 175, 55, 0.5);
+    }
+   
+    .dark-theme .item-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+   
+    .dark-theme .item-name {
+        color: #D4AF37;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+   
+    .dark-theme .item-name:hover {
+        color: #FFDC73;
+    }
+   
+    .dark-theme .item-count {
+        color: #a0a0a0;
+    }
+   
+    .dark-theme .material-item::before {
+        background: rgba(212, 175, 55, 0.5);
+    }
+</style>

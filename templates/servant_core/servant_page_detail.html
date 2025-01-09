@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include "favicon.html" %}
+    <title>{{ servant.name }} | Слуги</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/bg/css/detail_css.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script src="/static/bg/js/detail/servant/dynamic_loading.js"></script>
+    <style>
+        /* Основные стили */
+        body {
+            background-size: cover; /* Масштабирует фон, чтобы покрыть весь экран */
+            background-attachment: fixed; /* Фиксирует фон, чтобы он не прокручивался */
+            color: #fff;
+            margin: 0; /* Убирает отступы по умолчанию */
+            height: 100%; /* Устанавливает высоту на весь документ */
+        }
+
+        .total-stats-container {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        
+        .total-stats-container h3 {
+            color: #D4AF37;
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .total-stats-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Стили для sticky-кнопки */
+        .back-button-container {
+            position: sticky;
+            top: 100px;
+            z-index: 1000;
+            padding: 0 20 px;
+            display: flex;
+            gap: 10px;
+        }
+
+
+
+        /* Стили карточки слуги */
+        .side-info {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(4px);
+        }
+
+        .servant-image {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            display: block;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            padding: 10px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .servant-image:hover {
+            transform: scale(1.05);
+        }
+
+        .servant-name {
+            color: #D4AF37;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .servant-type {
+            color: #8e8e8e;
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding: 5px 15px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+            margin-left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Стили уровней */
+        .level-spoiler {
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(212, 175, 55, 0.05);
+        }
+
+        .level-header {
+            background: rgba(236, 184, 16, 0.31);
+            padding: 15px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .level-header:hover {
+            background: rgba(212, 175, 55, 0.15);
+        }
+
+        .level-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #AA881B;
+        }
+
+        .dark-theme .level-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #E8C34E;
+        }
+
+
+        .toggle-icon {
+            color: #D4AF37;
+            transition: transform 0.3s ease;
+        }
+
+        .level-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* Стили списка статов */
+        .stats-list {
+            list-style: none;
+            padding: 15px;
+            margin: 0;
+        }
+
+        .stats-list li {
+            margin-bottom: 15px;
+            border: none;
+        }
+
+        .stats-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Стили карточки стата */
+        .skill-entry {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            padding: 0;
+            transition: all 0.3s ease;
+        }
+
+        .skill-entry:hover {
+            border-color: rgba(212, 175, 55, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Заголовок модуля */
+        .module-header {
+            padding: 12px 15px;
+            background: rgba(212, 175, 55, 0.08);
+            border-radius: 8px 8px 0 0;
+            margin: 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .module-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #D4AF37;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-name::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #D4AF37;
+            border-radius: 50%;
+        }
+
+        .module-type {
+            font-size: 12px;
+            padding: 4px 10px;
+            background: rgba(212, 175, 55, 0.15);
+            color: #3c220b;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        /* Детали параметра */
+        .param-details {
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-left: 15px;
+        }
+
+        .stats-label {
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+
+        .stats-value {
+            font-size: 15px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: rgba(212, 175, 55, 0.1);
+            color: #3c220b;
+            min-width: 60px;
+            text-align: center;
+            display: inline-block;
+        }
+        .dark-theme .stats-value{
+            color:rgba(201, 201, 201, 0.85);
+        }
+
+        /* Стили значений */
+        .stats-value[data-value^="+"] {
+            color: #4CAF50;
+        }
+
+        .stats-value[data-value^="-"] {
+            color: #FF5252;
+        }
+
+        /* Навигация */
+        .nav-tabs {
+            border-bottom: 1px solid #D4AF37;
+            margin-bottom: 20px;
+        }
+
+        .nav-tabs .nav-link {
+            color: #8e8e8e;
+            border: none;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #D4AF37;
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .nav-tabs .nav-link.active {
+            background: transparent;
+            color: #D4AF37;
+            border-bottom: 2px solid #D4AF37;
+        }
+
+        /* Секция крафта */
+        .craft-section {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            backdrop-filter: blur(4px);
+        }
+
+        .craft-title {
+            color: #D4AF37;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .craft-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .craft-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .craft-item:hover {
+            background: rgba(212, 175, 55, 0.08);
+            transform: translateX(5px);
+        }
+
+        .craft-item img {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+
+        /* Темная тема */
+        .dark-theme .side-info {
+            background: rgba(31, 31, 31, 0.95);
+        }
+
+        .dark-theme .craft-section {
+            background: rgba(31, 31, 31, 0.95);
+        }
+
+        .dark-theme .skill-entry {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .dark-theme .module-header {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .level-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .param-details {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stats-value {
+                align-self: flex-start;
+            }
+            
+            .servant-image {
+                width: 150px;
+                height: 150px;
+            }
+
+            .craft-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .craft-item img {
+                margin: 0 0 10px 0;
+            }
+        }
+
+
+        .loading-wrapper {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(212, 175, 55, 0.1);
+            border-top: 3px solid #D4AF37;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        .loading-text {
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+
+
+
+
+
+
+        .total-stats-spoiler {
+            margin-bottom: 20px;
+            transition: transform 0.2s ease;
+        }
+        
+        .total-stats-spoiler:hover {
+            transform: translateX(5px);
+        }
+        
+        .stats-icon {
+            margin-right: 8px;
+            font-size: 14px;
+            color: #D4AF37;
+        }
+        
+        .stats-info-icon {
+            margin-right: 8px;
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+        
+        .tooltip-trigger {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .stats-tooltip {
+            visibility: hidden;
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip-trigger:hover .stats-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .stats-value {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-value::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .stats-value:hover::after {
+            left: 100%;
+        }
+        
+        .total-stats-container {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .dark-theme .total-stats-container {
+            background: rgba(31, 31, 31, 0.95);
+        }
+        
+        @media (max-width: 768px) {
+            .total-stats-spoiler {
+                margin: 10px;
+            }
+            
+            .stats-tooltip {
+                display: none;
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .skill-entry:active {
+            animation: pulse 0.3s ease;
+        }
+
+
+    </style>
+
+
+    
+</head>
+<body data-servant-id="{{ servant.id }}">
+    <div class="back-button-container">
+        <button class="back-button" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i>
+            Назад
+        </button>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Переключить тему">
+            <i class="fas fa-adjust"></i>
+        </button>
+    </div>
+
+    {% include 'main_page_menu.html' %}
+
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="side-info">
+                    <img src="{{ servant.image_url }}" class="servant-image" alt="{{ servant.name }}">
+                    <h1 class="servant-name">{{ servant.name }}</h1>
+                    <div class="servant-type">{{ servant.id }}</div>
+                    <div class="servant-type">{{ servant.element_info }}</div>
+                    
+
+                    {% if servant.total_stats %}
+                    <div class="level-spoiler total-stats-spoiler">
+                        <div class="level-header" data-toggle="collapse" data-target="#total-stats">
+                            <h3>Общая статистика</h3>
+                            <i class="fas fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="level-content collapse show" id="total-stats">
+                            <div class="total-stats-container">
+                                <h3>{{ servant.total_stats.level }}</h3>
+                                <ul class="total-stats-list">
+                                    {% for stat in servant.total_stats.stats %}
+                                        <li>
+                                            <div class="skill-entry">
+                                                <div class="module-header">
+                                                    <span class="module-name">
+                                                        <i class="fas fa-chart-line stats-icon"></i>
+                                                        {{ stat.module_name }}
+                                                    </span>
+                                                    <span class="stats-value tooltip-trigger" data-value="{{ stat.value }}">
+                                                        <i class="fas fa-tag"></i>
+                                                        {{ stat.value}}
+                                                    </span>
+                                                    <!--   {% if stat.module_type %}
+                                                        <span class="module-type">
+                                                            <i class="fas fa-tag"></i>
+                                                            {{ stat.value}}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                 <div class="param-details">
+                                                    <span class="stats-label">
+                                                        <i class="fas fa-info-circle stats-info-icon"></i>
+                                                        {{ stat.param_name }}
+                                                    </span>
+                                                    <span class="stats-value tooltip-trigger" data-value="{{ stat.value }}">
+                                                        {{ stat.value }}
+                                                        <span class="stats-tooltip">Итоговое значение</span>
+                                                    </span>
+                                                </div> -->
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+
+                    <div class="stats-container">
+                        {% for level, skills in servant.skills_by_level.items() %}
+                            <div class="level-spoiler">
+                                <div class="level-header" data-toggle="collapse" data-target="#level-{{ loop.index }}">
+                                    <h3>{{ level }}</h3>
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                </div>
+                                <div class="level-content collapse show" id="level-{{ loop.index }}">
+                                    <ul class="stats-list">
+                                        {% for skill in skills %}
+                                            <li>
+                                                <div class="skill-entry">
+                                                    <div class="module-header">
+                                                        <span class="module-name">{{ skill.module_name }}</span>
+                                                        {% if skill.module_type %}
+                                                        <span class="module-type">{{ skill.module_type }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="param-details">
+                                                        <span class="stats-label">{{ skill.param_name }}</span>
+                                                        <span class="stats-value" data-value="{{ skill.value }}">{{ skill.value }}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                
+
+                <a href="/servants" class="btn btn-outline-secondary mt-3 w-100">
+                    <i class="fas fa-chevron-left mr-2"></i>
+                    Полный список слуг
+                </a>
+            </div>
+
+            <div class="col-md-8">
+                <ul class="nav nav-tabs mb-4">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Общая информация</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Пассивки</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Умения доверия</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Перевоплощения</a>
+                    </li>
+                </ul>
+
+                <div class="craft-section">
+                    <h2 class="craft-title">Крафт {{ servant.evolution_stage }}</h2>
+                    <div class="craft-tree" id="craft-tree-container">
+                        <div id="base-craft-container" class="loading">
+                            <div class="loading-wrapper">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка базовых характеристик...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="craft-section">
+                    <h2 class="craft-title">Необходимое древо для получения вида</h2>
+                    <div id="skill-tree-container" class="loading">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка древа умений...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="craft-section">
+                    <div id="evolution-tree-container" class="loading">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка древа эволюции...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="craft-section">
+                    <div id="requirements-container" class="loading">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка требований...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="/static/bg/js/main_js.js"></script>
+    <script src="/static/bg/js/detail/spoiler.js"></script>
+
+
+
+</body>
+</html>

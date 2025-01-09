@@ -87,7 +87,7 @@
             
             <!-- Primary Title -->
             <div class="servant-info">
-                <h3 class="servant-name">[{{ servant.id }}] {{ servant.name }}</h3>
+                <h3 class="servant-name" onclick="showDetails({{ servant.id }})">[{{ servant.id }}] {{ servant.name }}</h3>
                 {% if servant.element_info %}
                     <div class="element-info">{{ servant.element_info }}</div>
                 {% endif %}
@@ -119,6 +119,8 @@
                 {% endfor %}
             </div>
 
+            
+
             <!-- Evolution Info -->
             <div class="evolution-section">
                 <div class="evolution-header">Эволюция:</div>
@@ -140,6 +142,12 @@
     {% endblock %}
 
     <!-- Scripts -->
+    <script>
+        function showDetails(servantId) {
+            // Перенаправление на страницу servant/{id}
+            window.location.href = `servant/${servantId}`;
+        }
+    </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
@@ -282,6 +290,13 @@
             margin: 0;
             line-height: 1.4;
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .servant-name:hover {
+            color: rgb(12, 102, 129);
+        }
+        .dark-theme .servant-name:hover {
+            color: rgb(160, 133, 12);
         }
 
         .element-info {
@@ -582,134 +597,132 @@
 </style>
 
 <style>
+    /* Base Elements (15, 16, 17) */
+    .atropos-inner[data-stid2="15"]:hover,
+    .atropos-inner[data-stid2="16"]:hover,
+    .atropos-inner[data-stid2="17"]:hover {
+        border-color: rgba(158, 158, 158, 0.5);
+        box-shadow: var(--card-border-glow) rgba(158, 158, 158, 0.3);
+        background: linear-gradient(145deg, rgba(70, 70, 70, 0.1), rgba(82, 75, 74, 0.2));
+    }
 
-   
-/* Base Elements (15, 16, 17) */
-.atropos-inner[data-stid2="15"]:hover,
-.atropos-inner[data-stid2="16"]:hover,
-.atropos-inner[data-stid2="17"]:hover {
-    border-color: rgba(158, 158, 158, 0.5);
-    box-shadow: var(--card-border-glow) rgba(158, 158, 158, 0.3);
-    background: linear-gradient(145deg, rgba(70, 70, 70, 0.1), rgba(82, 75, 74, 0.2));
-}
+    /* Fire Level I (18, 30, 42) */
+    .atropos-inner[data-stid2="18"]:hover,
+    .atropos-inner[data-stid2="30"]:hover,
+    .atropos-inner[data-stid2="42"]:hover {
+        border-color: rgba(255, 87, 34, 0.5);
+        box-shadow: var(--card-border-glow) rgba(255, 87, 34, 0.3);
+        background: linear-gradient(145deg, rgba(255, 117, 76, 0.1), rgba(255, 87, 51, 0.2));
+    }
 
-/* Fire Level I (18, 30, 42) */
-.atropos-inner[data-stid2="18"]:hover,
-.atropos-inner[data-stid2="30"]:hover,
-.atropos-inner[data-stid2="42"]:hover {
-    border-color: rgba(255, 87, 34, 0.5);
-    box-shadow: var(--card-border-glow) rgba(255, 87, 34, 0.3);
-    background: linear-gradient(145deg, rgba(255, 117, 76, 0.1), rgba(255, 87, 51, 0.2));
-}
+    /* Fire Level II (19, 31, 43) */
+    .atropos-inner[data-stid2="19"]:hover,
+    .atropos-inner[data-stid2="31"]:hover,
+    .atropos-inner[data-stid2="43"]:hover {
+        border-color: rgba(255, 0, 0, 0.5);
+        box-shadow: var(--card-border-glow) rgba(255, 0, 0, 0.3);
+        background: linear-gradient(145deg, rgba(255, 61, 0, 0.15), rgba(255, 0, 0, 0.25));
+    }
 
-/* Fire Level II (19, 31, 43) */
-.atropos-inner[data-stid2="19"]:hover,
-.atropos-inner[data-stid2="31"]:hover,
-.atropos-inner[data-stid2="43"]:hover {
-    border-color: rgba(255, 0, 0, 0.5);
-    box-shadow: var(--card-border-glow) rgba(255, 0, 0, 0.3);
-    background: linear-gradient(145deg, rgba(255, 61, 0, 0.15), rgba(255, 0, 0, 0.25));
-}
+    /* Water Level I (20, 32, 44) */
+    .atropos-inner[data-stid2="20"]:hover,
+    .atropos-inner[data-stid2="32"]:hover,
+    .atropos-inner[data-stid2="44"]:hover {
+        border-color: rgba(33, 150, 243, 0.5);
+        box-shadow: var(--card-border-glow) rgba(33, 150, 243, 0.3);
+        background: linear-gradient(145deg, rgba(33, 150, 243, 0.1), rgba(41, 182, 246, 0.2));
+    }
 
-/* Water Level I (20, 32, 44) */
-.atropos-inner[data-stid2="20"]:hover,
-.atropos-inner[data-stid2="32"]:hover,
-.atropos-inner[data-stid2="44"]:hover {
-    border-color: rgba(33, 150, 243, 0.5);
-    box-shadow: var(--card-border-glow) rgba(33, 150, 243, 0.3);
-    background: linear-gradient(145deg, rgba(33, 150, 243, 0.1), rgba(41, 182, 246, 0.2));
-}
+    /* Water Level II (21, 33, 45) */
+    .atropos-inner[data-stid2="21"]:hover,
+    .atropos-inner[data-stid2="33"]:hover,
+    .atropos-inner[data-stid2="45"]:hover {
+        border-color: rgba(21, 101, 192, 0.5);
+        box-shadow: var(--card-border-glow) rgba(21, 101, 192, 0.3);
+        background: linear-gradient(145deg, rgba(21, 101, 192, 0.15), rgba(30, 136, 229, 0.25));
+    }
 
-/* Water Level II (21, 33, 45) */
-.atropos-inner[data-stid2="21"]:hover,
-.atropos-inner[data-stid2="33"]:hover,
-.atropos-inner[data-stid2="45"]:hover {
-    border-color: rgba(21, 101, 192, 0.5);
-    box-shadow: var(--card-border-glow) rgba(21, 101, 192, 0.3);
-    background: linear-gradient(145deg, rgba(21, 101, 192, 0.15), rgba(30, 136, 229, 0.25));
-}
+    /* Earth Level I (22, 34, 46) */
+    .atropos-inner[data-stid2="22"]:hover,
+    .atropos-inner[data-stid2="34"]:hover,
+    .atropos-inner[data-stid2="46"]:hover {
+        border-color: rgba(139, 195, 74, 0.5);
+        box-shadow: var(--card-border-glow) rgba(139, 195, 74, 0.3);
+        background: linear-gradient(145deg, rgba(139, 195, 74, 0.1), rgba(156, 204, 101, 0.2));
+    }
 
-/* Earth Level I (22, 34, 46) */
-.atropos-inner[data-stid2="22"]:hover,
-.atropos-inner[data-stid2="34"]:hover,
-.atropos-inner[data-stid2="46"]:hover {
-    border-color: rgba(139, 195, 74, 0.5);
-    box-shadow: var(--card-border-glow) rgba(139, 195, 74, 0.3);
-    background: linear-gradient(145deg, rgba(139, 195, 74, 0.1), rgba(156, 204, 101, 0.2));
-}
+    /* Earth Level II (23, 35, 47) */
+    .atropos-inner[data-stid2="23"]:hover,
+    .atropos-inner[data-stid2="35"]:hover,
+    .atropos-inner[data-stid2="47"]:hover {
+        border-color: rgba(104, 159, 56, 0.5);
+        box-shadow: var(--card-border-glow) rgba(104, 159, 56, 0.3);
+        background: linear-gradient(145deg, rgba(104, 159, 56, 0.15), rgba(85, 139, 47, 0.25));
+    }
 
-/* Earth Level II (23, 35, 47) */
-.atropos-inner[data-stid2="23"]:hover,
-.atropos-inner[data-stid2="35"]:hover,
-.atropos-inner[data-stid2="47"]:hover {
-    border-color: rgba(104, 159, 56, 0.5);
-    box-shadow: var(--card-border-glow) rgba(104, 159, 56, 0.3);
-    background: linear-gradient(145deg, rgba(104, 159, 56, 0.15), rgba(85, 139, 47, 0.25));
-}
+    /* Moon Level I (24, 36, 48) */
+    .atropos-inner[data-stid2="24"]:hover,
+    .atropos-inner[data-stid2="36"]:hover,
+    .atropos-inner[data-stid2="48"]:hover {
+        border-color: rgba(186, 104, 200, 0.5);
+        box-shadow: var(--card-border-glow) rgba(186, 104, 200, 0.3);
+        background: linear-gradient(145deg, rgba(186, 104, 200, 0.1), rgba(171, 71, 188, 0.2));
+    }
 
-/* Moon Level I (24, 36, 48) */
-.atropos-inner[data-stid2="24"]:hover,
-.atropos-inner[data-stid2="36"]:hover,
-.atropos-inner[data-stid2="48"]:hover {
-    border-color: rgba(186, 104, 200, 0.5);
-    box-shadow: var(--card-border-glow) rgba(186, 104, 200, 0.3);
-    background: linear-gradient(145deg, rgba(186, 104, 200, 0.1), rgba(171, 71, 188, 0.2));
-}
+    /* Moon Level II (25, 37, 49) */
+    .atropos-inner[data-stid2="25"]:hover,
+    .atropos-inner[data-stid2="37"]:hover,
+    .atropos-inner[data-stid2="49"]:hover {
+        border-color: rgba(142, 36, 170, 0.5);
+        box-shadow: var(--card-border-glow) rgba(142, 36, 170, 0.3);
+        background: linear-gradient(145deg, rgba(142, 36, 170, 0.15), rgba(123, 31, 162, 0.25));
+    }
 
-/* Moon Level II (25, 37, 49) */
-.atropos-inner[data-stid2="25"]:hover,
-.atropos-inner[data-stid2="37"]:hover,
-.atropos-inner[data-stid2="49"]:hover {
-    border-color: rgba(142, 36, 170, 0.5);
-    box-shadow: var(--card-border-glow) rgba(142, 36, 170, 0.3);
-    background: linear-gradient(145deg, rgba(142, 36, 170, 0.15), rgba(123, 31, 162, 0.25));
-}
+    /* Sun Level I (26, 38, 50) */
+    .atropos-inner[data-stid2="26"]:hover,
+    .atropos-inner[data-stid2="38"]:hover,
+    .atropos-inner[data-stid2="50"]:hover {
+        border-color: rgba(255, 235, 59, 0.5);
+        box-shadow: var(--card-border-glow) rgba(255, 235, 59, 0.3);
+        background: linear-gradient(145deg, rgba(255, 235, 59, 0.1), rgba(255, 193, 7, 0.2));
+    }
 
-/* Sun Level I (26, 38, 50) */
-.atropos-inner[data-stid2="26"]:hover,
-.atropos-inner[data-stid2="38"]:hover,
-.atropos-inner[data-stid2="50"]:hover {
-    border-color: rgba(255, 235, 59, 0.5);
-    box-shadow: var(--card-border-glow) rgba(255, 235, 59, 0.3);
-    background: linear-gradient(145deg, rgba(255, 235, 59, 0.1), rgba(255, 193, 7, 0.2));
-}
+    /* Sun Level II (27, 39, 51) */
+    .atropos-inner[data-stid2="27"]:hover,
+    .atropos-inner[data-stid2="39"]:hover,
+    .atropos-inner[data-stid2="51"]:hover {
+        border-color: rgba(255, 193, 7, 0.5);
+        box-shadow: var(--card-border-glow) rgba(255, 193, 7, 0.3);
+        background: linear-gradient(145deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.25));
+    }
 
-/* Sun Level II (27, 39, 51) */
-.atropos-inner[data-stid2="27"]:hover,
-.atropos-inner[data-stid2="39"]:hover,
-.atropos-inner[data-stid2="51"]:hover {
-    border-color: rgba(255, 193, 7, 0.5);
-    box-shadow: var(--card-border-glow) rgba(255, 193, 7, 0.3);
-    background: linear-gradient(145deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.25));
-}
+    /* Wind Level I (28, 40, 52) */
+    .atropos-inner[data-stid2="28"]:hover,
+    .atropos-inner[data-stid2="40"]:hover,
+    .atropos-inner[data-stid2="52"]:hover {
+        border-color: rgba(178, 223, 219, 0.5);
+        box-shadow: var(--card-border-glow) rgba(178, 223, 219, 0.3);
+        background: linear-gradient(145deg, rgba(178, 223, 219, 0.1), rgba(128, 203, 196, 0.2));
+    }
 
-/* Wind Level I (28, 40, 52) */
-.atropos-inner[data-stid2="28"]:hover,
-.atropos-inner[data-stid2="40"]:hover,
-.atropos-inner[data-stid2="52"]:hover {
-    border-color: rgba(178, 223, 219, 0.5);
-    box-shadow: var(--card-border-glow) rgba(178, 223, 219, 0.3);
-    background: linear-gradient(145deg, rgba(178, 223, 219, 0.1), rgba(128, 203, 196, 0.2));
-}
+    /* Wind Level II (29, 41, 53) */
+    .atropos-inner[data-stid2="29"]:hover,
+    .atropos-inner[data-stid2="41"]:hover,
+    .atropos-inner[data-stid2="53"]:hover {
+        border-color: rgba(128, 203, 196, 0.5);
+        box-shadow: var(--card-border-glow) rgba(128, 203, 196, 0.3);
+        background: linear-gradient(145deg, rgba(128, 203, 196, 0.15), rgba(77, 182, 172, 0.25));
+    }
 
-/* Wind Level II (29, 41, 53) */
-.atropos-inner[data-stid2="29"]:hover,
-.atropos-inner[data-stid2="41"]:hover,
-.atropos-inner[data-stid2="53"]:hover {
-    border-color: rgba(128, 203, 196, 0.5);
-    box-shadow: var(--card-border-glow) rgba(128, 203, 196, 0.3);
-    background: linear-gradient(145deg, rgba(128, 203, 196, 0.15), rgba(77, 182, 172, 0.25));
-}
+    /* Add transition to all element cards */
+    .atropos-inner[data-stid2] {
+        transition: all 0.3s ease;
+    }
 
-/* Add transition to all element cards */
-.atropos-inner[data-stid2] {
-    transition: all 0.3s ease;
-}
-
-/* Dark theme specific overrides */
-.dark-theme .atropos-inner[data-stid2]:hover {
-    background-blend-mode: screen;
-}
+    /* Dark theme specific overrides */
+    .dark-theme .atropos-inner[data-stid2]:hover {
+        background-blend-mode: screen;
+    }
 </style>
 
 
