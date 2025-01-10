@@ -19,7 +19,7 @@ def with_merchant_filters(view_func):
             # Get search term
             search_term = request.args.get('search', '')
             merchants, file_paths = get_merchants_list(search_term)
-            print(f"Количество элементов merchants: {len(merchants)}")
+            #print(f"Количество элементов merchants: {len(merchants)}")
             
             
             # If it's an AJAX request, handle filtering
@@ -40,7 +40,7 @@ def with_merchant_filters(view_func):
                 
                 # Convert to dict for response
                 merchants_dict = [merchant_to_dict(item) for item in paginated_merchants]
-                print(f"Количество элементов: {len(merchants_dict)}")
+                #print(f"Количество элементов: {len(merchants_dict)}")
                 
                 
                 return jsonify({

@@ -102,7 +102,7 @@ def save_chest_loot():
         items = data['items']
         main_ch = data['totalChance']
         main_chance = re.findall(r'\d+', main_ch)[0]
-        print(f"MainChance: {main_chance}")
+        #print(f"MainChance: {main_chance}")
         
         success = update_chest_loot(mid, items, main_chance)
         

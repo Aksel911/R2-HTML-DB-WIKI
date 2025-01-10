@@ -290,14 +290,13 @@ def generate_additional_dialog_texts() -> str:
 
 def update_chest_database(mid: int, script_text: str, dialog_text: str) -> bool:
     """Обновление данных сундука в базе данных через удаление и вставку"""
-    print(mid)
     try:
         # Удаляем старые записи и получаем количество удаленных строк
         deleted_script = execute_query(
             "DELETE FROM TblDialogScript WHERE mMId = ?", 
             (mid,)
         )
-        print(f"Deleted {deleted_script} rows from TblDialogScript {mid}")
+        #print(f"Deleted {deleted_script} rows from TblDialogScript {mid}")
         # Вставляем новую запись в TblDialogScript
         inserted_script = execute_query("""
             INSERT INTO TblDialogScript (mMId, mScriptText, mRegDate, mUptDate)
@@ -325,8 +324,8 @@ def update_chest_database(mid: int, script_text: str, dialog_text: str) -> bool:
         """, (mid, dialog_text))
         
         # Можно даже логировать результаты
-        print(f"Script: deleted {deleted_script}, inserted {inserted_script} for {mid}")
-        print(f"Dialog: deleted {deleted_dialog}, inserted {inserted_dialog} for {mid}")
+        #print(f"Script: deleted {deleted_script}, inserted {inserted_script} for {mid}")
+        #print(f"Dialog: deleted {deleted_dialog}, inserted {inserted_dialog} for {mid}")
         
         return True
         

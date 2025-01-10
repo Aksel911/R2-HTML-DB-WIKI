@@ -1,9 +1,33 @@
 from typing import List, Dict
 from services.database import execute_query
 from services.utils import get_item_pic_url
-
+from services.item_service import get_material_draw_info
 
 # Main config
+STypeMapping = {
+    0: "Базовый",
+    1: "Тип HP",
+    2: "Тип MP",
+    3: "Другой тип",
+    4: "Тип HP MP",
+    5: "Второй тип HP",
+    6: "Второй тип MP",
+    7: "Тип HP",
+    8: "Тип восстановления HP",
+    9: "Тип MP",
+    10: "Тип восстановления MP",
+    11: "Тип веса",
+    12: "Тип времени перевопл.",
+    13: "Тип HP MP",
+    14: "Тип восстановления HP MP",
+    15: "Тип HP/Вес",
+    16: "Тип восст.HP/вр. вопл.",
+    17: "MP/Вес",
+    18: "Тип восст.MP/вр.трансф."
+}
+
+
+
 base_priority = {
         'Сила': 1,
         'Интеллект': 2,
@@ -55,10 +79,7 @@ def get_base_type_priority(name: str) -> int:
     return base_priority.get(name, 100)
 
 def get_element_sort_order(stid2_name: str = None, stid2: int = None) -> str:
-    """
-    Get element order based on STID2_mName content or STID2 value
-    Returns element in exact order needed for sorting
-    """
+    
     # Базовые типы всегда первые
     if stid2_name and any(x in stid2_name for x in ['Интеллект', 'Ловкость', 'Сила']) or stid2 in [15, 16, 17]:
         return 'Базовое направление'
@@ -113,11 +134,11 @@ def extract_level(text: str) -> int:
     return 0
 
 
-def get_servants_list() -> List[Dict]:
-    """Get all servants with their skills and stats"""
+def get_servants_list(servant_id: int = None) -> List[Dict]:
+    
     query = """
     SELECT DISTINCT
-        a.IID,
+        a1.IID,
         b.IName AS 'OriginPetName',
         a.STID1,
         e.mName AS 'STID1_mName',
@@ -135,53 +156,99 @@ def get_servants_list() -> List[Dict]:
         t.MBParam,
         t1.MBParamName,
         t.MCParam,
-        t1.MCParamName
-    FROM TblServantEvolution AS a
-    INNER JOIN DT_Item AS b ON (b.IID = a.IID)
-    INNER JOIN DT_Refine AS c ON (c.RID = a.RID)
-    INNER JOIN DT_Item AS c1 ON (c.RItemID0 = c1.IID)
+        t1.MCParamName,
+        a1.SCategory,
+        a1.SEvolutionStep,
+        a1.SType,
+        CASE a1.SType 
+            WHEN 0 THEN 'Базовый'
+            WHEN 1 THEN 'Тип HP'
+            WHEN 2 THEN 'Тип MP'
+            WHEN 3 THEN 'Другой тип'
+            WHEN 4 THEN 'Тип HP MP'
+            WHEN 5 THEN 'Второй тип HP'
+            WHEN 6 THEN 'Второй тип MP'
+            WHEN 7 THEN 'Тип HP'
+            WHEN 8 THEN 'Тип восстановления HP'
+            WHEN 9 THEN 'Тип MP'
+            WHEN 10 THEN 'Тип восстановления MP'
+            WHEN 11 THEN 'Тип веса'
+            WHEN 12 THEN 'Тип времени перевопл.'
+            WHEN 13 THEN 'Тип HP MP'
+            WHEN 14 THEN 'Тип восстановления HP MP'
+            WHEN 15 THEN 'Тип HP/Вес'
+            WHEN 16 THEN 'Тип восст.HP/вр. вопл.'
+            WHEN 17 THEN 'MP/Вес'
+            WHEN 18 THEN 'Тип восст.MP/вр.трансф.'
+        END as STypeDesc
+    FROM TblServantType AS a1
+    LEFT OUTER JOIN TblServantEvolution AS a ON (a1.IID = a.IID)
+    LEFT OUTER JOIN DT_Item AS b ON (b.IID = a1.IID)
+    LEFT OUTER JOIN DT_Refine AS c ON (c.RID = a.RID)
+    LEFT OUTER JOIN DT_Item AS c1 ON (c.RItemID0 = c1.IID)
     LEFT OUTER JOIN TP_SkillTree AS e ON (e.mSTID = a.STID1)
     LEFT OUTER JOIN TP_SkillTree AS e1 ON (e1.mSTID = a.STID2)
-    INNER JOIN DT_SkillTreeNode AS d1 ON (d1.mSTID = a.STID2)
-    INNER JOIN DT_SkillTreeNodeItem AS v ON (v.mSTNID = d1.mSTNID)
-    INNER JOIN DT_SkillPackSkill AS v1 ON (v1.mSPID = v.mSPID)
-    INNER JOIN DT_SkillAbnormal AS v2 ON (v2.SID = v1.mSID)
-    INNER JOIN DT_AbnormalModule AS v3 ON (v2.AbnormalID = v3.AID)
-    INNER JOIN DT_Module AS t ON (t.MID = v3.MID)
-    INNER JOIN TP_ModuleType AS t1 ON (t1.MType = t.MType)
-    ORDER BY e.mName, v.mLevel, a.IID
+    LEFT OUTER JOIN DT_SkillTreeNode AS d1 ON (d1.mSTID = a.STID2)
+    LEFT OUTER JOIN DT_SkillTreeNodeItem AS v ON (v.mSTNID = d1.mSTNID)
+    LEFT OUTER JOIN DT_SkillPackSkill AS v1 ON (v1.mSPID = v.mSPID)
+    LEFT OUTER JOIN DT_SkillAbnormal AS v2 ON (v2.SID = v1.mSID)
+    LEFT OUTER JOIN DT_AbnormalModule AS v3 ON (v2.AbnormalID = v3.AID)
+    LEFT OUTER JOIN DT_Module AS t ON (t.MID = v3.MID)
+    LEFT OUTER JOIN TP_ModuleType AS t1 ON (t1.MType = t.MType)
     """
-   
-    rows = execute_query(query)
+
+    # Если запрашиваем конкретного пета - не применяем фильтры
+    if servant_id is not None:
+        query += " WHERE a1.IID = ?"
+        rows = execute_query(query, (servant_id,))
+    else:
+        # Здесь можно добавить WHERE условия для фильтрации списка
+        rows = execute_query(query)
+
     servant_groups = {}
-   
+    
     for row in rows:
         name = row.STID1_mName.split('(')[0].strip() if row.STID1_mName else ""
-        element = get_element_sort_order(row.STID2_mName, row.STID2)
+        element = get_element_sort_order(row.STID2_mName, row.STID2) if row.STID2_mName or row.STID2 else ""
         level = f"Ур. {row.mLevel}" if row.mLevel else "Основные"
-       
+        
         group_key = f"{name}{element}"
-       
+        
         if group_key not in servant_groups:
+            servant_groups[group_key] = None
+            
+        current_group = servant_groups[group_key]
+        if current_group is None or (row.mLevel and (current_group.get('mLevel') is None or row.mLevel > current_group.get('mLevel', 0))):
             servant_groups[group_key] = {
                 'id': row.IID,
+                'OriginPetName': row.OriginPetName,
                 'name': name,
                 'element_info': element,
-                'element_id': row.STID2,
-                'element_order': row.STID2_mName,
-                'evolution_stage': row.STID2_mName,
-                'evolution_target': row.AfterCraftPetName,
-                'image_url': get_item_pic_url(row.IID, r_type=1),
+                'mLevel': row.mLevel,
+                'element_id': row.STID2 if row.STID2 else None,
+                'element_order': row.STID2_mName if row.STID2_mName else None,
+                'evolution_stage': row.STID2_mName if row.STID2_mName else None,
+                'evolution_target': row.AfterCraftPetName if row.AfterCraftPetName else None,
+                'image_url': get_item_pic_url(row.IID, r_type=1) if row.IID else None,
                 'skills_by_level': {},
-                'base_priority': get_base_type_priority(name),
-                'element_sort': get_element_sort_order(element)
+                'base_priority': get_base_type_priority(name) if name else None,
+                'element_sort': get_element_sort_order(element) if element else None,
+                'SCategory': row.SCategory if row.SCategory else None,
+                'SEvolutionStep': row.SEvolutionStep if row.SEvolutionStep else None,
+                'SType': row.SType if row.SType else None,
+                'STypeDesc': row.STypeDesc if row.STypeDesc else None
             }
-       
-        if level not in servant_groups[group_key]['skills_by_level']:
-            servant_groups[group_key]['skills_by_level'][level] = []
-       
-        ModuleType = row.MType
-        ModuleName = row.MName
+            
+        current_group = servant_groups[group_key]
+        if current_group is None:
+            continue
+
+        if level not in current_group['skills_by_level']:
+            current_group['skills_by_level'][level] = []
+        
+        ModuleType = row.MType if row.MType else None
+        ModuleName = row.MName if row.MName else None
+        
         for param_name, param_value in [
             (row.MAParamName, row.MAParam),
             (row.MBParamName, row.MBParam),
@@ -194,55 +261,91 @@ def get_servants_list() -> List[Dict]:
                     'param_name': param_name,
                     'value': param_value
                 }
-                if not any(a['param_name'] == ability['param_name'] for a in servant_groups[group_key]['skills_by_level'][level]):
-                    servant_groups[group_key]['skills_by_level'][level].append(ability)
-                    
-    for group_key, servant_data in servant_groups.items():
-        levels = list(servant_data['skills_by_level'].keys())
-        levels.sort(key=lambda x: int(x.split()[-1]) if 'Ур.' in x else 0)
-        
-        total_stats = {
-            'level': f'{name}',
-            'stats': []
-        }
-        
-        # Собираем информацию по всем уровням
-        for level in levels:
-            for ability in servant_data['skills_by_level'][level]:
-                ability_stats = next((s for s in total_stats['stats'] if s['param_name'] == ability['param_name']), None)
-                if ability_stats:
-                    ability_stats['value'] += ability['value']
-                else:
-                    total_stats['stats'].append({
-                        'module_name': ability['module_name'],
-                        'module_type': ability['module_type'], 
-                        'param_name': ability['param_name'],
-                        'value': ability['value']
-                    })
-                    
-        servant_data['total_stats'] = total_stats if total_stats['stats'] else None
+                if not any(a['param_name'] == ability['param_name'] for a in current_group['skills_by_level'][level]):
+                    current_group['skills_by_level'][level].append(ability)
 
-   
     result = list(servant_groups.values())
     
+    # Для одиночного пета возвращаем его без сортировки
+    if servant_id is not None and result:
+        return result[0]
+        
+    # Для списка применяем сортировку
     result.sort(key=lambda x: (
-        x['base_priority'], 
-        get_sort_order_priority(x['element_info']),
-        x['name']
+        x['base_priority'] if x['base_priority'] is not None else float('inf'),
+        get_sort_order_priority(x['element_info']) if x['element_info'] is not None else float('inf'),
+        x['name'] if x['name'] is not None else ""
     ))
     
-    print(result)
     return result
+
+
 
 def servant_to_dict(servant: Dict) -> Dict:
     return {
-        'id': servant['id'],
-        'name': servant['name'],
-        'element_info': servant['element_info'],
-        'element_id': servant['element_id'],
-        'element_order': servant['element_order'],
-        'evolution_stage': servant['evolution_stage'],
-        'evolution_target': servant['evolution_target'],
-        'image_url': servant['image_url'],
-        'skills_by_level': servant['skills_by_level']
+        'id': servant.get('id'),
+        'name': servant.get('name', ''),
+        'element_info': servant.get('element_info', ''),
+        'element_id': servant.get('element_id'),
+        'element_order': servant.get('element_order'),
+        'evolution_stage': servant.get('evolution_stage'),
+        'evolution_target': servant.get('evolution_target'),
+        'image_url': servant.get('image_url'),
+        'skills_by_level': servant.get('skills_by_level', {}),
+        'STypeDesc': servant.get('STypeDesc', ''),
+        'base_priority': servant.get('base_priority'),
+        'element_sort': servant.get('element_sort')
     }
+
+
+
+
+
+
+
+# * ROUTES
+
+def check_servant_gathering(servant_id):
+    query = """
+    SELECT
+        a.SServerType,
+        a.SIsSpeed,
+        a.SServantIID,
+        b.IName AS 'ServantIName',
+        a.SResultIID,
+        b1.IName AS 'ChestIName',
+        a.SCount 
+    FROM
+        TblServantGathering AS a
+        INNER JOIN DT_Item AS b ON ( b.IID = a.SServantIID )
+        INNER JOIN DT_Item AS b1 ON ( b1.IID = a.SResultIID ) 
+    WHERE
+        a.SServerType = 1 
+    AND a.SIsSpeed = 0 
+    AND a.SServantIID = ?
+    """
+
+    row = execute_query(query, (servant_id,), fetch_one=True)
+    gathering_data = {}
+
+    if not row:
+        return None, None
+    
+    servant_pic = get_item_pic_url(row.SServantIID, r_type=2)
+    
+    chest_pic = get_item_pic_url(row.SResultIID, r_type=2)
+    chest_data = get_material_draw_info(row.SResultIID)
+    
+    gathering_data = {
+        "SServerType": row.SServerType,
+        "SIsSpeed": row.SIsSpeed,
+        "SServantIID": row.SServantIID,
+        "ServantIName": row.ServantIName,
+        "ServantPic": servant_pic,
+        "ChestPic": chest_pic,
+        "SResultIID": row.SResultIID,
+        "ChestIName": row.ChestIName,
+        "SCount": row.SCount
+    }
+    #print(f"XYXYXYXYXYXYXY {gathering_data}, {chest_data}")
+    return gathering_data, chest_data

@@ -53,7 +53,7 @@
             <img class="item-icon"
                  onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'"
                  src="{{ craft.ImagePath }}">
-            <a href="{{ url_for('items.item_detail', item_id=craft.RItemID0) }}" class="item-name">{{ craft.IName }}</a>
+            <a href="{{ url_for('servants.servant_detail', servant_id=craft.RItemID0) }}" class="item-name">{{ craft.IName }}</a>
             <span class="stat-value">{{ craft.RSuccess }} %</span>
             <span class="stat-value">{{ craft.RIsCreateCnt }} шт.</span>
         </div>
@@ -90,12 +90,18 @@
    
     .item-box {
         display: flex;
-        align-items: center;
-        padding: 8px;
-        background: rgba(0, 0, 0, 0.05);
-        border: 1px solid rgba(212, 175, 55, 0.2);
-        margin-bottom: 10px;
-        border-radius: 4px;
+        height: 100%;
+        background: rgba(255, 143, 0, 0.05);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        overflow: hidden; /* Add this to ensure child elements don't overflow */
+    }
+
+    .dark-theme .item-box {
+        background-color: rgba(255, 143, 0, 0.05);
+        border: 1px solid rgba(212, 175, 55, 0.3);
     }
    
     .item-box img {
@@ -135,17 +141,45 @@
    
     .material-item {
         position: relative;
+        background: linear-gradient(to right, rgba(212, 175, 55, 0), rgba(212, 175, 55, 0.5));
+        border-radius: 8px; /* Add this */
+
+    }
+
+    .dark-theme .material-item {
+        position: relative;
+        background: linear-gradient(to right, rgba(212, 175, 55, 0), rgba(212, 175, 55, 0.5));
     }
    
     .material-item::before {
         content: '';
         position: absolute;
-        left: -20px;
+        left: -55px;
         top: 50%;
-        width: 20px;
+        width: 55px;
         height: 2px;
-        background: rgba(212, 175, 55, 0.3);
+        background: linear-gradient(to right, rgba(212, 175, 55, 0), rgba(212, 175, 55, 0.5));
+
     }
+
+    .dark-theme .material-item::before {
+        background: linear-gradient(to right, rgba(212, 175, 55, 0), rgba(212, 175, 55, 0.5));
+    }
+
+    .materials-container .material-item:nth-child(2n + 1)::before {
+        display: block; /* Показывать линию только для левого столбца */
+    }
+    
+    .materials-container .material-item:nth-child(2n)::before {
+        content: '';
+        position: absolute;
+        left: -25px;
+        top: 50%;
+        width: 25px;
+        height: 2px;
+        background: linear-gradient(to right, rgba(212, 175, 55, 0), rgba(212, 175, 55, 0.5));
+    }
+    
 
     /* Dark Theme Styles */
     .dark-theme .craft-tree {
@@ -157,11 +191,6 @@
    
     .dark-theme .tree-level::before {
         background: rgba(212, 175, 55, 0.5);
-    }
-   
-    .dark-theme .item-box {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(212, 175, 55, 0.3);
     }
    
     .dark-theme .item-name {
@@ -178,9 +207,5 @@
    
     .dark-theme .item-count {
         color: #a0a0a0;
-    }
-   
-    .dark-theme .material-item::before {
-        background: rgba(212, 175, 55, 0.5);
     }
 </style>

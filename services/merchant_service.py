@@ -205,7 +205,7 @@ def get_merchants_list(search_term: str = '') -> Tuple[List[Merchant], Dict]:
     for merchant in merchants:
         merchant.ItemCount = len(merchant_items[merchant.MID])
 
-    print(f"Уникальных торговцев: {len(merchants)}")
+    #print(f"Уникальных торговцев: {len(merchants)}")
     return merchants, file_paths
 
 def get_merchant_items(merchant_id: int) -> List[Dict]:

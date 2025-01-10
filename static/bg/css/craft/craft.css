@@ -1,0 +1,570 @@
+/* Основные переменные */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #f1f3f5;
+    --border-color: #dee2e6;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --accent-color: #0d6efd;
+    --success-color: #198754;
+    --error-color: #dc3545;
+    --gold-color: #ffd700;
+    --silver-color: #adb5bd;
+    --item-border: #444;
+    --item-bg: #f8f9fa;
+    --hover-bg: #f1f3f5;
+}
+
+.dark-theme {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #333333;
+    --border-color: #404040;
+    --text-primary: #ffffff;
+    --text-secondary: #d4d4d4;
+    --accent-color: #ffd700;
+    --success-color: rgba(0, 255, 0, 0.7);
+    --error-color: #ff4444;
+    --gold-color: #ffd700;
+    --silver-color: #c0c0c0;
+    --item-border: #666;
+    --item-bg: #2d2d2d;
+    --hover-bg: #404040;
+}
+
+/* Основные стили контейнера */
+.craft-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    min-height: calc(100vh - 60px);
+}
+
+.craft-window {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    width: 900px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* Стили заголовка */
+.craft-header {
+    background: var(--bg-secondary);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-text {
+    color: var(--text-primary);
+    font-size: 26px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Стили поиска */
+.search-container {
+    position: relative;
+}
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-input {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    width: 200px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+}
+
+.search-btn {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.search-btn:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+/* Основной контент */
+.craft-content {
+    display: flex;
+    height: 725px;
+}
+
+.craft-details {
+    flex: 1;
+    padding: 20px;
+    border-right: 1px solid var(--border-color);
+    position: relative;
+    overflow-y: auto;
+}
+
+.items-menu {
+    width: 300px;
+    background: var(--bg-secondary);
+    overflow-y: auto;
+}
+
+/* Стили меню */
+.menu-group {
+    margin-bottom: 2px;
+}
+
+.menu-header,
+.submenu-header {
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 4px;
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.menu-header:hover,
+.submenu-header:hover {
+    background: var(--hover-bg);
+}
+
+.menu-header i,
+.submenu-header i {
+    color: var(--text-secondary);
+    width: 16px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.submenu {
+    margin-left: 15px;
+    display: none;
+}
+
+/* Стили элементов списка */
+.craft-list-item {
+    padding: 8px 12px 8px 36px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    position: relative;
+    border-radius: 4px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.craft-list-item:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+    transform: translateX(5px);
+}
+
+.craft-list-item img {
+    margin-right: 8px;
+    transition: transform 0.3s ease;
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.craft-list-item:hover img {
+    transform: scale(1.2);
+}
+
+.craft-list-item.selected {
+    color: var(--accent-color);
+    background: var(--bg-secondary);
+    border-color: var(--accent-color);
+}
+
+.craft-list-item.selected img {
+    filter: brightness(1.2);
+}
+
+/* Стили деталей крафта */
+.craft-main {
+    margin-left: 15px;
+}
+
+.item-title {
+    margin-bottom: 20px;
+    font-size: 18px;
+    color: var(--accent-color);
+}
+
+.item-preview {
+    position: relative;
+    width: 64px;
+    height: 64px;
+}
+
+.item-frame {
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--item-border);
+    border-radius: 4px;
+    background: var(--item-bg);
+    padding: 2px;
+    position: relative;
+}
+
+.item-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.create-count {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid var(--item-border);
+}
+
+/* Стили контейнера материалов */
+.materials-container {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 20px;
+    margin-bottom: 70px;
+}
+
+.materials-header {
+    color: var(--text-primary);
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.material-slot {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+}
+
+.material-slot:hover {
+    border-color: var(--accent-color);
+    transform: translateX(5px);
+}
+
+.material-slot.empty {
+    height: 60px;
+    background: var(--bg-secondary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.material-frame {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--item-border);
+    border-radius: 4px;
+    background: var(--item-bg);
+    margin-right: 12px;
+    padding: 2px;
+}
+
+.material-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Текстовые стили */
+.gold-text {
+    color: var(--gold-color);
+    margin-bottom: 4px;
+}
+
+.silver-text {
+    color: var(--silver-color);
+    margin-bottom: 4px;
+}
+
+.success-text {
+    color: var(--success-color);
+}
+
+.failure-text {
+    color: var(--error-color);
+}
+
+/* Кнопки крафта */
+.craft-buttons {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary);
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.create-btn,
+.close-btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.create-btn {
+    background: var(--success-color);
+    color: white;
+}
+
+.close-btn {
+    background: var(--error-color);
+    color: white;
+}
+
+.create-btn:hover,
+.close-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Уведомления */
+.notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.notification-message {
+    background: var(--bg-primary);
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    min-width: 300px;
+}
+
+.notification-message .notification-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification-message .item-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.notification-message .item-result img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 2px;
+    background: var(--item-bg);
+}
+
+.notification-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.notification-overlay.show .notification-message {
+    transform: translateY(0);
+}
+
+.notification-overlay.success .notification-message {
+    border: 1px solid var(--success-color);
+}
+
+.notification-overlay.error .notification-message {
+    border: 1px solid var(--error-color);
+}
+
+/* Загрузчик */
+#loading-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: white;
+    z-index: 1000;
+}
+
+.spinner {
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Конфетти */
+.confetti {
+    width: 10px;
+    height: 10px;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confettiFall 6s linear infinite;
+}
+
+.confetti.square {
+    width: 8px;
+    height: 8px;
+}
+
+.confetti.circle {
+    border-radius: 50%;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+    }
+}
+
+@keyframes itemGlow {
+    0% {
+        box-shadow: 0 0 5px var(--accent-color);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--accent-color);
+    }
+    100% {
+        box-shadow: 0 0 5px var(--accent-color);
+    }
+}
+
+/* Анимация встряхивания при неудаче */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Адаптивная верстка */
+@media (max-width: 768px) {
+    .craft-container {
+        padding: 10px;
+    }
+
+    .craft-window {
+        width: 100%;
+    }
+
+    .craft-content {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .items-menu {
+        width: 100%;
+        max-height: 300px;
+        order: -1;
+    }
+
+    .craft-details {
+        border-right: none;
+        border-top: 1px solid var(--border-color);
+        margin-top: 20px;
+    }
+
+    .craft-buttons {
+        position: static;
+        margin-top: 20px;
+    }
+
+    .search-input {
+        width: 150px;
+    }
+}
+
+/* Темная тема для уведомлений */
+.dark-theme .notification-message {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}

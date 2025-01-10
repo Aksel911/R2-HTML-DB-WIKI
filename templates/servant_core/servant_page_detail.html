@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/bg/css/detail_css.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <script src="/static/bg/js/detail/servant/dynamic_loading.js"></script>
+    <script src="/static/bg/js/detail/servant/dynamic_loading.js" defer></script>
     <style>
         /* Основные стили */
         body {
@@ -62,22 +62,52 @@
             border: 1px solid rgba(212, 175, 55, 0.1);
             backdrop-filter: blur(4px);
         }
-
+        
         .servant-image {
             width: 200px;
             height: 200px;
             margin: 0 auto 20px;
             display: block;
             background: rgba(0, 0, 0, 0.2);
-            border-radius: 50%;
-            padding: 10px;
+            border-radius: 65%;
+            padding: 2px;
             border: 2px solid rgba(212, 175, 55, 0.3);
-            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            position: relative;
+            transition: transform 0.1s ease-out;
+            cursor: pointer;
+            transform: scale(1.1);
+        }
+        .servant-image::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                circle at var(--mouse-x, center) var(--mouse-y, center),
+                rgba(212, 175, 55, 0.2) 0%,
+                transparent 50%
+            );
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
 
+        
         .servant-image:hover {
-            transform: scale(1.05);
+            transform: perspective(1000px) rotateX(var(--rotate-x)) rotateY(var(--rotate-y)) scale3d(1.05, 1.05, 1.05);
         }
+        .servant-image:hover::before {
+            opacity: 1;
+        }
+        .servant-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 65%;
+        }
+
 
         .servant-name {
             color: #D4AF37;
@@ -540,12 +570,12 @@
             <div class="col-md-4">
                 <div class="side-info">
                     <img src="{{ servant.image_url }}" class="servant-image" alt="{{ servant.name }}">
-                    <h1 class="servant-name">{{ servant.name }}</h1>
+                    <h1 class="servant-name">{% if servant.name %}{{ servant.name }}{% else %}{{ servant.OriginPetName }}{% endif %}</h1>
                     <div class="servant-type">{{ servant.id }}</div>
-                    <div class="servant-type">{{ servant.element_info }}</div>
+                    <div class="servant-type">{% if servant.element_info %}{{ servant.element_info }}{% else %}{{ servant.STypeDesc }}{% endif %}</div>
                     
-
-                    {% if servant.total_stats %}
+                    
+                    {% if servant.total_stats and servant.total_stats.level and servant.total_stats.stats %}
                     <div class="level-spoiler total-stats-spoiler">
                         <div class="level-header" data-toggle="collapse" data-target="#total-stats">
                             <h3>Общая статистика</h3>
@@ -556,6 +586,7 @@
                                 <h3>{{ servant.total_stats.level }}</h3>
                                 <ul class="total-stats-list">
                                     {% for stat in servant.total_stats.stats %}
+                                        {% if stat and stat.module_name and stat.value %}
                                         <li>
                                             <div class="skill-entry">
                                                 <div class="module-header">
@@ -565,27 +596,12 @@
                                                     </span>
                                                     <span class="stats-value tooltip-trigger" data-value="{{ stat.value }}">
                                                         <i class="fas fa-tag"></i>
-                                                        {{ stat.value}}
-                                                    </span>
-                                                    <!--   {% if stat.module_type %}
-                                                        <span class="module-type">
-                                                            <i class="fas fa-tag"></i>
-                                                            {{ stat.value}}
-                                                        </span>
-                                                    {% endif %}
-                                                </div>
-                                                 <div class="param-details">
-                                                    <span class="stats-label">
-                                                        <i class="fas fa-info-circle stats-info-icon"></i>
-                                                        {{ stat.param_name }}
-                                                    </span>
-                                                    <span class="stats-value tooltip-trigger" data-value="{{ stat.value }}">
                                                         {{ stat.value }}
-                                                        <span class="stats-tooltip">Итоговое значение</span>
                                                     </span>
-                                                </div> -->
+                                                </div>
                                             </div>
                                         </li>
+                                        {% endif %}
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -651,12 +667,23 @@
                 </ul>
 
                 <div class="craft-section">
-                    <h2 class="craft-title">Крафт {{ servant.evolution_stage }}</h2>
+                    <h2 class="craft-title">Крафт {% if servant.evolution_stage %}{{ servant.evolution_stage }}{% else %}{{ servant.OriginPetName }}{% endif %}</h2>
                     <div class="craft-tree" id="craft-tree-container">
                         <div id="base-craft-container" class="loading">
                             <div class="loading-wrapper">
                                 <div class="loading-spinner"></div>
                                 <div class="loading-text">Загрузка базовых характеристик...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gathering-section">
+                    <div id="gathering-container" class="loading">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка сбора...</div>
                             </div>
                         </div>
                     </div>
@@ -705,7 +732,38 @@
     <script src="/static/bg/js/main_js.js"></script>
     <script src="/static/bg/js/detail/spoiler.js"></script>
 
-
+    <script>
+        document.querySelector('.servant-image').addEventListener('mousemove', (e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Вычисляем относительную позицию курсора
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            // Настраиваем силу наклона
+            const tiltPower = 15;
+            const rotateX = -((y - centerY) / centerY * tiltPower);
+            const rotateY = ((x - centerX) / centerX * tiltPower);
+            
+            // Добавляем световой эффект
+            e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
+            e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
+            
+            // Применяем трансформацию
+            e.currentTarget.style.transform = `
+                perspective(1000px) 
+                rotateX(${rotateX}deg) 
+                rotateY(${rotateY}deg)
+                scale3d(1.02, 1.02, 1.02)
+            `;
+        });
+        
+        document.querySelector('.servant-image').addEventListener('mouseleave', (e) => {
+            e.currentTarget.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+        });
+    </script>
 
 </body>
 </html>

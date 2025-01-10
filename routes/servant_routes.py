@@ -1,7 +1,8 @@
 import traceback
 from flask import Blueprint, render_template, jsonify, request
-from services.servant_service import get_servants_list, servant_to_dict
+from services.servant_service import get_servants_list, servant_to_dict, check_servant_gathering
 from services.craft_service import check_all_base_items_for_craft, check_next_craft_item
+
 
 bp = Blueprint('servants', __name__)
 
@@ -10,9 +11,8 @@ bp = Blueprint('servants', __name__)
 def servants_list():
     """Display all servants in a card layout"""
     try:
-        servants = get_servants_list()
+        servants = get_servants_list()  # Получаем отфильтрованный список
         
-        # If it's an AJAX request, return JSON
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             servants_dict = [servant_to_dict(servant) for servant in servants]
             return jsonify({
@@ -20,7 +20,6 @@ def servants_list():
                 'total': len(servants)
             })
             
-        # For normal request, render template
         return render_template(
             'servant_core/servant_page_route.html',
             servants=servants,
@@ -30,7 +29,6 @@ def servants_list():
         
     except Exception as e:
         print(f"Error in servants route: {str(e)}")
-        import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
@@ -40,35 +38,43 @@ def servants_list():
 def servant_detail(servant_id: int):
     """Servant detail page"""
     try:
-        # Get all servants
-        servants = get_servants_list()
-        
-        # Find the specific servant
-        servant = next((s for s in servants if s['id'] == servant_id), None)
+        # Получаем данные конкретного слуги без фильтрации
+        servant = get_servants_list(servant_id=servant_id)
         
         if not servant:
             return "Servant not found", 404
 
-        # Convert servant data for template
-        servant_data = {
-            'id': servant['id'],
-            'name': servant['name'],
-            'element_info': servant['element_info'],
-            'element_id': servant['element_id'],
-            'element_order': servant['element_order'],
-            'evolution_stage': servant['evolution_stage'],
-            'evolution_target': servant['evolution_target'],
-            'image_url': servant['image_url'],
-            'skills_by_level': servant['skills_by_level'],
-            'total_stats': servant['total_stats']
-        }
+        # Добавляем total_stats если нужно
+        if 'skills_by_level' in servant:
+            levels = list(servant['skills_by_level'].keys())
+            levels.sort(key=lambda x: int(x.split()[-1]) if 'Ур.' in x else 0)
+            
+            total_stats = {
+                'level': f'{servant["name"]}',
+                'stats': []
+            }
+            
+            for level in levels:
+                for ability in servant['skills_by_level'][level]:
+                    ability_stats = next((s for s in total_stats['stats'] 
+                                        if s['param_name'] == ability['param_name']), None)
+                    if ability_stats:
+                        ability_stats['value'] += ability['value']
+                    else:
+                        total_stats['stats'].append({
+                            'module_name': ability['module_name'],
+                            'module_type': ability['module_type'],
+                            'param_name': ability['param_name'],
+                            'value': ability['value']
+                        })
+            
+            servant['total_stats'] = total_stats if total_stats['stats'] else None
         
-        # Render template with servant data
         return render_template(
             'servant_core/servant_page_detail.html',
-            servant=servant_data,
-            title=f'[Слуги] {servant_data["name"]}',
-            header=servant_data['name']
+            servant=servant,
+            title=f'[Слуги] {servant["name"]}',
+            header=servant['name']
         )
 
     except Exception as e:
@@ -84,14 +90,24 @@ def render_template_part(template_name):
     """Render partial template for dynamic loading"""
     try:
         data = request.get_json()
+        #print("Received template data:", data)  # Debug
 
         # Проверяем, что путь к шаблону корректный
         if template_name.startswith('servant_core/detail/'):
-            rendered = render_template(
-                template_name,
-                craft_result=data.get('craft_result', []),
-                craft_next=data.get('craft_next', [])
-            )
+            if 'servant_gathering_data' in data:
+                # Для шаблона сбора
+                rendered = render_template(
+                    template_name,
+                    servant_gathering_data=data.get('servant_gathering_data'),
+                    servant_gathering_chest_data=data.get('servant_gathering_chest_data')
+                )
+            else:
+                # Для шаблона крафта
+                rendered = render_template(
+                    template_name,
+                    craft_result=data.get('craft_result', []),
+                    craft_next=data.get('craft_next', [])
+                )
             return rendered
         else:
             print(f"Invalid template path: {template_name}")
@@ -119,6 +135,31 @@ def get_servant_craft_info(servant_id):
         print(f"Error in base-craft: {str(e)}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+@bp.route('/api/servant/<int:servant_id>/gathering')
+def get_servant_gathering_info(servant_id):
+    try:
+        servant_gathering_data, servant_gathering_chest_data = check_servant_gathering(servant_id)
+        
+        if not servant_gathering_data:
+            return jsonify({'message': 'No gathering data found'}), 404
+        
+        response_data = {
+            'servant_gathering_data': servant_gathering_data,
+            'servant_gathering_chest_data': servant_gathering_chest_data
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"Error in gathering info: {str(e)}")
+        traceback.print_exc()
+        return jsonify({
+            'error': 'Internal server error',
+            'message': str(e)
+        }), 500
+
+
 
 
 @bp.route('/api/servant/<int:servant_id>/evolution-tree')

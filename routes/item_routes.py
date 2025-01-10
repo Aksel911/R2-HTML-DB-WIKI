@@ -308,7 +308,7 @@ def item_detail(item_id: int):
             'has_abnormal': bool(get_itemabnormalResist_data(item_id))
         }
 
-        print(item.IStatus)
+        #print(item.IStatus)
         
         # Рендеринг базового шаблона
         return render_template(
@@ -449,7 +449,6 @@ def get_item_protection_data(item_id):
 def get_item_penality_data(item_id):
     penality_data = get_item_panalty_data(item_id)
     
-    print(f"XYUUAUUDS {penality_data}")
     return {
         'item_panalty_data': penality_data
     }

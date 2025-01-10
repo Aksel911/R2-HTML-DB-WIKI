@@ -1,0 +1,328 @@
+{% if servant_gathering_data %}
+<div class="craft-tree">
+    <!-- Информация о сборе -->
+    <div class="tree-level">
+        <h2 class="section-title">Информация о сборе</h2>
+        <div class="item-box servant-info">
+            <img src="{{ servant_gathering_data.ServantPic }}" alt="{{ servant_gathering_data.ServantIName }}">
+            <div class="item-info">
+                <a href="/item/{{ servant_gathering_data.SServantIID }}" class="item-name">
+                    <span class="item-id">[{{ servant_gathering_data.ServantIName }}]</span>
+                </a>
+                <div class="item-count">{{ servant_gathering_data.ChestIName }}</div>
+                <div class="item-count">Количество: {{ servant_gathering_data.SCount }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Содержимое сундука -->
+    {% if servant_gathering_chest_data %}
+    <div class="tree-level">
+        <h2 class="section-title">Содержимое сундука</h2>
+        
+        {% set current_group = namespace(name=None) %}
+        {% for item in servant_gathering_chest_data %}
+            {% if item.group_name != current_group.name %}
+                {% if not loop.first %}</div>{% endif %}
+                {% set current_group.name = item.group_name %}
+                <div class="group-header">
+                    <div class="group-info">
+                        <img src="{{ servant_gathering_data.ChestPic }}" alt="{{ servant_gathering_data.ChestPic }}" class="chest-pic">
+                        <div class="item-name-wrapper">
+                            <a href="/item/{{ servant_gathering_data.SResultIID }}" class="item-name">
+                                <span class="item-id">[{{ servant_gathering_data.SResultIID }}]</span>
+                                {{ item.group_name }}
+                            </a>
+                            <div class="group-details">
+                                <span>MDID: {{ item.mdid }} | MDRD: {{ item.mdrd }}</span>
+                                <span class="chance">
+                                    <i class="fas fa-dice-d20" data-tooltip="Шанс выпадения группы"></i>
+                                    Шанс: <strong>{{ "%.2f"|format(item.draw_chance) }}%</strong>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="materials-container">
+            {% endif %}
+            
+            <div class="material-item">
+                <div class="item-box">
+                    {% if item.item_pic %}
+                    <img src="{{ item.item_pic }}" alt="{{ item.item_name }}" class="item-pic">
+                    {% endif %}
+                    <div class="connector" alt="{{ item.group_name }}" data-tooltip="{{ item.group_name }}"></div>
+                    <div class="item-info">
+                        
+                        <a href="/item/{{ item.item_iid }}" class="item-name">
+                            {{ item.item_name }}
+                        </a>
+                        <div class="box-stats-container">
+                            <div class="stat-row">
+                                <i class="fas fa-percent" data-tooltip="Шанс выпадения предмета"></i>
+                                <span class="drop-rate">{{ "%.2f"|format(item.drop_rate) }}%</span>
+                            </div>
+                            <div class="stat-row">
+                                <i class="fas fa-cube" data-tooltip="Количество предметов"></i>
+                                <span class="item-cnt">{{ item.quantity }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <i class="fas fa-star" data-tooltip="Статус предмета"></i>
+                                <span class="status-{{ item.item_status|lower }}">{{ item.item_status }}</span>
+                            </div>
+                            <div class="stat-row">
+                                <i class="fas fa-lock" data-tooltip="Под замком?"></i>
+                                <span class="item-cnt">{{ item.binding }}</span>
+                            </div>
+                            {% if item.effect_time > 0 %}
+                            <div class="stat-row">
+                                <i class="fas fa-clock" data-tooltip="Время эффекта предмета"></i>
+                                <span class="item-cnt">{{ item.effect_time }} сек.</span>
+                            </div>
+                            {% endif %}
+                            {% if item.item_time > 0 %}
+                            <div class="stat-row">
+                                <i class="fas fa-hourglass" data-tooltip="Время использования предмета"></i>
+                                <span>{{ (item.item_time/1000)|round|int }} сек.</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if loop.last %}</div>{% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+
+<style>
+    /* Font Awesome иконки */
+    .fas {
+        display: inline-block;
+        line-height: 16px;
+        text-align: center;
+        color: rgba(212, 175, 55, 0.7);
+    }
+    
+    /* Tooltip base styles */
+    .fas[data-tooltip] {
+        position: relative;
+        cursor: help;
+    }
+    
+    .fas[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-5px);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: "Didact Gothic", sans-serif;
+        white-space: nowrap;
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+        z-index: 9999;
+        font-weight: normal;
+    }
+    
+    .fas[data-tooltip]:hover::after {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    
+    /* Dark theme adjustments */
+    .dark-theme .fas[data-tooltip]::after {
+        background: rgba(255, 255, 255, 0.9);
+        color: black;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Make sure icons in stats are properly aligned */
+    .stat-row .fas {
+        margin-right: 8px;
+        width: 16px;
+        text-align: center;
+    }
+    
+    /* Fix for dice icon in chance section */
+    .chance .fas {
+        margin-right: 4px;
+    }
+
+    .connector {
+        position: absolute;
+        top: 50%;
+        left: -50px;
+        width: 30px;
+        height: 2px;
+        transition: transform 0.3s ease;
+    }
+
+    .connector:hover {
+        transform: scale(1.1);
+    }
+
+    {% if servant_gathering_data and servant_gathering_data.ChestPic %}
+    .connector::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: -12px;
+        width: 24px;
+        height: 24px;
+        background: url('{{ servant_gathering_data.ChestPic }}') no-repeat center;
+        background-size: contain;
+        transform: translate(-50%, -50%);
+    }
+    {% endif %}
+
+    .materials-container .material-item:nth-child(2n + 1) .connector {
+        display: block; /* Ensure the connector is visible */
+    }
+    
+    .materials-container .material-item:nth-child(2n) .connector {
+        display: none; /* Hide the connector for the right column */
+    }
+
+    .section-title {
+        color: #D4AF37;
+        font-size: 1.25rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        background: none;
+    }
+
+    .group-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    .chest-pic {
+        width: 48px;
+        height: 48px;
+    }
+    .item-name-wrapper {
+        flex-grow: 1;
+    }
+
+    .group-details {
+        font-size: 0.9em;
+        color: rgba(96, 93, 93, 0.7)
+        margin-top: 5px;
+    }
+
+    .dark-theme .group-details {
+        font-size: 0.9em;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 5px;
+    }
+
+    .group-header {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 30px;
+        position: relative;
+    }
+    
+    .group-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .chance {
+        background: rgba(212, 175, 55, 0.1);
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-left: 10px;
+    }
+    
+    .chance strong {
+        color: #605416;
+    }
+    .dark-theme .chance strong {
+        color: #FFD700;
+    }
+
+    .materials-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 0 30px;
+    }
+
+    .item-pic {
+        width: 48px;
+        height: 48px;
+        margin-right: 12px;
+    }
+    
+    .item-info {
+        flex-grow: 1;
+        position: relative;
+        text-align: center;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 8px;
+        font-size: 0.9em;
+    }
+    
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: rgba(51, 51, 51, 0.8);
+    }
+
+    .dark-theme .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .stat-row i {
+        width: 16px;
+        color: rgba(212, 175, 55, 0.7);
+    }
+
+    .drop-rate {
+        color: #60530F;
+        font-weight: bold;
+    }
+
+    .dark-theme .drop-rate {
+        color: #FFD700;
+        font-weight: bold;
+    }
+
+    .gathering-section{
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(212, 175, 55, 0.1);
+        backdrop-filter: blur(4px);
+    }
+
+</style>
+
+
+
