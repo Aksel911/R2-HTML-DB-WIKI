@@ -492,7 +492,7 @@ def get_monster_drop_info(item_id: int) -> List[Dict]:
 def get_monsters_by_class(class_ids: List[int], search_term: str = '') -> Tuple[List[Monster], Dict]:
     """Get monsters by class IDs with optional search"""
     class_str = ','.join(str(c) for c in class_ids)
-    #print(f"XXXXXXX {class_str}")
+
     # Base query
     query = """
         SELECT *

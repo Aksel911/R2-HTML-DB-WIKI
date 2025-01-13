@@ -504,7 +504,6 @@ def check_servant_gathering(servant_id):
         "ChestIName": row.ChestIName,
         "SCount": row.SCount
     }
-    #print(f"XYXYXYXYXYXYXY {gathering_data}, {chest_data}")
     return gathering_data, chest_data
 
 
@@ -532,8 +531,6 @@ def check_servant_skill_tree(servant_id):
     # row = execute_query(query, (servant_id,), fetch_one=True)
     
     kek = get_servant_detail(servant_id)
-    
-    #print(kek)
     
     
     

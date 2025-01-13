@@ -284,15 +284,12 @@ def get_items_by_type(item_types: List[int], search_term: str = '') -> Tuple[Lis
     """
    
     params = item_types + [f'%{search_term}%']
-    print(f"xxxx {params}")
    
     rows = execute_query(query, params, fetch_one=False)
     item_ids = [row.IID for row in rows]
     
     if not item_ids:
         return [], {}
-        
-    print(len(item_ids))
     
     # Разбиваем большой список ID на части
     chunk_size = 1000  # Меньший размер чанка для безопасности

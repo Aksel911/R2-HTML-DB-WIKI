@@ -291,7 +291,7 @@ def item_detail(item_id: int):
                     if abnormal_type_data[7] == 46:  # AType на индексе 7
                         item_model_no = f"{abnormal_type_data[8]:05}"  # ALevel на индексе 8
                         prefix = 't'
-                        print(f"KKKKKKK {prefix}+{item_model_no}")
+
 
         # If no transform model found, process regular model
         if not item_model_no and itemresource_result:
