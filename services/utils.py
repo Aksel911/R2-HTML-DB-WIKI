@@ -8,6 +8,7 @@ DT_ItemAttributeResist, DT_ItemProtect, DT_ItemSlain, DT_ItemPanalty)
 
 
 __all__ = ['with_app_context', 'clean_description', 'get_google_sheets_data', 'get_skill_icon_path', 'clean_dict', 'get_monster_pic_url']
+DEFAULT_IMAGE_URL = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
 
 # Оборачиваем каждую функцию в контекст приложения
 def with_app_context(func, app, *args, **kwargs):
@@ -49,7 +50,7 @@ def get_skill_icon_path(sprite_file: Optional[str], sprite_x: Optional[int],
     """Generate path to skill icon"""
     try:
         if not sprite_file:
-            return f"{current_app.config['GITHUB_URL']}{default_icon}"
+            return DEFAULT_IMAGE_URL
 
         # Remove .dds extension if present
         if sprite_file.endswith(".dds"):
@@ -59,17 +60,22 @@ def get_skill_icon_path(sprite_file: Optional[str], sprite_x: Optional[int],
         if sprite_x is not None and sprite_y is not None:
             return f"{current_app.config['GITHUB_URL']}{sprite_file}_{sprite_x}_{sprite_y}.png"
         else:
-            return f"{current_app.config['GITHUB_URL']}{default_icon}"
+            return DEFAULT_IMAGE_URL
 
     except Exception as e:
         print(f"Error creating icon path: {e}")
-        return f"{current_app.config['GITHUB_URL']}{default_icon}"
+        return DEFAULT_IMAGE_URL
     
     
 
 def get_monster_pic_url(monster_id: int):
-    monster_pic_url = f"{current_app.config['GITHUB_URL']}{monster_id}.png"
-    return monster_pic_url
+    try:
+        monster_pic_url = f"{current_app.config['GITHUB_URL']}{monster_id}.png"
+        return monster_pic_url
+    except Exception as e:
+        print(e)
+        return DEFAULT_IMAGE_URL
+
 
 
 
@@ -113,5 +119,4 @@ def get_item_pic_url(item_id, r_type: int = 2):
         return item_pic_url
     else:
         print(f"Объект item_id ({item_id}) не содержит необходимых атрибутов (RFileName, RPosX, RPosY)")
-        no_pic = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
-        return no_pic
+        return DEFAULT_IMAGE_URL

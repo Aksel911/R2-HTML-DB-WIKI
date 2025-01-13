@@ -60,6 +60,9 @@ def get_skills_list() -> Tuple[List[Tuple], Dict[int, str]]:
 
 
 def get_skill_pic_icon(skill_id: int) -> Optional[str]:
+    
+    DEFAULT_IMAGE_URL = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
+    
     query ="""
     SELECT 
         mSpriteFile, 
@@ -79,7 +82,7 @@ def get_skill_pic_icon(skill_id: int) -> Optional[str]:
                 )
         return skill_icon
     else:
-        return None
+        return DEFAULT_IMAGE_URL
 
 
 def get_skill_detail(skill_id: int) -> List[Optional[Skill]]:
