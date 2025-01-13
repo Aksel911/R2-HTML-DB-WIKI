@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о питомце</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .servant-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .servant-header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .skill-group {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .skill-group-header {
+            background: #34495e;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .skill-group-header h3 {
+            margin: 0;
+        }
+        .skill-group-content {
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        .variation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .variation-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 12px;
+        }
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .parameter-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .parameter-value {
+            color: #2c3e50;
+        }
+        .badge {
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+        .skill-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #edf2f7;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    {% for servant in servant_skilltree_data %}
+    <div class="servant-container">
+        <div class="servant-header">
+            <h1>Питомец ID: {{ servant.id }} <span class="badge">Шаг {{ servant.step }}</span></h1>
+        </div>
+        
+        {# Группируем навыки по mSTNID и mName #}
+        {% set skill_groups = {} %}
+        {% for skill in servant.skills %}
+            {% if skill.stid is defined %}
+                {% set group_key = (skill.stid|string) ~ '_' ~ (skill.module.name|string) %}
+                {% if group_key not in skill_groups %}
+                    {% set _ = skill_groups.update({
+                        group_key: {
+                            'stid': skill.stid,
+                            'name': skill.module.name,
+                            'variations': []
+                        }
+                    }) %}
+                {% endif %}
+                {% if skill not in skill_groups[group_key].variations %}
+                    {% set _ = skill_groups[group_key].variations.append(skill) %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {# Выводим сгруппированные навыки #}
+        {% for key, group in skill_groups|dictsort %}
+            <div class="skill-group">
+                <div class="skill-group-header">
+                    <h3>{{ group.name|default('Навык ' ~ loop.index) }}</h3>
+                    <span class="badge">mSTNID: {{ group.stid }}</span>
+                </div>
+                <div class="skill-group-content">
+                    <div class="variation-grid">
+                    {% for skill in group.variations %}
+                        <div class="variation-card">
+                            <div class="parameter-grid">
+                                <span class="parameter-label">Тип модуля:</span>
+                                <span class="parameter-value">{{ skill.module.type }}</span>
+                                
+                                <span class="parameter-label">Уровень:</span>
+                                <span class="parameter-value">{{ skill.module.level }}</span>
+                            </div>
+
+                            <div class="skill-info">
+                                <div class="parameter-label">Параметры:</div>
+                                <div class="parameter-grid">
+                                    <span class="parameter-label">A:</span>
+                                    <span class="parameter-value">
+                                        {{ skill.module.params.a.name }}
+                                        {% if skill.module.params.a.value %}
+                                            ({{ skill.module.params.a.value }})
+                                        {% endif %}
+                                    </span>
+                                    
+                                    <span class="parameter-label">B:</span>
+                                    <span class="parameter-value">
+                                        {{ skill.module.params.b.name }}
+                                        {% if skill.module.params.b.value %}
+                                            ({{ skill.module.params.b.value }})
+                                        {% endif %}
+                                    </span>
+                                    
+                                    <span class="parameter-label">C:</span>
+                                    <span class="parameter-value">
+                                        {{ skill.module.params.c.name }}
+                                        {% if skill.module.params.c.value %}
+                                            ({{ skill.module.params.c.value }})
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="parameter-grid" style="margin-top: 10px;">
+                                <span class="parameter-label">Pack ID:</span>
+                                <span class="parameter-value">{{ skill.skill_pack_id }}</span>
+                                
+                                <span class="parameter-label">Abnormal ID:</span>
+                                <span class="parameter-value">{{ skill.abnormal_id }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</body>
+</html>

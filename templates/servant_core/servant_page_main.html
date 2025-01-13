@@ -12,6 +12,7 @@
         :root {
             --primary-color: #3182ce;
             --secondary-color: #2c5282;
+            --link-color:rgba(233, 152, 2, 0.97);
             --card-bg-light: rgba(255, 255, 255, 0.97);
             --card-bg-dark: rgba(30, 31, 35, 0.95);
             --text-color-light: #2d3748;
@@ -136,8 +137,21 @@
             transition: var(--transition-smooth);
         }
 
+        
         .servant-name:hover {
-            color: var(--secondary-color);
+            color: var(--link-color);
+        }
+
+        .dark-theme .servant-name:hover {
+            color: var(--link-color);
+        }
+
+        .evolution-link:hover{
+            color: var(--link-color);
+        }
+ 
+        .dark-theme .evolution-link:hover{
+            color: var(--link-color);
         }
 
         .element-info {
@@ -578,7 +592,7 @@
                 
                 <div class="servant-info">
                     <h3 class="servant-name" onclick="showDetails({{ servant.id }})">[{{ servant.id }}] {% if servant.name %}{{ servant.name }}{% else %}{{ servant.OriginPetName }}{% endif %}</h3>
-                    
+                    <div class="element-info"><i class="fas fa-fire-alt"></i>{{ servant.OriginPetName }}</div>
                     {% if servant.element_info %}
                         <div class="element-info"><i class="fas fa-fire-alt"></i>{{ servant.element_info }}</div>
                     {% endif %}
@@ -616,18 +630,18 @@
 
                 <div class="evolution-section">
                     <div class="evolution-header">Эволюция</div>
-                    {% if servant.evolution_stage %}
+                    {% if servant.evolution_target %}
                         <div class="evolution-target">
                             <i class="fas fa-arrow-right"></i>
-                            <span>{{ servant.evolution_stage }}</span>
+                            <span class="evolution-link" onclick="showDetails({{ servant.RItemID0 }})">{{ servant.evolution_target }}</span>
                         </div>
                     {% endif %}
                 </div>
 
-                <button class="details-btn" onclick="showDetails({{ servant.id }})">
+                <!-- <button class="details-btn" onclick="showDetails({{ servant.RItemID0 }})">
                     <i class="fas fa-info-circle"></i>
                     Подробнее
-                </button>
+                </button> -->
             </div>
         </div>
         {% endfor %}

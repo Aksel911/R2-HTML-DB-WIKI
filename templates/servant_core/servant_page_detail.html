@@ -667,7 +667,7 @@
                 </ul>
 
                 <div class="craft-section">
-                    <h2 class="craft-title">Крафт {% if servant.evolution_stage %}{{ servant.evolution_stage }}{% else %}{{ servant.OriginPetName }}{% endif %}</h2>
+                    <h2 class="craft-title"><i class="fa-solid fa-bookmark"></i> Крафт {% if servant.evolution_stage %}{{ servant.evolution_stage }}{% else %}{{ servant.OriginPetName }}{% endif %}</h2>
                     <div class="craft-tree" id="craft-tree-container">
                         <div id="base-craft-container" class="loading">
                             <div class="loading-wrapper">
@@ -677,8 +677,21 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="skill-section">
+                    <h2 class="craft-title"><i class="fa-solid fa-dna"></i> Необходимое древо для получения вида</h2>
+                    <div id="skill-tree-container" class="loading">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка древа умений...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="gathering-section">
+                    <h2 class="craft-title"><i class="fa-solid fa-key"></i> Сундук поручения</h2>
                     <div id="gathering-container" class="loading">
                         <div class="loading-wrapper">
                             <div class="loading-content">
@@ -689,17 +702,11 @@
                     </div>
                 </div>
 
-                <div class="craft-section">
-                    <h2 class="craft-title">Необходимое древо для получения вида</h2>
-                    <div id="skill-tree-container" class="loading">
-                        <div class="loading-wrapper">
-                            <div class="loading-content">
-                                <div class="loading-spinner"></div>
-                                <div class="loading-text">Загрузка древа умений...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+
+
+
+
 
                 <div class="craft-section">
                     <div id="evolution-tree-container" class="loading">

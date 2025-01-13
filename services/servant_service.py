@@ -1,7 +1,9 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 from services.database import execute_query
 from services.utils import get_item_pic_url
 from services.item_service import get_material_draw_info
+from services.skill_service import get_sid_by_spid
+
 
 # Main config
 STypeMapping = {
@@ -135,7 +137,6 @@ def extract_level(text: str) -> int:
 
 
 def get_servants_list(servant_id: int = None) -> List[Dict]:
-    
     query = """
     SELECT DISTINCT
         a1.IID,
@@ -202,23 +203,19 @@ def get_servants_list(servant_id: int = None) -> List[Dict]:
         query += " WHERE a1.IID = ?"
         rows = execute_query(query, (servant_id,))
     else:
-        # Здесь можно добавить WHERE условия для фильтрации списка
         rows = execute_query(query)
 
     servant_groups = {}
     
     for row in rows:
-        name = row.STID1_mName.split('(')[0].strip() if row.STID1_mName else ""
+        #ame = row.STID1_mName.split('(')[0].strip() if row.STID1_mName else ""
+        name = row.STID1_mName
         element = get_element_sort_order(row.STID2_mName, row.STID2) if row.STID2_mName or row.STID2 else ""
         level = f"Ур. {row.mLevel}" if row.mLevel else "Основные"
         
         group_key = f"{name}{element}"
         
         if group_key not in servant_groups:
-            servant_groups[group_key] = None
-            
-        current_group = servant_groups[group_key]
-        if current_group is None or (row.mLevel and (current_group.get('mLevel') is None or row.mLevel > current_group.get('mLevel', 0))):
             servant_groups[group_key] = {
                 'id': row.IID,
                 'OriginPetName': row.OriginPetName,
@@ -228,6 +225,7 @@ def get_servants_list(servant_id: int = None) -> List[Dict]:
                 'element_id': row.STID2 if row.STID2 else None,
                 'element_order': row.STID2_mName if row.STID2_mName else None,
                 'evolution_stage': row.STID2_mName if row.STID2_mName else None,
+                'RItemID0': row.RItemID0 if row.RItemID0 else None,
                 'evolution_target': row.AfterCraftPetName if row.AfterCraftPetName else None,
                 'image_url': get_item_pic_url(row.IID, r_type=1) if row.IID else None,
                 'skills_by_level': {},
@@ -243,26 +241,35 @@ def get_servants_list(servant_id: int = None) -> List[Dict]:
         if current_group is None:
             continue
 
+        # Инициализируем уровень, если его еще нет
         if level not in current_group['skills_by_level']:
             current_group['skills_by_level'][level] = []
         
         ModuleType = row.MType if row.MType else None
         ModuleName = row.MName if row.MName else None
         
-        for param_name, param_value in [
-            (row.MAParamName, row.MAParam),
-            (row.MBParamName, row.MBParam),
-            (row.MCParamName, row.MCParam)
-        ]:
-            if param_name and param_value is not None:
-                ability = {
-                    'module_name': ModuleName,
-                    'module_type': ModuleType,
-                    'param_name': param_name,
-                    'value': param_value
-                }
-                if not any(a['param_name'] == ability['param_name'] for a in current_group['skills_by_level'][level]):
-                    current_group['skills_by_level'][level].append(ability)
+        # Проверяем наличие модуля в текущем уровне
+        if ModuleName and ModuleType:
+            for param_name, param_value in [
+                (row.MAParamName, row.MAParam),
+                (row.MBParamName, row.MBParam),
+                (row.MCParamName, row.MCParam)
+            ]:
+                if param_name and param_value is not None:
+                    ability = {
+                        'module_name': ModuleName,
+                        'module_type': ModuleType,
+                        'param_name': param_name,
+                        'value': param_value
+                    }
+                    # Проверяем уникальность комбинации модуля и параметра
+                    if not any(
+                        a['module_name'] == ModuleName and 
+                        a['param_name'] == ability['param_name'] and
+                        a['value'] == ability['value']
+                        for a in current_group['skills_by_level'][level]
+                    ):
+                        current_group['skills_by_level'][level].append(ability)
 
     result = list(servant_groups.values())
     
@@ -278,7 +285,6 @@ def get_servants_list(servant_id: int = None) -> List[Dict]:
     ))
     
     return result
-
 
 
 def servant_to_dict(servant: Dict) -> Dict:
@@ -298,9 +304,160 @@ def servant_to_dict(servant: Dict) -> Dict:
     }
 
 
+def get_servant_detail(servant_id: int) -> List[Dict]:
+    """Получение детальной информации о слуге"""
+    query = """
+    SELECT DISTINCT
+            a.IID,
+            a.SStep,
+            a.STID1,
+            b1.mSTNID,
+            b1.mName,
+            t1.MType,
+            y1.MName AS MTypeName1,
+            t1.MLevel,
+            t1.MAParam,
+            y1.MAParamName,
+            t1.MBParam,
+            y1.MBParamName,
+            t1.MCParam,
+            y1.MCParamName,
+            c1.mSPID AS SPID1,
+            f1.AbnormalID AS AID1,
+            a.STID2,
+            t2.MType AS MType2,
+            y2.MName AS MTypeName2,
+            t2.MLevel AS MLevel2,
+            t2.MAParam AS MAParam2,
+            y2.MAParamName AS MAParamName2,
+            t2.MBParam AS MBParam2,
+            y2.MBParamName AS MBParamName2,
+            t2.MCParam AS MCParam2,
+            y2.MCParamName AS MCParamName2,
+            c2.mSPID AS SPID2,
+            f2.AbnormalID AS AID2,
+            a.STID3,
+            t3.MType AS MType3,
+            y3.MName AS MTypeName3,
+            t3.MLevel AS MLevel3,
+            t3.MAParam AS MAParam3,
+            y3.MAParamName AS MAParamName3,
+            t3.MBParam AS MBParam3,
+            y3.MBParamName AS MBParamName3,
+            t3.MCParam AS MCParam3,
+            y3.MCParamName AS MCParamName3,
+            c3.mSPID AS SPID3,
+            f3.AbnormalID AS AID3
+        FROM TblServantSkillTree AS a
+        LEFT JOIN DT_SkillTreeNode AS b1 ON (a.STID1 = b1.mSTID)  
+        LEFT JOIN DT_SkillTreeNodeItem AS c1 ON (c1.mSTNID = b1.mSTNID)
+        LEFT JOIN DT_SkillPackSkill AS e1 ON (e1.mSPID = c1.mSPID)
+        LEFT JOIN DT_SkillAbnormal AS f1 ON (f1.SID = e1.mSID)
+        LEFT JOIN DT_AbnormalModule AS r1 ON (r1.AID = f1.AbnormalID)
+        LEFT JOIN DT_Module AS t1 ON (t1.MID = r1.MID)
+        LEFT JOIN TP_ModuleType AS y1 ON (y1.MType = t1.MType)
+        LEFT JOIN DT_SkillTreeNode AS b2 ON (a.STID2 = b2.mSTID)
+        LEFT JOIN DT_SkillTreeNodeItem AS c2 ON (c2.mSTNID = b2.mSTNID)  
+        LEFT JOIN DT_SkillPackSkill AS e2 ON (e2.mSPID = c2.mSPID)
+        LEFT JOIN DT_SkillAbnormal AS f2 ON (f2.SID = e2.mSID)
+        LEFT JOIN DT_AbnormalModule AS r2 ON (r2.AID = f2.AbnormalID)
+        LEFT JOIN DT_Module AS t2 ON (t2.MID = r2.MID)
+        LEFT JOIN TP_ModuleType AS y2 ON (y2.MType = t2.MType)
+        LEFT JOIN DT_SkillTreeNode AS b3 ON (a.STID3 = b3.mSTID)
+        LEFT JOIN DT_SkillTreeNodeItem AS c3 ON (c3.mSTNID = b3.mSTNID)
+        LEFT JOIN DT_SkillPackSkill AS e3 ON (e3.mSPID = c3.mSPID)  
+        LEFT JOIN DT_SkillAbnormal AS f3 ON (f3.SID = e3.mSID)
+        LEFT JOIN DT_AbnormalModule AS r3 ON (r3.AID = f3.AbnormalID)
+        LEFT JOIN DT_Module AS t3 ON (t3.MID = r3.MID)
+        LEFT JOIN TP_ModuleType AS y3 ON (y3.MType = t3.MType)
+        WHERE a.IID = ? AND a.SStep = 0;
+    """
+    
+    try:
+        rows = execute_query(query, (servant_id,), fetch_one=False)
+        
+        print(f"Total rows: {len(rows)}")
+        
+        if not rows:
+            return {}
+        
+        servant_data_list = []  # Используем список вместо словаря
+        for row in rows:
+            skill_images = {
+                'skill1': 'xxx',
+                'skill2': 'xx',
+                'skill3': 'xyu'
+            }
+
+            servant_data = {
+                'id': row[0],  # IID
+                'step': row[1],  # SStep
+                'skills': [
+                    {
+                        'stid': row[2],  # STID1
+                        'skill_pack_id': row[14],  # SPID1
+                        'abnormal_id': row[15],  # AID1
+                        'module': {
+                            'type': row[5],  # MType
+                            'name': row[6],  # MTypeName1
+                            'level': row[7],  # MLevel
+                            'params': {
+                                'a': {'name': row[8], 'value': row[9]},
+                                'b': {'name': row[10], 'value': row[11]},
+                                'c': {'name': row[12], 'value': row[13]}
+                            }
+                        },
+                        'image': skill_images['skill1']
+                    },
+                    {
+                        'stid': row[16],  # STID2
+                        'skill_pack_id': row[25],  # SPID2
+                        'abnormal_id': row[26],  # AID2
+                        'module': {
+                            'type': row[17],  # MType2
+                            'name': row[18],  # MTypeName2
+                            'level': row[19],  # MLevel2
+                            'params': {
+                                'a': {'name': row[20], 'value': row[21]},
+                                'b': {'name': row[22], 'value': row[23]},
+                                'c': {'name': row[24], 'value': row[25]}
+                            }
+                        },
+                        'image': skill_images['skill2']
+                    },
+                    {
+                        'stid': row[27],  # STID3
+                        'skill_pack_id': row[36],  # SPID3
+                        'abnormal_id': row[37],  # AID3
+                        'module': {
+                            'type': row[28],  # MType3
+                            'name': row[29],  # MTypeName3
+                            'level': row[30],  # MLevel3
+                            'params': {
+                                'a': {'name': row[31], 'value': row[32]},
+                                'b': {'name': row[33], 'value': row[34]},
+                                'c': {'name': row[35], 'value': row[36]}
+                            }
+                        },
+                        'image': skill_images['skill3']
+                    }
+                ]
+            }
+
+            # Добавляем данные в список
+            servant_data_list.append(servant_data)
+
+        print(f"Number of servants: {len(servant_data_list)}")
+        #print(servant_data_list)  # Печатаем список
+        return servant_data_list
 
 
+    except Exception as e:
+        print(f"Ошибка в get_servant_detail: {e}")
+        return {}
 
+    
+    
 
 
 # * ROUTES
@@ -349,3 +506,36 @@ def check_servant_gathering(servant_id):
     }
     #print(f"XYXYXYXYXYXYXY {gathering_data}, {chest_data}")
     return gathering_data, chest_data
+
+
+# TODO:
+def check_servant_skill_tree(servant_id):
+    # query = """
+    # SELECT
+    #     a.SServerType,
+    #     a.SIsSpeed,
+    #     a.SServantIID,
+    #     b.IName AS 'ServantIName',
+    #     a.SResultIID,
+    #     b1.IName AS 'ChestIName',
+    #     a.SCount 
+    # FROM
+    #     TblServantGathering AS a
+    #     INNER JOIN DT_Item AS b ON ( b.IID = a.SServantIID )
+    #     INNER JOIN DT_Item AS b1 ON ( b1.IID = a.SResultIID ) 
+    # WHERE
+    #     a.SServerType = 1 
+    # AND a.SIsSpeed = 0 
+    # AND a.SServantIID = ?
+    # """
+
+    # row = execute_query(query, (servant_id,), fetch_one=True)
+    
+    kek = get_servant_detail(servant_id)
+    
+    #print(kek)
+    
+    
+    
+    servant_skilltree_data = 'WORKS!'
+    return kek

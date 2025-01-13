@@ -14,6 +14,12 @@ document.addEventListener('DOMContentLoaded', function () {
             containers: [
                 { id: 'gathering-container', template: 'servant_core/detail/servant_page_gathering_detail.html' }
             ]
+        },
+        {
+            endpoint: 'skill-tree',
+            containers: [
+                { id: 'skill-tree-container', template: 'servant_core/detail/servant_page_skilltree_detail.html' }
+            ]
         }
     ];
 

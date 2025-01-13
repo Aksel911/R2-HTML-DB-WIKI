@@ -14,6 +14,7 @@ from config.settings import ATTRIBUTE_TYPE_WEAPON_URL
 # ? Easy defs
 # Поиск SID по SPID с картинкой
 def get_sid_by_spid(spid):
+    
     query = """
     SELECT
         a.mSPID,
@@ -35,19 +36,18 @@ def get_sid_by_spid(spid):
     row = execute_query(query, (spid,), fetch_one=True)
     spid_data = row
     
-    
     if not spid_data:
         return None
 
     # Generate file paths
-    spid_inage = get_skill_icon_path(
+    spid_image = get_skill_icon_path(
             spid_data[2],  # mSpriteFile
             spid_data[3],  # mSpriteX
             spid_data[4]   # mSpriteY
         )
 
     
-    return spid_data, spid_inage
+    return spid_data, spid_image
 
 
 # rest of the code

@@ -1,6 +1,6 @@
 import traceback
 from flask import Blueprint, render_template, jsonify, request
-from services.servant_service import get_servants_list, servant_to_dict, check_servant_gathering
+from services.servant_service import get_servants_list, servant_to_dict, check_servant_gathering, check_servant_skill_tree
 from services.craft_service import check_all_base_items_for_craft, check_next_craft_item
 
 
@@ -90,29 +90,16 @@ def render_template_part(template_name):
     """Render partial template for dynamic loading"""
     try:
         data = request.get_json()
-        #print("Received template data:", data)  # Debug
-
-        # Проверяем, что путь к шаблону корректный
-        if template_name.startswith('servant_core/detail/'):
-            if 'servant_gathering_data' in data:
-                # Для шаблона сбора
-                rendered = render_template(
-                    template_name,
-                    servant_gathering_data=data.get('servant_gathering_data'),
-                    servant_gathering_chest_data=data.get('servant_gathering_chest_data')
-                )
-            else:
-                # Для шаблона крафта
-                rendered = render_template(
-                    template_name,
-                    craft_result=data.get('craft_result', []),
-                    craft_next=data.get('craft_next', [])
-                )
-            return rendered
-        else:
+        
+        if not template_name.startswith('servant_core/detail/'):
             print(f"Invalid template path: {template_name}")
             return "Invalid template path", 400
-        
+
+        # Отфильтровываем None значения и передаем все данные напрямую в шаблон
+        template_data = {k: v for k, v in data.items() if v is not None}
+        rendered = render_template(template_name, **template_data)
+        return rendered
+            
     except Exception as e:
         print(f"Error rendering template: {str(e)}")
         traceback.print_exc()
@@ -158,6 +145,35 @@ def get_servant_gathering_info(servant_id):
             'error': 'Internal server error',
             'message': str(e)
         }), 500
+
+
+@bp.route('/api/servant/<int:servant_id>/skill-tree')
+def get_servant_skilltree_info(servant_id):
+    try:
+        servant_skilltree_data = check_servant_skill_tree(servant_id)
+        
+        if not servant_skilltree_data:
+            return jsonify({'message': 'No skill tree data found'}), 404
+        
+        response_data = {
+            'servant_skilltree_data': servant_skilltree_data
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"Error in gathering info: {str(e)}")
+        traceback.print_exc()
+        return jsonify({
+            'error': 'Internal server error',
+            'message': str(e)
+        }), 500
+
+
+
+
+
+
 
 
 
