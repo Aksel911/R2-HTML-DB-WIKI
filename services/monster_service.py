@@ -1194,8 +1194,6 @@ WHERE a.mMID = ?
             }   
             result.append(raid_data)
         
-            result.append(raid_data)
-        
         return result
     
     return None
