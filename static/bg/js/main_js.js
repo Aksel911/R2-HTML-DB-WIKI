@@ -122,21 +122,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // JavaScript
-    document.querySelector('.pagination-bottom').addEventListener('click', function(e) {
-        // Находим все элементы Atropos
-        const atroposElements = document.querySelectorAll('.atropos');
-        
-        // Добавляем класс для отключения анимаций
-        atroposElements.forEach(element => {
-            element.classList.add('no-transition');
+    const paginationBottom = document.querySelector('.pagination-bottom');
+
+    if (paginationBottom) {
+        paginationBottom.addEventListener('click', function (e) {
+            // Добавляем класс для отключения всех анимаций Atropos
+            document.body.classList.add('no-atropos-transitions');
+
+            setTimeout(() => {
+                document.body.classList.remove('no-atropos-transitions');
+            }, 300); // Задержка соответствует длительности анимации
         });
-        
-        // Опционально: удаляем класс через небольшую задержку,
-        // если нужно восстановить анимации после клика
-        setTimeout(() => {
-            atroposElements.forEach(element => {
-                element.classList.remove('no-transition');
-            });
-        }, 300); // Задержка соответствует длительности анимации
-    });
+    }
+
 });
