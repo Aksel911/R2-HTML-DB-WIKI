@@ -1225,6 +1225,12 @@ body.dark-theme .theme-toggle:hover {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.no-atropos-transitions .atropos,
+.no-atropos-transitions .atropos * {
+    transition: none !important;
+    animation: none !important;
+}
+
 .atropos:nth-child(n) {
     animation-delay: calc(var(--index) * 0.1s);
 }

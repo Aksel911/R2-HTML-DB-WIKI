@@ -385,14 +385,14 @@ def get_item_skill(item_id: int) -> Optional[Tuple]:
                 temp_ma_param = itemdskill_data[13]
                 transformlist_data = transformlist_result
                 itemdskill_data = temp_ma_param
-                #itemskill_pic = None
+                itemskill_pic = None
                 
                 #return itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transformlist_data, monster_pic_url
         
         # Не для книг
         if row.MType != 101:
-            #itemdskill_data = None
-            #itemskill_pic = None
+            itemdskill_data = None
+            itemskill_pic = None
             linked_skills = get_abnormal_skills(row.AID)
         print(itemdskill_data, transformlist_data)
         return itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transformlist_data, monster_pic_url
