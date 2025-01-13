@@ -26,8 +26,8 @@
     <main>
         {% include 'main_page_menu.html' %}
         <div class="container text-center">
-            {% if monstermodelno_result %}
-                <p class="fadeIn">🛠️{{ monstermodelno_result }}</p>
+            {% if monstermodelno_result or item.IDropEffect %}
+                <p class="fadeIn">{% if monstermodelno_result %}🛠️ Model: i{{ monstermodelno_result }}{% else %}💫 Drop Effect: id{{ item.IDropEffect }}{% endif %}</p>
                 <div class="monster-viewer-container">
                     {% include 'GLB.html' %}
                 </div>
@@ -113,6 +113,17 @@
                         </div>
                     </div>
                     {% endif %}
+
+                    <!-- TblTransformList -->
+                    <div id="transform-list-container" class="loading" data-template="item_page_detail_transformlist.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка информации о трансформациях...</div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- Можно купить у -->
                     <div id="merchant-container" class="loading" data-template="item_page_detail_merchant.html">

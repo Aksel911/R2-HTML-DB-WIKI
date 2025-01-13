@@ -35,7 +35,7 @@
 
             {% if not monstermodelno_result and file_path_gif %}
                 <p class="fadeIn">
-                    <img src="{{ url_for('static', filename='gif/' + file_path_gif) }}" style="transform: scale(0.75);">
+                    <img src="{{ file_path_gif }}" style="transform: scale(0.75);">
                 </p>
             {% elif not monstermodelno_result %}
                 <p class="fadeIn">🏳️</p>

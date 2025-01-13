@@ -234,41 +234,93 @@ def item_to_dict(item):
 
 
 # ! Загрузка предметов (ГЛАВНАЯ СТРАНИЦА ПО /items/)
+# def get_items_by_type(item_types: List[int], search_term: str = '') -> Tuple[List[DT_Item], Dict[int, str]]:
+#     """Generic function to fetch items by type with optional search"""
+#     # Используем параметризованный запрос для безопасности
+#     placeholders = ','.join('?' * len(item_types))
+    
+#     query = f"""
+#     SELECT IID
+#     FROM DT_ITem
+#     WHERE IType IN ({placeholders})
+#     AND IName LIKE ?
+#     ORDER BY IID
+#     """
+    
+#     # Создаем список параметров: сначала item_types, затем search_term
+#     params = item_types + [f'%{search_term}%']
+    
+#     rows = execute_query(query, params, fetch_one=False)
+#     item_ids = [row.IID for row in rows]
+    
+#     if not item_ids:
+#         return [], {}
+        
+#     # Получаем все предметы и ресурсы одним запросом для всех ID
+#     items = get_item_by_id(item_ids)
+#     resources = get_item_resource(item_ids)
+   
+#     # Формируем словарь путей к файлам
+#     file_paths = {}
+#     for item_id in item_ids:
+#         if item_id in resources:
+#             file_paths[item_id] = resources[item_id].file_path
+#         else:
+#             file_paths[item_id] = f"{current_app.config['GITHUB_URL']}no_item_image.png"
+               
+#     return items, file_paths
+# ! Загрузка предметов (ГЛАВНАЯ СТРАНИЦА ПО /items/)
+# * Fixed for laptop and slow PC (chank-mode)
 def get_items_by_type(item_types: List[int], search_term: str = '') -> Tuple[List[DT_Item], Dict[int, str]]:
     """Generic function to fetch items by type with optional search"""
-    # Используем параметризованный запрос для безопасности
     placeholders = ','.join('?' * len(item_types))
-    
+   
     query = f"""
     SELECT IID
-    FROM DT_ITem
+    FROM DT_Item  
     WHERE IType IN ({placeholders})
     AND IName LIKE ?
     ORDER BY IID
     """
-    
-    # Создаем список параметров: сначала item_types, затем search_term
+   
     params = item_types + [f'%{search_term}%']
-    
+    print(f"xxxx {params}")
+   
     rows = execute_query(query, params, fetch_one=False)
     item_ids = [row.IID for row in rows]
     
     if not item_ids:
         return [], {}
         
-    # Получаем все предметы и ресурсы одним запросом для всех ID
-    items = get_item_by_id(item_ids)
-    resources = get_item_resource(item_ids)
-   
+    print(len(item_ids))
+    
+    # Разбиваем большой список ID на части
+    chunk_size = 1000  # Меньший размер чанка для безопасности
+    all_items = []
+    all_resources = {}
+    
+    for i in range(0, len(item_ids), chunk_size):
+        chunk_ids = item_ids[i:i + chunk_size]
+        # Получаем предметы для текущего чанка
+        chunk_items = get_item_by_id(chunk_ids)
+        # Получаем ресурсы для текущего чанка
+        chunk_resources = get_item_resource(chunk_ids)
+        
+        if isinstance(chunk_items, list):
+            all_items.extend([item for item in chunk_items if item is not None])
+        all_resources.update(chunk_resources)
+    
     # Формируем словарь путей к файлам
     file_paths = {}
     for item_id in item_ids:
-        if item_id in resources:
-            file_paths[item_id] = resources[item_id].file_path
+        if item_id in all_resources:
+            file_paths[item_id] = all_resources[item_id].file_path
         else:
             file_paths[item_id] = f"{current_app.config['GITHUB_URL']}no_item_image.png"
                
-    return items, file_paths
+    return all_items, file_paths
+
+
 
 #@lru_cache(maxsize=10000)
 def get_item_by_id(item_ids: Union[int, List[int]]) -> Union[Optional[DT_Item], List[Optional[DT_Item]]]:
@@ -1133,9 +1185,6 @@ def get_material_draw_info(box_id: int):
             })
         return data
     return None
-
-
-
 
 
 

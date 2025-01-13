@@ -413,11 +413,22 @@ class UIManager {
     }
 
     createPagination(total, currentPage, perPage) {
-        const paginationContainer = document.querySelector('.pagination-container');
-        if (!paginationContainer) return;
+        // Select both pagination containers
+        const paginationContainers = document.querySelectorAll('.pagination-container');
+        if (!paginationContainers.length) return;
 
         const totalPages = Math.ceil(total / perPage);
-        paginationContainer.innerHTML = this._generatePaginationHTML(totalPages, currentPage);
+        const paginationHTML = this._generatePaginationHTML(totalPages, currentPage);
+
+        // Update both containers with the same pagination
+        paginationContainers.forEach(container => {
+            container.style.opacity = '0';
+            container.innerHTML = paginationHTML;
+
+            requestAnimationFrame(() => {
+                container.style.opacity = '1';
+            });
+        });
     }
 
     _generatePaginationHTML(totalPages, currentPage) {

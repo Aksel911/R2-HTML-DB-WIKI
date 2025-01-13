@@ -224,7 +224,10 @@ def get_abnormal_in_skill(aid: int) -> Optional[Tuple]:
         b.ARemovable,
         b.AFileName,
         b.AIconX,
-        b.AIconY
+        b.AIconY,
+        a.AType,
+        a.ALevel
+        
         FROM DT_Abnormal AS a
         INNER JOIN TP_AbnormalType AS b ON (a.AType = b.AType)
         WHERE a.AID = ?
@@ -238,7 +241,7 @@ def get_abnormal_in_skill(aid: int) -> Optional[Tuple]:
         abnormaltype_data = (
             row.AID, row.AName, row.AEffect,
             row.ARemovable, row.AFileName,
-            row.AIconX, row.AIconY
+            row.AIconX, row.AIconY, row.AType, row.ALevel
         )
 
         atype_pic_data = get_skill_icon_path(
@@ -246,6 +249,7 @@ def get_abnormal_in_skill(aid: int) -> Optional[Tuple]:
             abnormaltype_data[5],
             abnormaltype_data[6]
         )
+        
 
         return abnormaltype_data, atype_pic_data
 

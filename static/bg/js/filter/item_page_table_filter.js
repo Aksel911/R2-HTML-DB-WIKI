@@ -1253,20 +1253,25 @@ class ItemUIManager {
 
 	// Создание пагинации
 	createPagination(total, currentPage, perPage) {
-		const paginationContainer = document.querySelector('.pagination-container');
-		if (!paginationContainer) return;
+        // Select both pagination containers
+        const paginationContainers = document.querySelectorAll('.pagination-container');
+        if (!paginationContainers.length) return;
 
-		const totalPages = Math.ceil(total / perPage);
+        const totalPages = Math.ceil(total / perPage);
+        const paginationHTML = this._generatePaginationHTML(totalPages, currentPage);
 
-		paginationContainer.style.opacity = '0';
-		paginationContainer.innerHTML = this._generatePaginationHTML(
-			totalPages, currentPage
-		);
+        // Update both containers with the same pagination
+        paginationContainers.forEach(container => {
+            container.style.opacity = '0';
+            container.innerHTML = paginationHTML;
 
-		requestAnimationFrame(() => {
-			paginationContainer.style.opacity = '1';
-		});
-	}
+            requestAnimationFrame(() => {
+                container.style.opacity = '1';
+            });
+        });
+    }
+
+	
 
 	// ! Генерация HTML для пагинации
 	_generatePaginationHTML(totalPages, currentPage) {

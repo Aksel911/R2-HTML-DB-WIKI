@@ -29,6 +29,7 @@ script {
     display: none
 }
 
+
 body {
     padding: 20px;
     display: flex;
@@ -782,7 +783,16 @@ body.dark-theme .theme-toggle:hover {
 }
 
 .pagination-container {
-    transition: opacity .3s ease-out
+    -webkit-transition: opacity .3s ease-out;
+    transition: opacity .3s ease-out;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .pagination-container button {
@@ -793,6 +803,14 @@ body.dark-theme .theme-toggle:hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 8px rgba(0,0,0,.1)
 }
+
+.pagination-bottom {
+    margin-top: -5rem;
+    border-top: 1px solid var(--border-color);
+    margin: auto;
+    margin-top: -180px;
+}
+
 
 .dark-theme .loading-content {
     background: #2d3748;
@@ -1182,7 +1200,10 @@ body.dark-theme .theme-toggle:hover {
     transform-style: preserve-3d;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
+.no-transition * {
+    transition: none !important;
+    animation: none !important;
+}
 
 .items-grid {
     display: grid;

@@ -1,0 +1,22 @@
+<!-- TblTransformList -->
+{% if transform_list %}
+<div class="skill-section fadeIn">
+    <p class="section-star">★</p>
+    <h2 class="section-title">[{{ ma_param }}] Перевоплощает в</h2>
+    <div class="skill-content">
+        {% for monster in transform_list[4] %}
+        <div class="item-row">
+            <img class="item-icon"
+                 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'"
+                 src="{{ monster[1] }}">
+            <a href="{{ url_for('monsters.monster_detail', monster_id=monster[0][1]) }}"
+               class="item-name">{{ monster[0][4] }}</a>
+            <span class="stat-value">Ур. {{ monster[0][2] }}</span>
+            {% if monster[0][3] > 0 %}
+            <span class="stat-value">Тип {{ monster[0][3] }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

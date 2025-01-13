@@ -252,10 +252,11 @@ def item_page(item_type):
 def with_app_context(func, app, *args, **kwargs):
     with app.app_context():
         return func(*args, **kwargs)
+    
 @bp.route('/item/<int:item_id>')
 def item_detail(item_id: int):
     try:
-        # Получаем только базовую информацию о предмете
+        # Get basic item information
         if not (item := get_item_by_id(item_id)):
             return "Item not found", 404
 
@@ -263,24 +264,39 @@ def item_detail(item_id: int):
         if not item_resource:
             return "Item resource not found", 404
 
-        # Обработка класса использования
+        # Process use class
         try:
             use_class = int(item.IUseClass.split('/')[-1].replace('.png', ''))
         except (ValueError, AttributeError):
             return "Invalid item use class", 400
 
-        # Получаем модель предмета, если она есть
+        # Get item model
         app = current_app._get_current_object()
         with ThreadPoolExecutor(max_workers=1) as executor:
             itemresource_result = executor.submit(with_app_context, 
                 get_item_model_resource, app, item_id).result()
 
-        # Обработка модели предмета
+        # Process item model
         item_model_no = None
         prefix = 'i'
-        if itemresource_result:
+
+        # Check for abnormal transform first
+        skill_data = get_item_skill(item_id)
+        if skill_data and isinstance(skill_data, tuple) and len(skill_data) == 6:
+            _, _, _, linked_skillsaid, _, _ = skill_data
+            if linked_skillsaid:
+                abnormal_data = get_abnormal_in_skill(linked_skillsaid)
+                if abnormal_data:
+                    abnormal_type_data, _ = abnormal_data
+                    if abnormal_type_data[7] == 46:  # AType на индексе 7
+                        item_model_no = f"{abnormal_type_data[8]:05}"  # ALevel на индексе 8
+                        prefix = 't'
+                        print(f"KKKKKKK {prefix}+{item_model_no}")
+
+        # If no transform model found, process regular model
+        if not item_model_no and itemresource_result:
             base = f"{int(itemresource_result.RPosX):03}{int(itemresource_result.RPosY):03}"
-            if item.IType == 3:  # Доспехи
+            if item.IType == 3:  # Armor
                 prefix = 'p'
                 replace_dict = {
                     1: [0, 1], 2: [2, 3], 4: [4, 5], 5: [0, 1, 4, 5],
@@ -293,24 +309,22 @@ def item_detail(item_id: int):
                 if use_class in replace_dict:
                     for index in replace_dict[use_class]:
                         item_model_no = f"0{index}0{base[3:]}"
+            elif item.IType not in [1, 18, 20, 2, 19]:  # Not weapon/shield/arrows
+                prefix = 'i'
             else:
                 item_model_no = base
-        elif item.IType not in [1, 18, 20, 2, 19]:  # Не оружие/щит/стрелы
-            prefix = 'i'
 
-        # Предварительная проверка наличия данных
+        # Check for data availability
         has_data = {
             'has_bead': item.IName.startswith('Руна'),
             'has_skill': bool(get_item_skill(item_id)),
             'has_craft': bool(check_base_items_for_craft(item_id)),
             'has_attributes': bool(get_item_attribute_add_data(item_id)),
-            'has_protect': item.IType in [1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 42],  # Типы экипировки
+            'has_protect': item.IType in [1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 42],
             'has_abnormal': bool(get_itemabnormalResist_data(item_id))
         }
-
-        #print(item.IStatus)
         
-        # Рендеринг базового шаблона
+        # Render template
         return render_template(
             'item_core/item_page_detail.html',
             item=item,
@@ -418,6 +432,30 @@ def get_item_abnormal_data(item_id):
             'abnormal_type_pic': abnormal_type_pic
         }
     return {}
+
+
+@bp.route('/api/item/<int:item_id>/transform-list')
+@api_response
+def get_item_transform_list_data(item_id):
+    data = get_item_skill(item_id)
+    
+    if data and len(data) >= 5:
+        itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transformlist_data, monster_pic_url = data
+        print(f"itemdskill_data {itemdskill_data}")
+        
+        # Получаем MAParam
+        ma_param = itemdskill_data if itemdskill_data else None
+        
+        if transformlist_data is not None:
+            return {
+                'transform_list': data,
+                'ma_param': ma_param
+            }
+            
+    return {'transform_list': None, 'ma_param': None}
+    
+
+
 
 @bp.route('/api/item/<int:item_id>/abnormal-resist')
 @api_response
