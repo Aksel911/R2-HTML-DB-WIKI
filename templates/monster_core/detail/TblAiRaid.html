@@ -1,0 +1,396 @@
+<!-- TblAiRaid -->
+{% if airaid_data %}
+<style>
+
+    .skill-content {
+        margin-top: 20px;
+    }
+
+    .airaid-section {
+        margin-bottom: 20px;
+        background: rgba(255,255,255,0.05);
+        padding: 15px;
+        border-radius: 8px;
+    }
+    .phase-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: rgba(144, 166, 181, 0.2);
+        border-radius: 4px;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+
+    .skill-link {
+        transition: all 0.3s ease-in-out;
+        display: inline-block;
+    }
+    .skill-link:hover {
+        transform: translateY(-2px);
+    }
+
+    .dark-theme .phase-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: rgba(52, 152, 219, 0.2);
+        border-radius: 4px;
+        margin-bottom: 15px;
+        color: #fff;
+    }
+
+    .phase-id {
+        background: rgba(0,0,0,0.2);
+        color:rgba(44, 62, 80, 0.7);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    .dark-theme .phase-id {
+        background: rgba(0,0,0,0.2);
+        color:rgba(236, 240, 241, 0.3);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    .parameters-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .parameter-box {
+        background: rgba(255,255,255,0.1);
+        padding: 12px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .parameter-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        font-size: 0.9em;
+        color: #aaa;
+        margin-bottom: 5px;
+    }
+
+    .parameter-value {
+        font-size: 3em;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+    .dark-theme .parameter-value {
+        font-size: 3em;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    .skills-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 15px 0 10px;
+        padding: 8px 12px;
+        background: rgba(39, 174, 96, 0.2);
+        border-radius: 4px;
+        color: #2ecc71;
+    }
+
+    .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .skill-item {
+        background: rgba(255,255,255,0.3);
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .dark-theme .skill-item {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .skill-item img {
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        margin-bottom: 5px;
+    }
+
+    .skill-item a {
+        font-size: 0.9em;
+        display: block;
+    }
+
+
+
+    .info-icon {
+        cursor: help;
+        color: #3498db;
+        position: relative;
+    }
+
+    .info-tooltip {
+        visibility: hidden;
+        position: absolute;
+        background: rgba(44, 62, 80, 0.95);
+        color: #fff;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        width: 280px;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 10px;
+        opacity: 0;
+        transition: opacity 0.3s, visibility 0.3s;
+        pointer-events: none;
+        z-index: 1000;
+        text-align: left;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .info-tooltip::before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 8px solid transparent;
+        border-bottom-color: rgba(44, 62, 80, 0.95);
+    }
+
+    .info-icon:hover .info-tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .condition-params {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 10px 0;
+    }
+
+    .skill-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+        margin-top: 5px;
+        font-size: 0.8em;
+        color: #aaa;
+    }
+
+    .skill-detail {
+        padding: 3px 6px;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 4px;
+        justify-content: space-between;
+    }
+    .dark-theme .skill-detail {
+        background: rgba(0,0,0,0.2);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 
+                    0 1px 2px rgba(0, 0, 0, 0.24);
+    }
+
+
+    .picandlink {
+        background: rgba(141, 134, 134, 0.1);
+        border-radius: 8px;
+        padding: 12px;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .picandlink:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 
+                    0 2px 4px rgba(0, 0, 0, 0.12);
+        background: rgba(0, 0, 0, 0.15);
+    }
+
+    .dark-theme .picandlink {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 
+                    0 1px 3px rgba(0, 0, 0, 0.08);
+        padding: 12px;
+        transition: all 0.2s ease-in-out;
+    }
+    
+    .dark-theme .picandlink:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15), 
+                    0 2px 4px rgba(0, 0, 0, 0.12);
+        background: rgba(0, 0, 0, 0.25);
+    }
+</style>
+
+<div class="skill-section fadeIn">
+    <p class="section-star">★</p>
+    <h2 class="section-title">[AI-RAID] Рейдовое поведение монстра</h2>
+    <div class="skill-content">
+        {% set seen_phases = [] %}
+        {% for raid in airaid_data %}
+            {% set phase_key = (raid.mID, raid.mCID) %}
+            {% if phase_key not in seen_phases %}
+            {% set _ = seen_phases.append(phase_key) %}
+            <div class="airaid-section">
+                <div class="aiex-section-title">
+                    <i class="fas fa-flag-checkered"></i>
+                    mID: {{ raid.mID }}
+                    <div class="phase-id">
+                        mCID: {{ raid.mCID }}
+                        ({{ {'0': 'Базовое условие, начальное состояние',
+                             '1': 'Применение умения восстановления здоровья или маны',
+                             '2': 'Проверка здоровья (HP)',
+                             '3': 'Состояние для смены текущей цели',
+                             '4': 'Поиск персонажа в пределах диапазона',
+                             '5': 'Состояние бездействия, без выполнения действий',
+                             '6': 'Проверка статуса цели (например, баффы, дебаффы)',
+                             '7': 'Проверка как здоровья, так и статуса одновременно'}[raid.mCID|string] if raid.mCID is not none else 'Unknown' }})
+                    </div>                     
+                    <div class="info-icon">
+                        <i class="fas fa-question-circle"></i>
+                        <div class="info-tooltip">
+                            {{ {'0': 'eARCTDef',
+                                '1': 'eARCTRegenApplySkill',
+                                '2': 'eARCTCheckHp',
+                                '3': 'eARCTChangeTarget',
+                                '4': 'eARCTFindPcRange',
+                                '5': 'eARCTIdle',
+                                '6': 'eARCTCheckStatus',
+                                '7': 'eARCTCheckHpAndStatus'}[raid.mCID|string] if raid.mCID is not none else 'Unknown' }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Условия активации -->
+                <div class="parameters-grid">
+                    <div class="parameter-box">
+                        <div class="behavior-label">
+                            <i class="fas fa-heart"></i>
+                            ПОРОГ HP
+                            <div class="info-icon">
+                                <i class="fas fa-question-circle"></i>
+                                <div class="info-tooltip">[mCPercent] Порог HP для активации фазы</div>
+                            </div>
+                        </div>
+                        <div class="parameter-value">{{ raid.mCPercent }}%</div>
+                    </div>
+
+                    {% if raid.mCAParam or raid.mCBParam or raid.mCCParam %}
+                    <div class="parameter-box">
+                        <div class="behavior-label">
+                            <i class="fas fa-sliders-h"></i>
+                            ПАРАМЕТРЫ
+                        </div>
+                        <div class="condition-params">
+                            {% if raid.mCAParamName %}
+                            <div>
+                                <small class="subcategory">{{ raid.mCAParamName }}</small>
+                                <div>{{ raid.mCAParam }}</div>
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">[mCAParam]</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if raid.mCBParamName %}
+                            <div>
+                                <small class="subcategory">{{ raid.mCBParamName }}</small>
+                                <div>{{ raid.mCBParam }}</div>
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">[mCBParam]</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if raid.mCCParamName %}
+                            <div>
+                                <small class="subcategory">{{ raid.mCCParamName }}</small>
+                                <div>{{ raid.mCCParam }}</div>
+                                <div class="info-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                    <div class="info-tooltip">[mCCParam]</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Навыки -->
+                <div class="skills-section">
+                    <div class="skills-grid">
+                        {% for i in range(1, 6) %}
+                            {% set sid = raid['mSID' ~ i] %}
+                            {% set data = raid['mSID' ~ i ~ '_data'] %}
+                            {% if sid and sid > 0 and data and data|length > 0 %}
+                                <div class="skill-item">
+                                    <div class="picandlink">
+                                    {% if raid['mSID' ~ i ~ '_pic'] %}
+                                        <img src="{{ raid['mSID' ~ i ~ '_pic'] }}" alt="Skill icon">
+                                    {% elif data[0].abnormal_type_pic %}
+                                        <img src="{{ data[0].abnormal_type_pic }}" alt="Abnormal icon">
+                                    {% endif %}
+                                    <a href="/skill/{{ sid }}" class="skill-link">{{ data[0].name }}</a>
+                                </div>
+                                    <div class="skill-details">
+                                        {% if raid['mSDelay' ~ i] > 0 %}
+                                        <div class="skill-detail">
+                                            <span class="subcategory">Задержка:</span>
+                                            <span class="ai-id">{{ (raid['mSDelay' ~ i]/1000)|int }}с</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if raid['mSLoop' ~ i] > 0 %}
+                                        <div class="skill-detail">
+                                            <span class="subcategory">Повторы:</span>
+                                            <span class="ai-id">{{ raid['mSLoop' ~ i] }}</span>
+                                        </div>
+                                        {% endif %}
+
+                                        {% set target_types = {0: 'На противника', 1: 'На себя'} %}
+                                        {% set target_type = raid['mSTargetType' ~ i] %}
+                                        {% if target_type in target_types %}
+                                        <div class="skill-detail">
+                                            <span class="subcategory">mSTargetType:</span>
+                                            <span class="ai-id">{{ target_types[target_type] }}</span>
+                                        </div>
+                                        {% endif %}
+
+                                        {% if raid['mSMaxCount' ~ i] < 999999999 %}
+                                        <div class="skill-detail">
+                                            <span class="subcategory">Макс. целей:</span>
+                                            <span class="ai-id">{{ raid['mSMaxCount' ~ i] }}</span>
+                                        </div>
+                                        {% endif %}
+                                        {% if raid['mSFixMax' ~ i] %}
+                                        <div class="skill-detail">
+                                            <span class="subcategory">mSFixMax:</span>
+                                            <span class="ai-id">{{ raid['mSTargetType' ~ i] }}</span>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

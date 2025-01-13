@@ -11,44 +11,6 @@ from config.settings import ATTRIBUTE_TYPE_WEAPON_URL
 
 
 
-# ? Easy defs
-# Поиск SID по SPID с картинкой
-def get_sid_by_spid(spid):
-    
-    query = """
-    SELECT
-        a.mSPID,
-        a.mName,
-        a.mSpriteFile,
-        a.mSpriteX,
-        a.mSpriteY,
-        b1.SID,
-        b1.SName 
-    FROM
-        DT_SkillPack AS a
-        
-    INNER JOIN DT_SkillPackSkill AS b ON ( a.mSPID = b.mSPID )
-    INNER JOIN DT_Skill AS b1 ON ( b.mSID = b1.SID )
-        
-    WHERE 
-        a.mSPID = ?
-            """
-    row = execute_query(query, (spid,), fetch_one=True)
-    spid_data = row
-    
-    if not spid_data:
-        return None
-
-    # Generate file paths
-    spid_image = get_skill_icon_path(
-            spid_data[2],  # mSpriteFile
-            spid_data[3],  # mSpriteX
-            spid_data[4]   # mSpriteY
-        )
-
-    
-    return spid_data, spid_image
-
 
 # rest of the code
 def get_skills_list() -> Tuple[List[Tuple], Dict[int, str]]:
@@ -96,16 +58,8 @@ def get_skills_list() -> Tuple[List[Tuple], Dict[int, str]]:
 
     return skills_data, file_paths
 
-# ? EAZY DEFS
-def get_skill_name_by_sid(skill_id: int) -> Optional[str]:
-    query = """
-    SELECT SName FROM DT_Skill WHERE SID = ?
-    """
-    row = execute_query(query, (skill_id,), fetch_one=True)
-    return row.SName if row else None
 
-
-def get_monster_reget_skill_pic_icon_datasource(skill_id: int) -> Optional[str]:
+def get_skill_pic_icon(skill_id: int) -> Optional[str]:
     query ="""
     SELECT 
         mSpriteFile, 
@@ -118,7 +72,12 @@ def get_monster_reget_skill_pic_icon_datasource(skill_id: int) -> Optional[str]:
     icon_data = execute_query(query, (skill_id,), fetch_one=True)
     
     if icon_data:
-        return icon_data
+        skill_icon = get_skill_icon_path(
+                    icon_data.mSpriteFile,
+                    icon_data.mSpriteX,
+                    icon_data.mSpriteY
+                )
+        return skill_icon
     else:
         return None
 
@@ -567,8 +526,6 @@ def get_skill_attribute_data(item_id: int) -> Optional[List[DT_Attribute]]:
         return None
 
 
-
-
 # DT_SkillSlain Check
 def get_skill_slain_data(item_id: int) -> Optional[List[DT_SkillSlain]]:
     
@@ -607,3 +564,52 @@ def get_skill_slain_data(item_id: int) -> Optional[List[DT_SkillSlain]]:
         )
     else:
         return None
+    
+    
+    
+    
+# ? EAZY DEFS
+
+# Поиск SID по SPID с картинкой
+def get_sid_by_spid(spid):
+    query = """
+    SELECT
+        a.mSPID,
+        a.mName,
+        a.mSpriteFile,
+        a.mSpriteX,
+        a.mSpriteY,
+        b1.SID,
+        b1.SName 
+    FROM
+        DT_SkillPack AS a
+        
+    INNER JOIN DT_SkillPackSkill AS b ON ( a.mSPID = b.mSPID )
+    INNER JOIN DT_Skill AS b1 ON ( b.mSID = b1.SID )
+        
+    WHERE 
+        a.mSPID = ?
+            """
+    row = execute_query(query, (spid,), fetch_one=True)
+    spid_data = row
+    
+    if not spid_data:
+        return None
+
+    # Generate file paths
+    spid_image = get_skill_icon_path(
+            spid_data[2],  # mSpriteFile
+            spid_data[3],  # mSpriteX
+            spid_data[4]   # mSpriteY
+        )
+
+    
+    return spid_data, spid_image
+
+
+def get_skill_name_by_sid(skill_id: int) -> Optional[str]:
+    query = """
+    SELECT SName FROM DT_Skill WHERE SID = ?
+    """
+    row = execute_query(query, (skill_id,), fetch_one=True)
+    return row.SName if row else None

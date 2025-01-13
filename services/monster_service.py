@@ -6,7 +6,7 @@ from models.monster import Monster
 from services.database import execute_query, get_db_connection
 from services.utils import get_google_sheets_data, get_skill_icon_path, clean_description, get_skill_icon_path, get_item_pic_url
 from services.item_service import get_item_name
-from services.skill_service import get_monster_reget_skill_pic_icon_datasource, get_skill_name_by_sid
+from services.skill_service import get_skill_pic_icon, get_skill_name_by_sid, get_skill_detail
 from config.settings import MONSTER_CLASS_URL, ATTRIBUTE_TYPE_WEAPON_URL, ATTRIBUTE_TYPE_ARMOR_URL
 from models.monster import DT_MonsterResource, DT_MonsterAbnormalResist, DT_MonsterAttributeAdd, DT_MonsterAttributeResist, DT_MonsterProtect, DT_MonsterSlain
 
@@ -988,18 +988,12 @@ def get_monster_aiex_data(monster_id: int) -> Optional[Dict]:
             if not skill_id or skill_id == 0:
                 return None
 
-            sprite_info = get_monster_reget_skill_pic_icon_datasource(skill_id)
-            if not sprite_info:
+            icon_url = get_skill_pic_icon(skill_id)
+            if not icon_url:
                 return None
             
             skill_name = get_skill_name_by_sid(skill_id)
             
-            icon_url = get_skill_icon_path(
-                sprite_file=sprite_info[0] if len(sprite_info) > 0 else None,
-                sprite_x=sprite_info[1] if len(sprite_info) > 1 else None,
-                sprite_y=sprite_info[2] if len(sprite_info) > 2 else None
-            )
-
             return {
                 'id': skill_id,
                 'icon_url': icon_url,
@@ -1080,7 +1074,142 @@ def get_monster_aiex_data(monster_id: int) -> Optional[Dict]:
         return None
     
     
+# TblAiRaid
+def get_monster_airaid_data(monster_id: int) -> Optional[Dict]:
+    query = """
+SELECT
+	a.mID,
+	a.mMID,
+	b.MName,
+	a.mCID,
+	a.mCPercent,
+	a.mCAParam,
+	a.mCBParam,
+	a.mCCParam,
+	a.mSID1,
+	a.mSDelay1,
+	a.mSLoop1,
+	a.mSTargetType1,
+	a.mSMaxCount1,
+	a.mSFixMax1,
+	a.mSID2,
+	a.mSDelay2,
+	a.mSLoop2,
+	a.mSTargetType2,
+	a.mSMaxCount2,
+	a.mSFixMax2,
+	a.mSID3,
+	a.mSDelay3,
+	a.mSLoop3,
+	a.mSTargetType3,
+	a.mSMaxCount3,
+	a.mSFixMax3,
+	a.mSID4,
+	a.mSDelay4,
+	a.mSLoop4,
+	a.mSTargetType4,
+	a.mSMaxCount4,
+	a.mSFixMax4,
+	a.mSID5,
+	a.mSDelay5,
+	a.mSLoop5,
+	a.mSTargetType5,
+	a.mSMaxCount5,
+	a.mSFixMax5,
 
+ 	c.mDesc,
+	c.mCAParamName,
+    c.mCBParamName,
+    c.mCCParamName
+
+FROM
+	TblAiRaid AS a
+	INNER JOIN DT_Monster AS b ON ( a.mMID = b.MID )
+    INNER JOIN TP_AiRaidConditionType AS c ON (a.mCID = c.mCID)
+    
+WHERE a.mMID = ?
+    """
+    
+    rows  = execute_query(query, (monster_id,), fetch_one=False)
+    
+    if rows:
+        result = []
+        for row in rows:
+            # Создаем базовый словарь с данными
+            raid_data = {
+                'mID': row[0],
+                'mMID': row[1],
+                'MName': row[2],
+                
+                'mCID': row[3],
+                'mCPercent': row[4],
+                'mCAParam': row[5],
+                'mCBParam': row[6],
+                'mCCParam': row[7],
+                
+                'mSID1': row[8],
+                'mSDelay1': row[9],
+                'mSLoop1': row[10],
+                'mSTargetType1': row[11],
+                'mSMaxCount1': row[12],
+                'mSFixMax1': row[13],
+                
+                'mSID2': row[14],
+                'mSDelay2': row[15],
+                'mSLoop2': row[16],
+                'mSTargetType2': row[17],
+                'mSMaxCount2': row[18],
+                'mSFixMax2': row[19],
+                
+                'mSID3': row[20],
+                'mSDelay3': row[21],
+                'mSLoop3': row[22],
+                'mSTargetType3': row[23],
+                'mSMaxCount3': row[24],
+                'mSFixMax3': row[25],
+                
+                'mSID4': row[26],
+                'mSDelay4': row[27],
+                'mSLoop4': row[28],
+                'mSTargetType4': row[29],
+                'mSMaxCount4': row[30],
+                'mSFixMax4': row[31],
+                
+                'mSID5': row[32],
+                'mSDelay5': row[33],
+                'mSLoop5': row[34],
+                'mSTargetType5': row[35],
+                'mSMaxCount5': row[36],
+                'mSFixMax5': row[37],
+                
+                'mDesc': row[38],
+                'mCAParamName': row[39],
+                'mCBParamName': row[40],
+                'mCCParamName': row[41],
+                'mSID1_pic': get_skill_pic_icon(row[8]),
+                'mSID1_data': get_skill_detail(row[8]),
+                
+                'mSID2_pic': get_skill_pic_icon(row[14]),
+                'mSID2_data': get_skill_detail(row[14]),
+                
+                'mSID3_pic': get_skill_pic_icon(row[20]),
+                'mSID3_data': get_skill_detail(row[20]),
+                
+                'mSID4_pic': get_skill_pic_icon(row[26]),
+                'mSID4_data': get_skill_detail(row[26]),
+                
+                'mSID5_pic': get_skill_pic_icon(row[32]),
+                'mSID5_data': get_skill_detail(row[32])
+            }   
+            result.append(raid_data)
+        
+            result.append(raid_data)
+        
+        return result
+    
+    return None
+    
+    
 
 
 

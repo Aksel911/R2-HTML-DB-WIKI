@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
             endpoint: 'ai',
             containers: [
                 { id: 'ai-container', template: 'TblAi.html' },
-                { id: 'aiex-container', template: 'TblAiEx.html' }
+                { id: 'aiex-container', template: 'TblAiEx.html' },
+                { id: 'airaid-container', template: 'TblAiRaid.html' }
             ],
             shouldLoad: (containerId) => document.getElementById(containerId) !== null
         }

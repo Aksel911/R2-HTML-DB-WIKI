@@ -4,7 +4,7 @@ from services.skill_service import (
     get_skills_list,
     get_skill_use_by_spid_items,
     get_skill_use_by_sid,
-    get_monster_reget_skill_pic_icon_datasource,
+    get_skill_pic_icon,
     get_skill_attribute_data,
     get_skill_slain_data
 )
@@ -51,7 +51,7 @@ def skill_detail(skill_id: int):
             # Запускаем параллельные задачи
             future_skill_for_item = submit_with_context(get_skill_use_by_spid_items, spid_id)
             future_skill_for_skill = submit_with_context(get_skill_use_by_sid, spid_id)
-            future_icon_data = submit_with_context(get_monster_reget_skill_pic_icon_datasource, skill_id)
+            future_icon_data = submit_with_context(get_skill_pic_icon, skill_id)
             future_attribute_data = submit_with_context(get_skill_attribute_data, skill_id)
             future_slain_data = submit_with_context(get_skill_slain_data, skill_id)
             
@@ -70,7 +70,7 @@ def skill_detail(skill_id: int):
 
             skill_attribute_add_data = future_attribute_data.result() or None
             skill_slain_data = future_slain_data.result() or None
-            icon_data = future_icon_data.result()
+            icon_data = future_icon_data.result() or None
 
             # Обработка класса использования
             use_class = None
@@ -79,15 +79,6 @@ def skill_detail(skill_id: int):
                     use_class = int(skill.item_use_class.split('/')[-1].replace('.png', ''))
                 except (ValueError, AttributeError):
                     pass
-
-            # Обработка иконки навыка
-            skill_icon = None
-            if icon_data:
-                skill_icon = get_skill_icon_path(
-                    icon_data.mSpriteFile,
-                    icon_data.mSpriteX,
-                    icon_data.mSpriteY
-                )
 
             # Обработка информации о расе
             race_info = None
@@ -105,7 +96,7 @@ def skill_detail(skill_id: int):
             skills=skills,
             use_class=use_class,
             race_info=race_info,
-            skill_icon=skill_icon,
+            skill_icon=icon_data,
             skill_for_item_data=skill_for_item_data,
             skill_for_item_pic=skill_for_item_pic,
             skill_for_skill_data=skill_for_skill_data,

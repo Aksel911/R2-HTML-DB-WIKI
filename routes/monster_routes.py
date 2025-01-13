@@ -14,6 +14,7 @@ from services.monster_service import (
     get_monster_slain_data,
     get_monster_ai_data,
     get_monster_aiex_data,
+    get_monster_airaid_data,
     apply_monster_filters,
     monster_to_dict
     
@@ -491,11 +492,13 @@ def get_monster_ai_data_route(monster_id):
         # Get AI data
         ai_data = get_monster_ai_data(monster_id)
         aiex_data = get_monster_aiex_data(monster_id)
+        airaid_data = get_monster_airaid_data(monster_id)
         
         # Return all necessary data for both templates
         return jsonify({
             'ai_data': ai_data,
             'aiex_data': aiex_data,
+            'airaid_data': airaid_data,
             'item': monster_dict  # Add this for templates that need it
         })
     except Exception as e:

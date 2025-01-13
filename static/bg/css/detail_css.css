@@ -900,7 +900,6 @@ body.dark-theme {
 .abnormal-resist-name .skill-name {
     font-weight: 500;
     color: var(--text-dark);
-    text-decoration: none;
 }
 
 .abnormal-resist-type {
