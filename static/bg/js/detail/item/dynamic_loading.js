@@ -119,13 +119,13 @@ document.addEventListener('DOMContentLoaded', function() {
             containers: [
                 { id: 'material-draw-container', template: 'TblMaterialDrawResult.html' }
             ]
-        },
-        {
-            endpoint: 'transform-list',
-            containers: [
-                { id: 'transform-list-container', template: 'item_page_detail_transformlist.html' }
-            ]
         }
+        // {
+        //     endpoint: 'transform-list',
+        //     containers: [
+        //         { id: 'transform-list-container', template: 'item_page_detail_transformlist.html' }
+        //     ]
+        // }
     ];
 
     // Функция для проверки валидности данных

@@ -434,25 +434,25 @@ def get_item_abnormal_data(item_id):
     return {}
 
 
-@bp.route('/api/item/<int:item_id>/transform-list')
-@api_response
-def get_item_transform_list_data(item_id):
-    data = get_item_skill(item_id)
+# @bp.route('/api/item/<int:item_id>/transform-list')
+# @api_response
+# def get_item_transform_list_data(item_id):
+#     data = get_item_skill(item_id)
     
-    if data and len(data) >= 5:
-        itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transformlist_data, monster_pic_url = data
-        print(f"itemdskill_data {itemdskill_data}")
+#     if data and len(data) >= 5:
+#         itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transformlist_data, monster_pic_url = data
+#         print(f"itemdskill_data {itemdskill_data}")
         
-        # Получаем MAParam
-        ma_param = itemdskill_data if itemdskill_data else None
+#         # Получаем MAParam
+#         ma_param = itemdskill_data if itemdskill_data else None
         
-        if transformlist_data is not None:
-            return {
-                'transform_list': data,
-                'ma_param': ma_param
-            }
+#         if transformlist_data is not None:
+#             return {
+#                 'transform_list': data,
+#                 'ma_param': ma_param
+#             }
             
-    return {'transform_list': None, 'ma_param': None}
+#     return {'transform_list': None, 'ma_param': None}
     
 
 
