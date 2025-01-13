@@ -296,34 +296,31 @@
                             ПАРАМЕТРЫ
                         </div>
                         <div class="condition-params">
-                            {% if raid.mCAParamName %}
+                            {% if raid.mCAParam %}
                             <div>
-                                <small class="subcategory">{{ raid.mCAParamName }}</small>
-                                <div>{{ raid.mCAParam }}</div>
                                 <div class="info-icon">
                                     <i class="fas fa-question-circle"></i>
                                     <div class="info-tooltip">[mCAParam]</div>
                                 </div>
+                                <div class="ai-id">{{ raid.mCAParam }}</div>
                             </div>
                             {% endif %}
-                            {% if raid.mCBParamName %}
+                            {% if raid.mCBParam %}
                             <div>
-                                <small class="subcategory">{{ raid.mCBParamName }}</small>
-                                <div>{{ raid.mCBParam }}</div>
                                 <div class="info-icon">
                                     <i class="fas fa-question-circle"></i>
                                     <div class="info-tooltip">[mCBParam]</div>
                                 </div>
+                                <div class="ai-id">{{ raid.mCBParam }}</div>
                             </div>
                             {% endif %}
-                            {% if raid.mCCParamName %}
+                            {% if raid.mCCParam %}
                             <div>
-                                <small class="subcategory">{{ raid.mCCParamName }}</small>
-                                <div>{{ raid.mCCParam }}</div>
                                 <div class="info-icon">
                                     <i class="fas fa-question-circle"></i>
                                     <div class="info-tooltip">[mCCParam]</div>
                                 </div>
+                                <div class="ai-id">{{ raid.mCCParam }}</div>
                             </div>
                             {% endif %}
                         </div>

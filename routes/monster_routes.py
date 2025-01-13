@@ -493,7 +493,7 @@ def get_monster_ai_data_route(monster_id):
         ai_data = get_monster_ai_data(monster_id)
         aiex_data = get_monster_aiex_data(monster_id)
         airaid_data = get_monster_airaid_data(monster_id)
-        
+
         # Return all necessary data for both templates
         return jsonify({
             'ai_data': ai_data,

@@ -1115,17 +1115,11 @@ SELECT
 	a.mSLoop5,
 	a.mSTargetType5,
 	a.mSMaxCount5,
-	a.mSFixMax5,
-
- 	c.mDesc,
-	c.mCAParamName,
-    c.mCBParamName,
-    c.mCCParamName
+	a.mSFixMax5
 
 FROM
 	TblAiRaid AS a
 	INNER JOIN DT_Monster AS b ON ( a.mMID = b.MID )
-    INNER JOIN TP_AiRaidConditionType AS c ON (a.mCID = c.mCID)
     
 WHERE a.mMID = ?
     """
@@ -1182,10 +1176,7 @@ WHERE a.mMID = ?
                 'mSMaxCount5': row[36],
                 'mSFixMax5': row[37],
                 
-                'mDesc': row[38],
-                'mCAParamName': row[39],
-                'mCBParamName': row[40],
-                'mCCParamName': row[41],
+
                 'mSID1_pic': get_skill_pic_icon(row[8]),
                 'mSID1_data': get_skill_detail(row[8]),
                 
