@@ -13,3 +13,4 @@ docker_database/FNLParm.bak
 .venv/
 static/bg/js/filter/test.rar
 .env
+.env
