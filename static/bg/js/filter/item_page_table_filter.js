@@ -999,20 +999,20 @@ class ItemUIManager {
 		}
 
 		// Параметры ближнего боя
-		if (hasValue(item.IDHIT)) {
+		if (hasValue(item.IDDD)) {
 			badges.push(`
                 <div class="stat-badge" data-atropos-offset="3">
                     <i class="fa-solid fa-hand-fist"></i>
-                    <span>Урон: ${item.IDHIT}</span>
+                    <span>Урон: ${item.IDDD}</span>
                 </div>
             `);
 		}
 
-		if (hasValue(item.IDDD)) {
+		if (hasValue(item.IDHIT)) {
 			badges.push(`
                 <div class="stat-badge" data-atropos-offset="3">
                     <i class="fa-solid fa-bullseye"></i>
-                    <span>Точность: ${item.IDDD}</span>
+                    <span>Точность: ${item.IDHIT}</span>
                 </div>
             `);
 		}
