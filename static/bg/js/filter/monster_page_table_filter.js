@@ -637,6 +637,7 @@ class UIManager {
                             <div class="atropos-inner" data-monster-type="${monster.MClass}">
                                 <div class="item-card-id" data-atropos-offset="5">
                                     #${monster.MID}
+                                    <div class="tooltip">${monster.RFileName ? 'm' + monster.RFileName.toString().padStart(5, '0') : 'unknown'}</div>
                                 </div>
                         
                                 <div class="monster-image" data-atropos-offset="8" data-monster-type="${monster.MClass}">

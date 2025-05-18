@@ -68,6 +68,10 @@ class Monster:
     mEnemySubCriticalHit: float
     mEventQuest: bool
     mEScale: float
+
+    # DT_MonsterResource
+    RFileName: str
+    
     # def to_dict(self) -> Dict:
     #     """Convert monster to dictionary with formatted fields"""
     #     return {

@@ -1273,6 +1273,28 @@ body.dark-theme .theme-toggle:hover {
     transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
+.atropos-inner .item-card-id .tooltip {
+    visibility: hidden;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%; /* Появляется над блоком */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .atropos-inner .item-card-id:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
 /* Для комбинаций — зафиксируем состояние при убирании мышки */
 .atropos-inner[data-class="0"]:not(:hover),
 .atropos-inner[data-class="1"]:not(:hover),
