@@ -125,6 +125,16 @@ app = Flask(__name__)
 load_config(app)
 setup_logging(app)
 
+
+# Setup Firebase Analytics
+@app.context_processor
+def inject_analytics_config():
+    return {
+        'enable_analytics': app.config['ENABLE_FIREBASE_ANALYTICS'],
+        'firebase_config': app.config['FIREBASE_CONFIG']
+    }
+
+
 # Request logging middleware
 @app.before_request
 def log_request_info():
