@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Optional
 
 @dataclass
 class Monster:
@@ -70,7 +70,7 @@ class Monster:
     mEScale: float
 
     # DT_MonsterResource
-    RFileName: str
+    RFileName: Optional[str] = None
     
     # def to_dict(self) -> Dict:
     #     """Convert monster to dictionary with formatted fields"""
