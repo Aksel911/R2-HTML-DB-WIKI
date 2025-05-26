@@ -1150,57 +1150,76 @@ class ItemUIManager {
 		}
 
 		// Поглощение урона
-		if (hasValue(item.IDPV)) {
+		
+		var closeProtection = item.IDPV + item.IHDPV;
+		
+		if (hasValue(closeProtection)) {
 			badges.push(`
                 <div class="stat-badge" data-atropos-offset="3">
                     <i class="fa-solid fa-shield"></i>
-                    <span>Погл. ближ: ${item.IDPV}</span>
+                    <span>Погл. ближ: ${closeProtection}</br>
+					(${item.IDPV} + ${item.IHDPV} скр.)</span>
                 </div>
             `);
 		}
 
-		if (hasValue(item.IMPV)) {
+		var magicProtection = item.IMPV + item.IHMPV;
+		
+		if (hasValue(magicProtection)) {
 			badges.push(`
                 <div class="stat-badge" data-atropos-offset="3">
                     <i class="fa-solid fa-poo-storm"></i>
-                    <span>Погл. маг: ${item.IMPV}</span>
+                    <span>Погл. маг: ${magicProtection}</br>
+					(${item.IMPV} + ${item.IHMPV} скр.)</span>
                 </div>
             `);
 		}
 
-		if (hasValue(item.IRPV)) {
+		var rangeProtection = item.IRPV + item.IHRPV;
+		
+		if (hasValue(rangeProtection)) {
 			badges.push(`
                 <div class="stat-badge" data-atropos-offset="3">
                     <i class="fa-solid fa-soap"></i>
-                    <span>Погл. дальн: ${item.IRPV}</span>
+                    <span>Погл. дальн: ${rangeProtection}</br>
+					(${item.IRPV} + ${item.IHRPV} скр.)</span>
                 </div>
             `);
 		}
 
 		// Уклонение
-		if (hasValue(item.IDDV)) {
+		var closeDodge = item.IDDV + item.IHDDV;
+		
+		if (hasValue(closeDodge)) {
 			badges.push(`
                 <div class="stat-badge" data-atropos-offset="3">
                     <i class="fa-brands fa-padlet"></i>
-                    <span>Укл. ближ: ${item.IDDV}</span>
+                    <span>Укл. ближ: ${closeDodge}</br>
+					(${item.IDDV} + ${item.IHDDV} скр.)</span>
                 </div>
             `);
 		}
 
-		if (hasValue(item.IMDV)) {
+		var magicDodge = item.IMDV + item.IHMDV;
+		
+		if (hasValue(magicDodge)) {
 			badges.push(`
                 <div class="stat-badge" data-atropos-offset="3">
                     <i class="fa-solid fa-wind"></i>
-                    <span>Укл. маг: ${item.IMDV}</span>
+                    <span>Укл. маг: ${magicDodge}</br>
+					(${item.IMDV} + ${item.IHMDV} скр.)</span>
                 </div>
             `);
 		}
 
-		if (hasValue(item.IRDV)) {
+		var rangeDodge = item.IRDV + item.IHRDV;
+		
+		if (hasValue(rangeDodge)) {
 			badges.push(`
                 <div class="stat-badge" data-atropos-offset="3">
                     <i class="fa-brands fa-pied-piper-alt"></i>
-                    <span>Укл. дальн: ${item.IRDV}</span>
+                    <span>Укл. дальн: ${rangeDodge}</br>
+					(${item.IRDV} + ${item.IHRDV} скр.)</span>
                 </div>
             `);
 		}
