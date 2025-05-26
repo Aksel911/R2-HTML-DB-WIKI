@@ -40,3 +40,16 @@ def load_config(app):
     app.config['GITHUB_URL'] = GITHUB_URL
     app.config['DATABASE_NAME'] = os.getenv('DB_NAME', 'FNLParm')
     app.config['PORT'] = os.getenv('PORT', 5000) # Default port = 5000
+
+    # Analytics configuration
+    app.config['ENABLE_FIREBASE_ANALYTICS'] = os.getenv('ENABLE_FIREBASE_ANALYTICS', 'false') == 'true'
+    app.config['FIREBASE_CONFIG'] = {
+        'apiKey': os.getenv('FIREBASE_API_KEY'),
+        'projectId': os.getenv('FIREBASE_PROJECT_ID'),
+        'measurementId': os.getenv('FIREBASE_MEASUREMENT_ID'),
+
+        'appId': os.getenv('FIREBASE_APP_ID'),
+        'authDomain': os.getenv('FIREBASE_AUTH_DOMAIN'),
+        'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
+        'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+    }

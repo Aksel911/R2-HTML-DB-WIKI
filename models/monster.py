@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Optional
 
 @dataclass
 class Monster:
@@ -68,6 +68,10 @@ class Monster:
     mEnemySubCriticalHit: float
     mEventQuest: bool
     mEScale: float
+
+    # DT_MonsterResource
+    RFileName: Optional[str] = None
+    
     # def to_dict(self) -> Dict:
     #     """Convert monster to dictionary with formatted fields"""
     #     return {

@@ -20,7 +20,7 @@ def check_version():
                     app.config['VERSION'] = line.split("=", 1)[1].strip()
                     break
             else:
-                app.config['VERSION'] = '0.0'
+                app.config['VERSION'] = 'v0.0'
                 print("Warning: VERSION= not found in .ver file!")
     except FileNotFoundError:
         print("Warning: File .ver not found!")
@@ -125,6 +125,16 @@ app = Flask(__name__)
 load_config(app)
 setup_logging(app)
 
+
+# Setup Firebase Analytics
+@app.context_processor
+def inject_analytics_config():
+    return {
+        'enable_analytics': app.config['ENABLE_FIREBASE_ANALYTICS'],
+        'firebase_config': app.config['FIREBASE_CONFIG']
+    }
+
+
 # Request logging middleware
 @app.before_request
 def log_request_info():
@@ -178,10 +188,7 @@ def home():
     return render_template('main_page.html')
 
 
-#app.config['VERSION'] = os.getenv('VERSION', '0')
-
 if __name__ == '__main__':
-    #setup_colored_logging(app)
     check_version()
     app.logger.info(f"{Colors.GREEN}R2-HTML-DB-WIKI{Colors.RESET}{Colors.YELLOW} Started successfully!{Colors.RESET}{Colors.GRAY} Version: {Colors.RESET}{Colors.GREEN}{app.config['VERSION']}{Colors.RESET}")
     

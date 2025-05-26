@@ -171,7 +171,10 @@ def monster_to_dict(monster: Monster) -> dict:
        'mSubDDWhenCritical': monster.mSubDDWhenCritical,
        'mEnemySubCriticalHit': monster.mEnemySubCriticalHit,
        'mEventQuest': monster.mEventQuest,
-       'mEScale': monster.mEScale
+       'mEScale': monster.mEScale,
+
+       # DT_MonsterResource
+       'RFileName': monster.RFileName,
    }
 
 
@@ -495,9 +498,10 @@ def get_monsters_by_class(class_ids: List[int], search_term: str = '') -> Tuple[
 
     # Base query
     query = """
-        SELECT *
-        FROM DT_Monster 
-        WHERE MClass IN ({})
+        SELECT m.*, r.RFileName
+        FROM DT_Monster m
+        LEFT JOIN DT_MonsterResource r ON r.ROwnerID = m.MID
+        WHERE m.MClass IN ({})
     """.format(class_str)
     
     # Add search condition if provided
@@ -583,7 +587,10 @@ def get_monsters_by_class(class_ids: List[int], search_term: str = '') -> Tuple[
             mSubDDWhenCritical=row.mSubDDWhenCritical,
             mEnemySubCriticalHit=row.mEnemySubCriticalHit,
             mEventQuest=int(row.mEventQuest),
-            mEScale=row.mEScale
+            mEScale=row.mEScale,
+
+            # DT_MonsterResource
+            RFileName=row.RFileName
         )
         monsters.append(monster)
         file_paths[row.MID] = f"{current_app.config['GITHUB_URL']}{row.MID}.png"
