@@ -1,0 +1,28 @@
+{% if enable_analytics %}
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+    import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
+
+    const firebaseConfig = {
+        apiKey: "{{ firebase_config.apiKey }}",
+        projectId: "{{ firebase_config.projectId }}",
+        measurementId: "{{ firebase_config.measurementId }}",
+
+        appId: "{{ firebase_config.appId }}",
+        authDomain: "{{ firebase_config.authDomain }}",
+        storageBucket: "{{ firebase_config.storageBucket }}",
+        messagingSenderId: "{{ firebase_config.messagingSenderId }}"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.analytics = getAnalytics(app);
+    window.logEvent = logEvent;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.analytics && window.logEvent) {
+            logEvent(analytics, 'page_view', { page_title: document.title });
+            console.log('[Analytics] Page view logged:', document.title);
+        }
+    });
+</script>
+{% endif %}
