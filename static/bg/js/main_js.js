@@ -23,7 +23,7 @@ var ThemeManager = {
     // Метод переключения темы
     toggleTheme: function() {
         // Звуковой эффект
-        var soundEffect = new Audio('https://www.soundjay.com/buttons/sounds/button-30.mp3');
+        var soundEffect = new Audio('https://github.com/Aksel911/R2-Textures/raw/refs/heads/main/%5BFIX%5D%20FIXES/%5BFIX%5D%20%D0%A1%D1%82%D0%B0%D1%80%D1%8B%D0%B9%20%D1%8D%D1%84%D1%84%D0%B5%D0%BA%D1%82%20%D0%B7%D0%B0%D1%82%D0%BE%D1%87%D0%BA%D0%B8/sound/gui_click.wav');
 
         // Проверяем текущее состояние темы
         var isDarkTheme = document.documentElement.classList.contains(this.DARK_THEME_CLASS);
