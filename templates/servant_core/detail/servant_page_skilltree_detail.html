@@ -5,85 +5,405 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Информация о питомце</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* Базовые стили */
+        :root {
+            --gold-primary: #D4AF37;
+            --gold-light: #FFDC73;
+            --gold-dark: #8B6F24;
+            --gold-transparent: rgba(212, 175, 55, 0.1);
+            --bg-light: #f8f5f0;
+            --bg-card-light: #ffffff;
+            --text-light: #333333;
+            --text-secondary-light: #666666;
+            --border-light: rgba(212, 175, 55, 0.2);
+            
+            --bg-dark: #1a1a1a;
+            --bg-card-dark: #2d2d2d;
+            --text-dark: #e0e0e0;
+            --text-secondary-dark: #a0a0a0;
+            --border-dark: rgba(212, 175, 55, 0.3);
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
-            background: #f5f5f5;
-            color: #333;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        body.dark-theme {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* Контейнер питомца */
         .servant-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto 40px;
+            background: var(--bg-card-light);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
         }
+
+        .dark-theme .servant-container {
+            background: var(--bg-card-dark);
+            border-color: var(--border-dark);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Шапка питомца */
         .servant-header {
-            background: #2c3e50;
+            background: linear-gradient(135deg, var(--gold-dark), var(--gold-primary));
             color: white;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        .skill-group {
-            border: 1px solid #ddd;
-            margin-bottom: 20px;
-            border-radius: 6px;
+            padding: 25px 30px;
+            position: relative;
             overflow: hidden;
         }
-        .skill-group-header {
-            background: #34495e;
+
+        .servant-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.1;
+        }
+
+        .servant-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .servant-id {
+            font-size: 18px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 10px 15px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Контейнер навыков */
+        .skills-container {
+            padding: 30px;
+        }
+
+        /* Группа навыков */
+        .skill-group {
+            margin-bottom: 30px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            background: linear-gradient(to right, var(--gold-transparent), transparent 30%);
+            transition: all 0.3s ease;
+        }
+
+        .dark-theme .skill-group {
+            border-color: var(--border-dark);
+            background: linear-gradient(to right, rgba(212, 175, 55, 0.05), transparent 30%);
+        }
+
+        .skill-group:hover {
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Заголовок группы навыков */
+        .skill-group-header {
+            background: linear-gradient(to right, var(--gold-dark), var(--gold-primary));
+            color: white;
+            padding: 18px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
+            overflow: hidden;
         }
+
+        .skill-group-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
         .skill-group-header h3 {
             margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
         }
+
+        .stid-badge {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 5px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Содержимое группы навыков */
         .skill-group-content {
-            padding: 15px;
-            background: #f8f9fa;
+            padding: 25px;
+            background: var(--bg-card-light);
         }
+
+        .dark-theme .skill-group-content {
+            background: var(--bg-card-dark);
+        }
+
+        /* Сетка вариаций */
         .variation-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin-top: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
         }
+
+        /* Карточка вариации */
         .variation-card {
-            background: white;
-            border: 1px solid #e9ecef;
-            border-radius: 4px;
-            padding: 12px;
+            background: var(--bg-card-light);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+        .dark-theme .variation-card {
+            background: var(--bg-card-dark);
+            border-color: var(--border-dark);
+        }
+
+        .variation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--gold-primary), var(--gold-light));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .variation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.15);
+        }
+
+        .variation-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Заголовок карточки */
+        .variation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        .dark-theme .variation-header {
+            border-bottom-color: var(--border-dark);
+        }
+
+        .module-type {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gold-primary);
+        }
+
+        .module-level {
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Сетка параметров */
         .parameter-grid {
             display: grid;
             grid-template-columns: auto 1fr;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 10px;
+            align-items: center;
         }
+
         .parameter-label {
-            font-weight: bold;
-            color: #666;
+            font-weight: 600;
+            color: var(--text-secondary-light);
+            font-size: 14px;
         }
+
+        .dark-theme .parameter-label {
+            color: var(--text-secondary-dark);
+        }
+
         .parameter-value {
-            color: #2c3e50;
+            color: var(--text-light);
+            font-weight: 500;
         }
-        .badge {
-            background: #3498db;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.85em;
+
+        .dark-theme .parameter-value {
+            color: var(--text-dark);
         }
+
+        /* Блок информации о навыке */
         .skill-info {
-            margin-top: 10px;
-            padding: 10px;
-            background: #edf2f7;
+            margin-top: 20px;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--gold-transparent), transparent);
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        .dark-theme .skill-info {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), transparent);
+            border-color: var(--border-dark);
+        }
+
+        .skill-info-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gold-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .skill-info-header::before {
+            content: '✦';
+            color: var(--gold-light);
+        }
+
+        /* Блок ID */
+        .id-info {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border-light);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .dark-theme .id-info {
+            border-top-color: var(--border-dark);
+        }
+
+        /* Элемент параметра с иконкой */
+        .param-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .param-icon {
+            color: var(--gold-primary);
+            font-weight: bold;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .servant-container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+            
+            .skills-container {
+                padding: 20px;
+            }
+            
+            .variation-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .skill-group-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .servant-header h1 {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .servant-header {
+                padding: 20px;
+            }
+            
+            .skill-group-content {
+                padding: 15px;
+            }
+            
+            .variation-card {
+                padding: 15px;
+            }
+        }
+
+        /* Эффекты для значений */
+        .gold-value {
+            color: var(--gold-primary);
+            font-weight: 600;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, var(--gold-transparent) 0%, transparent 100%);
+            padding: 2px 6px;
             border-radius: 4px;
         }
     </style>
@@ -92,90 +412,106 @@
     {% for servant in servant_skilltree_data %}
     <div class="servant-container">
         <div class="servant-header">
-            <h1>Питомец ID: {{ servant.id }} <span class="badge">Шаг {{ servant.step }}</span></h1>
+            <h1>Питомец #{{ servant.id }}</h1>
+            <div class="servant-id">
+                Уникальный идентификатор: <span class="gold-value">{{ servant.id }}</span>
+                <span class="badge">Шаг {{ servant.step }}</span>
+            </div>
         </div>
         
-        {# Группируем навыки по mSTNID и mName #}
-        {% set skill_groups = {} %}
-        {% for skill in servant.skills %}
-            {% if skill.stid is defined %}
-                {% set group_key = (skill.stid|string) ~ '_' ~ (skill.module.name|string) %}
-                {% if group_key not in skill_groups %}
-                    {% set _ = skill_groups.update({
-                        group_key: {
-                            'stid': skill.stid,
-                            'name': skill.module.name,
-                            'variations': []
-                        }
-                    }) %}
+        <div class="skills-container">
+            {% set skill_groups = {} %}
+            {% for skill in servant.skills %}
+                {% if skill.stid is defined %}
+                    {% set group_key = (skill.stid|string) ~ '_' ~ (skill.module.name|string) %}
+                    {% if group_key not in skill_groups %}
+                        {% set _ = skill_groups.update({
+                            group_key: {
+                                'stid': skill.stid,
+                                'name': skill.module.name,
+                                'variations': []
+                            }
+                        }) %}
+                    {% endif %}
+                    {% if skill not in skill_groups[group_key].variations %}
+                        {% set _ = skill_groups[group_key].variations.append(skill) %}
+                    {% endif %}
                 {% endif %}
-                {% if skill not in skill_groups[group_key].variations %}
-                    {% set _ = skill_groups[group_key].variations.append(skill) %}
-                {% endif %}
-            {% endif %}
-        {% endfor %}
+            {% endfor %}
 
-        {# Выводим сгруппированные навыки #}
-        {% for key, group in skill_groups|dictsort %}
-            <div class="skill-group">
-                <div class="skill-group-header">
-                    <h3>{{ group.name|default('Навык ' ~ loop.index) }}</h3>
-                    <span class="badge">mSTNID: {{ group.stid }}</span>
-                </div>
-                <div class="skill-group-content">
-                    <div class="variation-grid">
-                    {% for skill in group.variations %}
-                        <div class="variation-card">
-                            <div class="parameter-grid">
-                                <span class="parameter-label">Тип модуля:</span>
-                                <span class="parameter-value">{{ skill.module.type }}</span>
-                                
-                                <span class="parameter-label">Уровень:</span>
-                                <span class="parameter-value">{{ skill.module.level }}</span>
-                            </div>
+            {% for key, group in skill_groups|dictsort %}
+                <div class="skill-group">
+                    <div class="skill-group-header">
+                        <h3>{{ group.name|default('Навык ' ~ loop.index) }}</h3>
+                        <span class="stid-badge">STNID: {{ group.stid }}</span>
+                    </div>
+                    
+                    <div class="skill-group-content">
+                        <div class="variation-grid">
+                        {% for skill in group.variations %}
+                            <div class="variation-card">
+                                <div class="variation-header">
+                                    <span class="module-type">{{ skill.module.type }}</span>
+                                    <span class="module-level">Ур. {{ skill.module.level }}</span>
+                                </div>
 
-                            <div class="skill-info">
-                                <div class="parameter-label">Параметры:</div>
-                                <div class="parameter-grid">
-                                    <span class="parameter-label">A:</span>
-                                    <span class="parameter-value">
-                                        {{ skill.module.params.a.name }}
-                                        {% if skill.module.params.a.value %}
-                                            ({{ skill.module.params.a.value }})
-                                        {% endif %}
-                                    </span>
-                                    
-                                    <span class="parameter-label">B:</span>
-                                    <span class="parameter-value">
-                                        {{ skill.module.params.b.name }}
-                                        {% if skill.module.params.b.value %}
-                                            ({{ skill.module.params.b.value }})
-                                        {% endif %}
-                                    </span>
-                                    
-                                    <span class="parameter-label">C:</span>
-                                    <span class="parameter-value">
-                                        {{ skill.module.params.c.name }}
-                                        {% if skill.module.params.c.value %}
-                                            ({{ skill.module.params.c.value }})
-                                        {% endif %}
-                                    </span>
+                                <div class="skill-info">
+                                    <div class="skill-info-header">Параметры навыка</div>
+                                    <div class="parameter-grid">
+                                        <div class="param-item">
+                                            <span class="param-icon">A</span>
+                                            <span class="parameter-label">{{ skill.module.params.a.name }}</span>
+                                        </div>
+                                        <span class="parameter-value gold-value">
+                                            {% if skill.module.params.a.value %}
+                                                {{ skill.module.params.a.value }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </span>
+                                        
+                                        <div class="param-item">
+                                            <span class="param-icon">B</span>
+                                            <span class="parameter-label">{{ skill.module.params.b.name }}</span>
+                                        </div>
+                                        <span class="parameter-value gold-value">
+                                            {% if skill.module.params.b.value %}
+                                                {{ skill.module.params.b.value }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </span>
+                                        
+                                        <div class="param-item">
+                                            <span class="param-icon">C</span>
+                                            <span class="parameter-label">{{ skill.module.params.c.name }}</span>
+                                        </div>
+                                        <span class="parameter-value gold-value">
+                                            {% if skill.module.params.c.value %}
+                                                {{ skill.module.params.c.value }}
+                                            {% else %}
+                                                —
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="id-info">
+                                    <div class="parameter-grid">
+                                        <span class="parameter-label">Pack ID:</span>
+                                        <span class="parameter-value highlight">{{ skill.skill_pack_id }}</span>
+                                        
+                                        <span class="parameter-label">Abnormal ID:</span>
+                                        <span class="parameter-value highlight">{{ skill.abnormal_id }}</span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="parameter-grid" style="margin-top: 10px;">
-                                <span class="parameter-label">Pack ID:</span>
-                                <span class="parameter-value">{{ skill.skill_pack_id }}</span>
-                                
-                                <span class="parameter-label">Abnormal ID:</span>
-                                <span class="parameter-value">{{ skill.abnormal_id }}</span>
-                            </div>
+                        {% endfor %}
                         </div>
-                    {% endfor %}
                     </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
     {% endfor %}
 </body>

@@ -397,7 +397,9 @@ def monster_detail(monster_id: int):
                 "normal": get_respawn_info(mTick_event),
                 "event": get_respawn_info(mVarRespawnTick_event)
             }
-    
+
+        
+        print(f"location: {monster_location}")
         # Рендеринг базового шаблона
         return render_template(
             'monster_core/monster_page_detail.html',

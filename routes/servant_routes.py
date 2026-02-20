@@ -41,9 +41,14 @@ def servant_detail(servant_id: int):
         # Получаем данные конкретного слуги без фильтрации
         servant = get_servants_list(servant_id=servant_id)
         
+        #print(f"Servant data: {servant}")
+        
         if not servant:
             return "Servant not found", 404
 
+        if servant['name'] == None:
+            servant['name'] = servant['OriginPetName']
+        
         # Добавляем total_stats если нужно
         if 'skills_by_level' in servant:
             levels = list(servant['skills_by_level'].keys())
@@ -73,7 +78,7 @@ def servant_detail(servant_id: int):
         return render_template(
             'servant_core/servant_page_detail.html',
             servant=servant,
-            title=f'[Слуги] {servant["name"]}',
+            title=f'[Питомец] {servant["name"]}',
             header=servant['name']
         )
 
@@ -145,6 +150,9 @@ def get_servant_gathering_info(servant_id):
             'error': 'Internal server error',
             'message': str(e)
         }), 500
+
+
+
 
 
 @bp.route('/api/servant/<int:servant_id>/skill-tree')

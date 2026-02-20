@@ -1185,6 +1185,84 @@ def get_material_draw_info(box_id: int):
 
 
 
+
+
+
+# <!-- Цепочка морфов -->
+def get_item_morph_transform_chain_data(item_id: int):
+    query = """
+SELECT 
+    Itm.IID                 AS [Item_ID],           -- [0]
+    Itm.IName               AS [Item_Name],         -- [1]
+    Itm.IDesc               AS [Item_Desc],         -- [2]
+    ISk.SID                 AS [Skill_Create_ID],   -- [3]
+    SA_Create.AbnormalID    AS [Abnormal_Create_ID],-- [4]
+    AM_Create.MID           AS [Module101_ID],      -- [5]
+    Mod101.MAParam          AS [SkillPack_ID],      -- [6]
+    SPS.mSID                AS [Skill_Transform_ID],-- [7]
+    SA_Trans.AbnormalID     AS [Abnormal_Condition_ID], -- [8]
+    CEA.mEffectAID          AS [Abnormal_Effect_ID],-- [9]
+    AM_Effect.MID           AS [Module20_ID],       -- [10]
+    Mod20.MAParam           AS [Transform_GroupID], -- [11]
+    Mon.MID                 AS [Monster_ID],        -- [12]
+    Mon.MName               AS [Monster_Name]       -- [13]
+FROM dbo.DT_Item AS Itm
+JOIN dbo.DT_ItemSkill AS ISk 
+    ON Itm.IID = ISk.IID
+JOIN dbo.DT_SkillAbnormal AS SA_Create 
+    ON ISk.SID = SA_Create.SID
+JOIN dbo.DT_AbnormalModule AS AM_Create 
+    ON SA_Create.AbnormalID = AM_Create.AID
+JOIN dbo.DT_Module AS Mod101 
+    ON AM_Create.MID = Mod101.MID 
+    AND Mod101.MType = 101
+JOIN dbo.DT_SkillPackSkill AS SPS 
+    ON Mod101.MAParam = SPS.mSPID 
+    AND SPS.mSOrderNO = 1
+JOIN dbo.DT_SkillAbnormal AS SA_Trans 
+    ON SPS.mSID = SA_Trans.SID
+JOIN dbo.DT_AbnormalAttrChangeEquipAbnormal AS CEA 
+    ON SA_Trans.AbnormalID = CEA.mConditionAID
+JOIN dbo.DT_AbnormalModule AS AM_Effect 
+    ON CEA.mEffectAID = AM_Effect.AID
+JOIN dbo.DT_Module AS Mod20 
+    ON AM_Effect.MID = Mod20.MID 
+    AND Mod20.MType = 20
+JOIN dbo.TblTransformList AS TL 
+    ON Mod20.MAParam = TL.mGroupID
+JOIN dbo.DT_Monster AS Mon 
+    ON TL.mMonID = Mon.MID
+WHERE Itm.IID = ?;"""
+
+    rows = execute_query(query, (item_id,))
+    if not rows:
+        return None
+
+    first = rows[0]
+    return {
+        "item": {
+            "id":   first[0],
+            "name": first[1],
+            "desc": first[2],
+        },
+        "chain": {
+            "skill_create_id":       first[3],
+            "abnormal_create_id":    first[4],
+            "module101_id":          first[5],
+            "skillpack_id":          first[6],
+            "skill_transform_id":    first[7],
+            "abnormal_condition_id": first[8],
+            "abnormal_effect_id":    first[9],
+            "module20_id":           first[10],
+            "transform_group_id":    first[11],
+        },
+        "monsters": [
+            {"id": row[12], "name": row[13]}
+            for row in rows
+        ],
+    }
+
+
 # ? ^^ EASY Functions
 
 # Получить имя предмета по IID
@@ -1196,5 +1274,11 @@ def get_item_name(item_id: int):
         return iname[0]
     return None
 
-
+# Получить IType предмета по IID
+def get_item_itype(item_id: int):
+    query = "SELECT IType FROM DT_Item WHERE IID = ?"
+    itype = execute_query(query, (item_id,), fetch_one=True)
+    if itype:
+        return itype[0]
+    return None
 

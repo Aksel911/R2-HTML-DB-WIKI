@@ -7,9 +7,9 @@
             {% if level.main_item %}
                 <div class="main-item">
                     <div class="item-box">
-                        <img src="{{ level.main_item.image }}" alt="{{ level.main_item.name }}">
+                        <img src="{{ level.main_item.image }}" alt="{{ level.main_item.name }}" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
                         <div class="item-info">
-                            <a href="/item/{{ level.main_item.id }}" class="item-name">{{ level.main_item.name }}</a>
+                            <a href="/item/{{ level.main_item.id }}" class="item-name">{{ level.main_item.name }} </a>
                             <div class="item-count">{{ level.main_item.count }} шт.</div>
                         </div>
                     </div>
@@ -21,7 +21,7 @@
                 {% for material in level.materials %}
                     <div class="material-item">
                         <div class="item-box">
-                            <img src="{{ material.image }}" alt="{{ material.name }}">
+                            <img src="{{ material.image }}" alt="{{ material.name }}" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
                             <div class="item-info">
                                 <a href="/item/{{ material.id }}" class="item-name">{{ material.name }}</a>
                                 <div class="item-count">{{ material.count }} шт.</div>

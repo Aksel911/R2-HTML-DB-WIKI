@@ -96,7 +96,7 @@ function generateItemsList(items) {
                      alt="${item.result_name}" 
                      width="24" height="24" 
                      loading="lazy"
-                     onerror="this.onerror=null; this.src='/static/no_item_image.png';">
+                     onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
                 ${item.result_name}${item.create_count > 1 ? ` (${item.create_count})` : ''}
             </div>
         `)
@@ -232,7 +232,7 @@ function generateCraftHtml(craftData) {
                                      alt="${craftData.result_name}" 
                                      class="item-icon"
                                      loading="lazy"
-                                     onerror="this.onerror=null; this.src='/static/no_item_image.png';">
+                                     onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
                                 ${craftData.create_count > 1 ? 
                                     `<div class="create-count">${craftData.create_count}</div>` : ''}
                             </div>
@@ -273,7 +273,7 @@ function generateCraftHtml(craftData) {
                                 <img src="${material.pic}" 
                                      alt="${material.name}"
                                      loading="lazy"
-                                     onerror="this.onerror=null; this.src='/static/no_item_image.png';">
+                                     onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
                             </div>
                         </a>
                         <div class="material-info">

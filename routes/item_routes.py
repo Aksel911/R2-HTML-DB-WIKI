@@ -29,6 +29,7 @@ from services.craft_service import (
 )
 from services.skill_service import get_item_skill, get_sid_by_spid
 from services.abnormal_service import get_abnormal_in_skill
+from services.item_service import get_item_itype, get_item_morph_transform_chain_data
 from functools import wraps, partial
 from concurrent.futures import ThreadPoolExecutor
 
@@ -509,6 +510,7 @@ def get_item_attribute_resist_data_route(item_id):
     data = get_item_attribute_resist_data(item_id)
     return {'item_attribute_resist_data': data}
 
+# <!-- Перевоплощает в -->
 @bp.route('/api/item/<int:item_id>/transform')
 @api_response
 def get_item_transform_data(item_id):
@@ -520,6 +522,26 @@ def get_item_transform_data(item_id):
             'monster_pic_url': monster_pic_url
         }
     return {}
+
+# <!-- Цепочка морфов -->
+@bp.route('/api/item/<int:item_id>/transform_chain')
+@api_response
+def get_item_transform_chain_data(item_id):
+
+    IType12check = get_item_itype(item_id)
+    if IType12check == 12:
+        morph_chain_data = get_item_morph_transform_chain_data(item_id)
+        print(f"morph_chain_data {morph_chain_data}")
+        
+        if morph_chain_data is None:
+            return {"error": f"No transform chain data found for item {item_id}"}, 404
+        return {"morph_chain_data": morph_chain_data}
+    
+    return {}
+
+
+
+
 
 @bp.route('/api/item/<int:item_id>/skill-detail')
 @api_response

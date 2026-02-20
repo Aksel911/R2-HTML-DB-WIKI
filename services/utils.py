@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import List, Dict, Optional, Tuple, Union
 from flask import current_app
+import requests
 from services.database import execute_query
 from models.item import (DT_Item, DT_ItemResource, TblSpecificProcItem, DT_ItemAbnormalResist,
 DT_Bead, DT_ItemBeadModule, TblBeadHoleProb, DT_ItemAttributeAdd, 
@@ -20,13 +21,23 @@ def with_app_context(func, app, *args, **kwargs):
 def get_google_sheets_data(url: str) -> pd.DataFrame:
     """Fetch data from Google Sheets"""
     try:
-        # Convert the Google Sheets URL to export format
         sheet_id = url.split('/d/')[1].split('/')[0]
-        export_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
         
-        # Read the CSV directly from the export URL
-        df = pd.read_csv(export_url)
-        return df
+        export_urls = [
+            f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv",
+            f"https://c/spreadsheets/d/{sheet_id}/export?format=csv"  # запасной вариант
+        ]
+        
+        for export_url in export_urls:
+            try:
+                df = pd.read_csv(export_url)
+                return df
+            except:
+                continue
+        
+        print("All export URLs failed")
+        return pd.DataFrame()
+        
     except Exception as e:
         print(f"Error fetching Google Sheets data: {e}")
         return pd.DataFrame()
@@ -82,6 +93,18 @@ def get_monster_pic_url(monster_id: int):
 
 
 # ! ITEM RESOURCE LOGIC
+# def url_exists(url: str, timeout: float = 2.0) -> bool:
+#     """
+#     Проверяет, существует ли ресурс по URL.
+#     Возвращает True, если URL доступен (не 404), иначе False.
+#     """
+#     try:
+#         response = requests.head(url, timeout=timeout)
+#         return response.status_code != 404
+#     except requests.RequestException:
+#         return False
+
+
 def get_item_resource(item_ids: Union[int, List[int]], r_type: int = 2) -> Union[Optional[DT_ItemResource], Dict[int, DT_ItemResource]]:
     """Get item resource by ID with caching. Now supports both single ID and list of IDs"""
     single_id = isinstance(item_ids, int)
@@ -113,9 +136,15 @@ def get_item_pic_url(item_id, r_type: int = 2):
     """Получаем ссылку на изображение предмета по его ID"""
     if isinstance(item_id, int):
         item_id = get_item_resource(item_id, r_type=r_type)
-    
+        
     if hasattr(item_id, 'RFileName') and hasattr(item_id, 'RPosX') and hasattr(item_id, 'RPosY'):
         item_pic_url = f"{current_app.config['GITHUB_URL']}{item_id.RFileName}_{item_id.RPosX}_{item_id.RPosY}.png"
+        #print(f"[get_item_pic_url] item_id: {item_id}, item_pic_url: {item_pic_url}")
+        
+        # Проверяем доступность изображения (Хуйня тормозящая)
+        # if not url_exists(item_pic_url):
+        #     item_pic_url = DEFAULT_IMAGE_URL
+        
         return item_pic_url
     else:
         print(f"Объект item_id ({item_id}) не содержит необходимых атрибутов (RFileName, RPosX, RPosY)")

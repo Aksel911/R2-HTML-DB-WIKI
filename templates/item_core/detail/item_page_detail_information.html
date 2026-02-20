@@ -141,15 +141,15 @@
 			<div class="stat-row">
 				<span class="stat-label">Статус предмета</span>
 				<span class="stat-value 
-					  {% if item.IStatus == 0 %}normal
-					  {% elif item.IStatus == 1 %}blessed
-					  {% elif item.IStatus == 2 %}cursed
+					  {% if item.IStatus == 0 %}cursed
+					  {% elif item.IStatus == 1 %}normal
+					  {% elif item.IStatus == 2 %}blessed
 					  {% elif item.IStatus == 3 %}random-color
 					  {% endif %}">
-					{% if item.IStatus == 0 %}[0] Обычный
-					{% elif item.IStatus == 1 %}[1] Благословенный
-					{% elif item.IStatus == 2 %}[2] Проклятый
-					{% elif item.IStatus == 3 %}[3] Любой
+					{% if item.IStatus == 0 %}[0] Проклятый
+					{% elif item.IStatus == 1 %}[1] Обычный
+					{% elif item.IStatus == 2 %}[2] Благословенный
+					{% elif item.IStatus == 3 %}[3] Случайный
 					{% endif %}
 				</span>
 			</div>

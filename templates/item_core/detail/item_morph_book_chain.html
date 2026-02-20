@@ -1,0 +1,62 @@
+<!-- Цепочка морфов -->
+{% if morph_chain_data %}
+<div class="skill-section fadeIn">
+    <p class="section-star">★</p>
+    <h2 class="section-title"><!--[{{ morph_chain_data.chain.skill_transform_id }}]-->Перевоплощает в</h2>
+    <div class="skill-content">
+
+        <!-- Монстры -->
+        {% for monster in morph_chain_data.monsters %}
+        <div class="item-row">
+            <img class="item-icon"
+                onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'"
+                src="https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/{{ monster.id }}.png">
+            <a href="{{ url_for('monsters.monster_detail', monster_id=monster.id) }}" class="item-name">{{ monster.name }}</a>
+        </div>
+        {% endfor %}
+
+        <!-- Цепочка ID -->
+        <div class="chain-grid">
+            <div class="chain-item">
+                <span class="chain-label">Скилл создания</span>
+                <span class="chain-value"><a href="{{ url_for('skills.skill_detail', skill_id=morph_chain_data.chain.skill_create_id) }}" class="item-name">{{ morph_chain_data.chain.skill_create_id }}</a></span>
+            </div>
+            <div class="chain-item">
+                <span class="chain-label">Абнормал создания</span>
+                <span class="chain-value"><a href="{{ url_for('abnormals.abnormal_detail', aid=morph_chain_data.chain.abnormal_create_id) }}" class="item-name">{{ morph_chain_data.chain.abnormal_create_id }}</a></span>
+            </div>
+            <div class="chain-item">
+                <span class="chain-label">Модуль (101)</span>
+                <span class="chain-value">{{ morph_chain_data.chain.module101_id }}</span>
+            </div>
+            <div class="chain-item">
+                <span class="chain-label">Модуль 20</span>
+                <span class="chain-value">{{ morph_chain_data.chain.module20_id }}</span>
+            </div>
+            <div class="chain-item">
+                <span class="chain-label">SkillPack</span>
+                <span class="chain-value">{{ morph_chain_data.chain.skillpack_id }}</span>
+            </div>
+            <div class="chain-item">
+                <span class="chain-label">Скилл трансформации</span>
+                <span class="chain-value"><a href="{{ url_for('skills.skill_detail', skill_id=morph_chain_data.chain.skill_transform_id) }}" class="item-name">{{ morph_chain_data.chain.skill_transform_id }}</a></span>
+            </div>
+            <div class="chain-item">
+                <span class="chain-label">Абнормал условия</span>
+                <span class="chain-value"><a href="{{ url_for('abnormals.abnormal_detail', aid=morph_chain_data.chain.abnormal_condition_id) }}" class="item-name">{{ morph_chain_data.chain.abnormal_condition_id }}</a></span>
+            </div>
+            <div class="chain-item">
+                <span class="chain-label">Абнормал эффекта</span>
+                <span class="chain-value"><a href="{{ url_for('abnormals.abnormal_detail', aid=morph_chain_data.chain.abnormal_effect_id) }}" class="item-name">{{ morph_chain_data.chain.abnormal_effect_id }}</a></span>
+            </div>
+            <div class="chain-item">
+                <span class="chain-label">Transform Group</span>
+                <span class="chain-value">{{ morph_chain_data.chain.transform_group_id }}</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+{% endif %}

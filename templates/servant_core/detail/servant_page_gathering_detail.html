@@ -1,10 +1,11 @@
 {% if servant_gathering_data %}
+<h2 class="craft-title"><i class="fa-solid fa-key"></i> Сундук поручения</h2>
 <div class="craft-tree">
     <!-- Информация о сборе -->
     <div class="tree-level">
         <h2 class="section-title">Информация о сборе</h2>
         <div class="item-box servant-info">
-            <img src="{{ servant_gathering_data.ServantPic }}" alt="{{ servant_gathering_data.ServantIName }}">
+            <img src="{{ servant_gathering_data.ServantPic }}" alt="{{ servant_gathering_data.ServantIName }}" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
             <div class="item-info">
                 <a href="/item/{{ servant_gathering_data.SServantIID }}" class="item-name">
                     <span class="item-id">[{{ servant_gathering_data.ServantIName }}]</span>
@@ -27,7 +28,7 @@
                 {% set current_group.name = item.group_name %}
                 <div class="group-header">
                     <div class="group-info">
-                        <img src="{{ servant_gathering_data.ChestPic }}" alt="{{ servant_gathering_data.ChestPic }}" class="chest-pic">
+                        <img src="{{ servant_gathering_data.ChestPic }}" alt="{{ servant_gathering_data.ChestPic }}" class="chest-pic" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
                         <div class="item-name-wrapper">
                             <a href="/item/{{ servant_gathering_data.SResultIID }}" class="item-name">
                                 <span class="item-id">[{{ servant_gathering_data.SResultIID }}]</span>
@@ -50,7 +51,7 @@
             <div class="material-item">
                 <div class="item-box">
                     {% if item.item_pic %}
-                    <img src="{{ item.item_pic }}" alt="{{ item.item_name }}" class="item-pic">
+                    <img src="{{ item.item_pic }}" alt="{{ item.item_name }}" class="item-pic" onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
                     {% endif %}
                     <div class="connector" alt="{{ item.group_name }}" data-tooltip="{{ item.group_name }}"></div>
                     <div class="item-info">

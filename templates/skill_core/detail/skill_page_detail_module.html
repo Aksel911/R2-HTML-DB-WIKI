@@ -10,23 +10,28 @@
 				</div>
 
 				<div class="skill-stats">
-					<div class="stat-row">
-						<span class="stat-label">Тип модуля</span>
-						<span class="stat-value">{{ skill.module_data["type"] }}</span>
+					<div class="stat-grid fadeIn">
+						<div class="stat-row">
+							<span class="stat-label">Тип модуля</span>
+							<span class="stat-value">{{ skill.module_data["type"] }}</span>
+						</div>
 					</div>
-					<div class="stat-row">
-						<span class="stat-label">Уровень</span>
-						<span class="stat-value">{{ skill.module_data["level"] }}</span>
+					<div class="stat-grid fadeIn">
+						<div class="stat-row">
+							<span class="stat-label">Уровень</span>
+							<span class="stat-value">{{ skill.module_data["level"] }}</span>
+						</div>
 					</div>
-
 					{% if skill.module_data.params %}
 						<div class="module-params">
 							<h4 class="params-title">Параметры</h4>
 							{% for param in skill.module_data.params %}
+							<div class="stat-grid fadeIn">		
 								<div class="stat-row">
-									<span class="stat-label">{{ param.name }}</span>
-									<span class="stat-value">{{ param.value }}</span>
+										<span class="stat-label">{{ param.name }}</span>
+										<span class="stat-value">{{ param.value }}</span>
 								</div>
+							</div>
 							{% endfor %}
 						</div>
 					{% endif %}

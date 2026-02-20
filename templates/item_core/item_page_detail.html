@@ -247,6 +247,20 @@
                     </div>
                     {% endif %}
 
+
+                    <!-- Цепочка морфов -->
+                    <!--{% if has_data.has_skill %}-->
+                    <div id="morphchain-container" class="loading" data-template="item_morph_book_chain.html">
+                        <div class="loading-wrapper">
+                            <div class="loading-content">
+                                <div class="loading-spinner"></div>
+                                <div class="loading-text">Загрузка цепочки трансформаций...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--{% endif %}-->
+
+
                     <!-- DT_ItemProtect -->
                     {% if has_data.has_protect %}
                     <div id="protect-container" class="loading" data-template="DT_ItemProtect.html">

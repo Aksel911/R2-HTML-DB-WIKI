@@ -11,23 +11,31 @@
 				</div>
 
 				<div class="skill-stats">
-					<div class="stat-row">
-						<span class="stat-label">Тип модуля</span>
-						<span class="stat-value">{{ abnormal.module_data.type }}</span>
+					<div class="stat-grid fadeIn">
+						<div class="stat-row">
+							<span class="stat-label">Тип модуля</span>
+							<span class="stat-value">{{ abnormal.module_data.type }}</span>
+						</div>
 					</div>
-					<div class="stat-row">
-						<span class="stat-label">Уровень</span>
-						<span class="stat-value">{{ abnormal.module_data.level }}</span>
+					<div class="stat-grid fadeIn">
+						<div class="stat-row">
+							<span class="stat-label">Уровень</span>
+							<span class="stat-value">{{ abnormal.module_data.level }}</span>
+						</div>
 					</div>
 
 					{% if abnormal.module_data.params %}
 						<div class="module-params">
 							<h4 class="params-title">Параметры</h4>
 							{% for param in abnormal.module_data.params %}
-								<div class="stat-row">
-									<span class="stat-label">{{ param.name }}</span>
-									<span class="stat-value">{{ param.value }}</span>
-								</div>
+								{% if param.name != 0 and param.value != 0 %}
+									<div class="stat-grid fadeIn">
+										<div class="stat-row">
+											<span class="stat-label">{{ param.name }}</span>
+											<span class="stat-value">{{ param.value }}</span>
+										</div>
+									</div>
+								{% endif %}
 							{% endfor %}
 						</div>
 					{% endif %}

@@ -79,6 +79,12 @@ document.addEventListener('DOMContentLoaded', function() {
             ]
         },
         {
+            endpoint: 'transform_chain',
+            containers: [
+                { id: 'morphchain-container', template: 'item_morph_book_chain.html' }
+            ]
+        },
+        {
             endpoint: 'protect',
             containers: [
                 { id: 'protect-container', template: 'DT_ItemProtect.html' }
