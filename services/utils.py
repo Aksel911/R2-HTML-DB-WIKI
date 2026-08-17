@@ -51,23 +51,8 @@ def _download_sheet(sheet_id: str) -> pd.DataFrame:
     return pd.read_csv(io.BytesIO(response.content))
 
 
-def get_google_sheets_data(url: str) -> pd.DataFrame:
-    """Fetch data from Google Sheets (с TTL-кэшем в памяти процесса).
-
-    Возвращает объект ИЗ кэша без копии — вызывающий код обязан только читать
-    (булевы маски/срезы создают новые DataFrame, кэш они не трогают).
-    """
-    try:
-        sheet_id = url.split('/d/')[1].split('/')[0]
-    except (IndexError, AttributeError):
-        logger.error(f"Не удалось разобрать ссылку на Google Sheets: {url}")
-        return pd.DataFrame()
-
-    with _sheets_cache_lock:
-        entry = _sheets_cache.get(sheet_id)
-    if entry and time.monotonic() - entry[0] < SHEETS_CACHE_TTL:
-        return entry[1]
-
+def _refresh_sheet(sheet_id: str) -> Optional[pd.DataFrame]:
+    """Скачать лист и положить в кэш. Возвращает df или None при ошибке."""
     with _get_fetch_lock(sheet_id):
         # Пока ждали блокировку, кэш мог обновить другой поток
         with _sheets_cache_lock:
@@ -82,11 +67,43 @@ def get_google_sheets_data(url: str) -> pd.DataFrame:
             return df
         except Exception as e:
             logger.error(f"Error fetching Google Sheets data ({sheet_id}): {e}")
-            # stale-while-error: лучше отдать устаревшие данные, чем пустую таблицу
-            if entry is not None:
-                logger.warning(f"Отдаём устаревшие данные из кэша для {sheet_id}")
-                return entry[1]
-            return pd.DataFrame()
+            return None
+
+
+def get_google_sheets_data(url: str) -> pd.DataFrame:
+    """Fetch data from Google Sheets (с TTL-кэшем в памяти процесса).
+
+    Stale-while-revalidate: если TTL истёк, но старые данные есть — сразу
+    отдаём их, а свежие качаем в фоновом потоке. Запрос пользователя ждёт
+    скачивания только при самом первом обращении к листу после старта.
+
+    Возвращает объект ИЗ кэша без копии — вызывающий код обязан только читать
+    (булевы маски/срезы создают новые DataFrame, кэш они не трогают).
+    """
+    try:
+        sheet_id = url.split('/d/')[1].split('/')[0]
+    except (IndexError, AttributeError):
+        logger.error(f"Не удалось разобрать ссылку на Google Sheets: {url}")
+        return pd.DataFrame()
+
+    with _sheets_cache_lock:
+        entry = _sheets_cache.get(sheet_id)
+
+    if entry:
+        if time.monotonic() - entry[0] >= SHEETS_CACHE_TTL:
+            # Протухло — обновляем в фоне, если никто уже не обновляет
+            fetch_lock = _get_fetch_lock(sheet_id)
+            if fetch_lock.acquire(blocking=False):
+                fetch_lock.release()
+                threading.Thread(
+                    target=_refresh_sheet, args=(sheet_id,), daemon=True,
+                    name=f'sheets-refresh-{sheet_id[:8]}'
+                ).start()
+        return entry[1]
+
+    # Первое обращение — данных нет вообще, придётся подождать скачивания
+    df = _refresh_sheet(sheet_id)
+    return df if df is not None else pd.DataFrame()
 
 def clean_description(desc: Optional[str]) -> str:
     """Clean and format description text"""

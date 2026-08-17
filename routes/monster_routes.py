@@ -28,9 +28,35 @@ import pandas as pd
 from functools import wraps, partial
 from concurrent.futures import ThreadPoolExecutor
 
+from services.ttl_cache import TTLCache
+
 bp = Blueprint('monsters', __name__)
 
 logger = logging.getLogger(__name__)
+
+# Наличие gif на GitHub меняется редко, а HEAD-запрос туда стоит 300-500 мс —
+# кэшируем результат проверки, чтобы не ходить в интернет на каждый просмотр
+_gif_check_cache = TTLCache(max_size=2048, ttl=6 * 3600, name='monster_gif')
+_GIF_MISS = object()
+
+
+def get_monster_gif_url(monster_id: int) -> str | None:
+    """Вернуть URL gif-анимации монстра или None, если её нет на GitHub"""
+    cached = _gif_check_cache.get(monster_id, _GIF_MISS)
+    if cached is not _GIF_MISS:
+        return cached
+
+    url = f"{current_app.config['GITHUB_URL']}gif/{monster_id}_IDLE.gif"
+    try:
+        exists = requests.head(url, timeout=3).status_code == 200
+    except Exception as e:
+        logger.warning("Не удалось проверить gif монстра %s: %s", monster_id, e)
+        # Ошибку сети не кэшируем надолго — не записываем в кэш вовсе
+        return None
+
+    result = url if exists else None
+    _gif_check_cache.set(monster_id, result)
+    return result
 
 # ! Словарь с маппингом URL -> конфигурация
 MONSTER_ROUTES = {
@@ -370,15 +396,9 @@ def monster_detail(monster_id: int):
             model_result = future_monster_resource.result()
             monster_model_no = f"{int(model_result.RFileName):05}" if model_result else None
 
-        # Обработка изображений
+        # Обработка изображений (проверка gif закэширована — см. get_monster_gif_url)
         file_path = f"{current_app.config['GITHUB_URL']}{monster_id}.png"
-        file_path_gif = f"{current_app.config['GITHUB_URL']}gif/{monster_id}_IDLE.gif"
-        try:
-            if requests.head(file_path_gif).status_code != 200:
-                file_path_gif = None
-        except Exception as e:
-            logger.warning("Не удалось проверить gif монстра %s: %s", monster_id, e)
-            file_path_gif = None
+        file_path_gif = get_monster_gif_url(monster_id)
         
         
         # Получение времени респауна

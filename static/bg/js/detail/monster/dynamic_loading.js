@@ -49,24 +49,15 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
 
     // Единая функция загрузки данных
-    // Pre-fetch templates in parallel with data
+    // Раньше каждый шаблон запрашивался дважды (пустой "pre-fetch" + рендер
+    // с данными) — пустой запрос ничего не прогревал и просто удваивал нагрузку
     async function loadSection(section) {
         try {
-            if (!section.containers.some(container => 
-                section.shouldLoad ? section.shouldLoad(container.id) : 
+            if (!section.containers.some(container =>
+                section.shouldLoad ? section.shouldLoad(container.id) :
                 document.getElementById(container.id))) return;
 
-            const [dataResponse, ...templateResponses] = await Promise.all([
-                fetch(`/api/monster/${monsterId}/${section.endpoint}`),
-                ...section.containers.map(container => 
-                    fetch(`/render_template/${container.template}`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({}) // Empty payload for pre-fetch
-                    })
-                )
-            ]);
-
+            const dataResponse = await fetch(`/api/monster/${monsterId}/${section.endpoint}`);
             const data = await dataResponse.json();
 
             // Process containers in parallel
