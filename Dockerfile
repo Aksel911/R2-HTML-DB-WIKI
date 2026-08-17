@@ -1,30 +1,21 @@
-FROM python:3.10-slim
+# bookworm закреплён: в trixie удалён apt-key, а msodbcsql17 собран под debian 11/12
+FROM python:3.10-slim-bookworm
 
 WORKDIR /app
 
-# Установка системных зависимостей и ODBC драйвера
+# Установка ODBC Driver 17 for SQL Server из репозитория Microsoft
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         curl \
         gnupg2 \
+        ca-certificates \
         apt-transport-https && \
-    # Добавление репозитория Microsoft
-    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-    # Удаление старых пакетов ODBC
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/11/prod bullseye main" > /etc/apt/sources.list.d/mssql-release.list && \
     apt-get update && \
-    apt-get remove -y unixodbc unixodbc-dev odbcinst odbcinst1debian2 libodbc1 && \
-    apt-get autoremove -y && \
-    # Установка новых пакетов ODBC
     ACCEPT_EULA=Y apt-get install -y --no-install-recommends \
         msodbcsql17 \
-        mssql-tools \
         unixodbc-dev && \
-    # Создание символических ссылок для инструментов SQL
-    ln -fsv /opt/mssql-tools/bin/* /usr/bin/ && \
-    # Установка build-essential
-    apt-get install -y --no-install-recommends build-essential && \
-    # Очистка
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -42,4 +33,22 @@ ENV FLASK_APP=app.py \
 
 EXPOSE 5000
 
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+# Прод-сервер: gunicorn, 1 воркер x 8 потоков (хост 2 GB RAM без swap).
+# gthread — запросы блокируются на I/O к MSSQL, GIL тут не узкое место,
+# поэтому потоки дешевле процессов.
+# Один воркер вместо двух: TTL-кэши списочных выборок (services/ttl_cache.py)
+# живут в памяти ПРОЦЕССА, при двух воркерах они дублировались целиком.
+# --max-requests оставлен: периодический перезапуск воркера подчищает
+# фрагментацию кучи и утечки; с одним воркером это даёт краткую паузу — приемлемо.
+CMD ["gunicorn", \
+     "--bind", "0.0.0.0:5000", \
+     "--worker-class", "gthread", \
+     "--workers", "1", \
+     "--threads", "8", \
+     "--timeout", "120", \
+     "--graceful-timeout", "30", \
+     "--keep-alive", "5", \
+     "--max-requests", "1000", \
+     "--max-requests-jitter", "100", \
+     "--error-logfile", "-", \
+     "app:app"]

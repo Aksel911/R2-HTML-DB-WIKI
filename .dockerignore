@@ -1,0 +1,11 @@
+.git
+.github
+.gitignore
+.gitattributes
+docker_database
+logs
+.env
+*.bak
+docker-compose.yml
+docker-compose.prod.yml
+README.md
