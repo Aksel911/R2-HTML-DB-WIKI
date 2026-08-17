@@ -435,25 +435,12 @@ function scheduleInitialize() {
         initialize();
     };
 
-    const afterPaint = () => {
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(start, { timeout: 2000 });
-        } else {
-            setTimeout(start, 200);
-        }
-    };
-
-    // Если блок с моделью далеко внизу — ждём, пока до него доскроллят
-    if ('IntersectionObserver' in window && elements.container) {
-        const observer = new IntersectionObserver(entries => {
-            if (entries.some(e => e.isIntersecting)) {
-                observer.disconnect();
-                afterPaint();
-            }
-        }, { rootMargin: '200px' });
-        observer.observe(elements.container);
+    // Ждём момента простоя после отрисовки. По видимости контейнера ориентироваться
+    // нельзя: пока библиотека не загружена, <model-viewer> имеет размер 0×0.
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(start, { timeout: 1500 });
     } else {
-        afterPaint();
+        setTimeout(start, 300);
     }
 }
 
