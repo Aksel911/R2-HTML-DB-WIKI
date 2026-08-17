@@ -78,6 +78,9 @@ celerybeat-schedule
 # dotenv
 .env
 
+# Бэкапы БД — никогда не коммитить в публичный репозиторий
+*.bak
+
 # virtualenv
 venv/
 ENV/

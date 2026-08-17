@@ -1,54 +1,68 @@
-name: Deploy Flask App
+name: Deploy
 
 on:
   push:
     branches:
       - deploy
 
+# Не запускаем два деплоя одновременно
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Deploy to server
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts || {
-          echo "Error: Failed to add the SSH key to known_hosts."
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "${{ secrets.SERVER_PORT }}" "${{ secrets.SERVER_IP }}" >> ~/.ssh/known_hosts
+
+      - name: Sync project files
+        # .env и *.bak исключены из передачи, поэтому --delete их на сервере не тронет
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SERVER_PORT }}" \
+            --exclude '.git' \
+            --exclude '.env' \
+            --exclude '__pycache__' \
+            --exclude '*.pyc' \
+            --exclude 'logs' \
+            --exclude '*.bak' \
+            ./ "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.SERVER_PATH }}/"
+
+      - name: Rebuild and restart app
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "${{ secrets.SERVER_PORT }}" \
+            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << 'EOF'
+          set -e
+          cd "${{ secrets.SERVER_PATH }}"
+          docker compose -f docker-compose.prod.yml build app
+          docker compose -f docker-compose.prod.yml up -d app
+          docker image prune -f
+          EOF
+
+      - name: Wait for app health
+        run: |
+          ssh -i ~/.ssh/deploy_key -p "${{ secrets.SERVER_PORT }}" \
+            "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << 'EOF'
+          for i in $(seq 1 24); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' r2wiki_flask 2>/dev/null || echo starting)
+            if [ "$status" = "healthy" ]; then
+              echo "App is healthy"
+              exit 0
+            fi
+            echo "Health: $status, waiting... ($i/24)"
+            sleep 5
+          done
+          echo "App failed to become healthy in time"
+          docker logs --tail 50 r2wiki_flask
           exit 1
-        }
-
-        ssh -p ${{ secrets.SERVER_PORT }} -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-
-        # Parameters
-        APP_DIR_ROOT=/${{ secrets.SERVER_USER }}/projects/wiki
-        APP_DIR=/${{ secrets.SERVER_USER }}/projects/wiki/src
-
-        echo "Pull the repository..."
-        cd $APP_DIR
-        git reset --hard
-        git clean -fd
-        git checkout deploy
-        git pull --rebase
-
-        # Copy .env file
-        cp $APP_DIR_ROOT/.env $APP_DIR/.env
-        cp $APP_DIR_ROOT/docker-compose.yml $APP_DIR/docker-compose.yml
-
-        echo "Restarting the containers..."
-        docker stop r2wiki_flask
-        docker rm r2wiki_flask
-
-        docker-compose build
-        docker-compose up -d || {
-          echo "Error: Failed to start the containers."
-          exit 1
-        }
-
-        echo "Deployment successful!"
-        EOF
+          EOF
