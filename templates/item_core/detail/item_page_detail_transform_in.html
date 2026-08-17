@@ -6,7 +6,7 @@
 	<div class="skill-content">
 		{% for transform_data, monster_pic in transform_list %}
 		<div class="item-row">
-			<img class="item-icon"
+			<img loading="lazy" decoding="async" class="item-icon"
 				onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'"
 				src="{{ monster_pic }}">
 			<a href="{{ url_for('monsters.monster_detail', monster_id=transform_data[1]) }}"

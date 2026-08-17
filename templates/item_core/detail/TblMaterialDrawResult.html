@@ -265,7 +265,7 @@
         <div class="item-card">
             <div class="item-header">
                 {% if item.item_pic %}
-                <img src="{{ item.item_pic }}" alt="{{ item.item_name }}" class="item-image">
+                <img loading="lazy" decoding="async" src="{{ item.item_pic }}" alt="{{ item.item_name }}" class="item-image">
                 {% endif %}
                 <div class="item-title">
                     <a href="/item/{{ item.item_iid }}" class="item-name">{{ item.item_name }}</a>

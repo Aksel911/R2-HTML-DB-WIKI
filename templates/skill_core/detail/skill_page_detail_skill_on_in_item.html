@@ -6,7 +6,7 @@
 		{% for skill in skills|unique(attribute='item_id') %}
 			{% if skill.item_id %}
 				<div class="item-row">
-					<img class="item-icon" src="{{ skill.item_pic }}"
+					<img loading="lazy" decoding="async" class="item-icon" src="{{ skill.item_pic }}"
 						 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
 					<a href="{{ url_for('items.item_detail', item_id=skill.item_id) }}"
 					   class="item-name">{{ skill.item_name }}</a>
@@ -23,7 +23,7 @@
 	<h2 class="section-title">На предмете</h2>
 	<div class="skill-content">
 		<div class="item-row">
-			<img class="item-icon" src="{{ skill.item_pic }}"
+			<img loading="lazy" decoding="async" class="item-icon" src="{{ skill.item_pic }}"
 				 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
 			<a href="{{ url_for('items.item_detail', item_id=skill.item_id) }}"
 			   class="item-name">{{ skill.item_name }}</a>

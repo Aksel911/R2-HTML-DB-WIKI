@@ -11499,7 +11499,7 @@ var Dolls = {
                 if (Dolls.actualList[itemKey].title.search(RegExp(searchStr, 'i')) > -1) {
                     item = $('<div></div>').html(
                         '<div class="item" id="' + Dolls.actualList[itemKey].id + '" data-image="' + Dolls.actualList[itemKey].icon + '" data-type="' + type + '">' +
-                        '<div class="icon"><img src="' + Dolls.actualList[itemKey].icon + '" alt=""></div>' +
+                        '<div class="icon"><img loading="lazy" decoding="async" src="' + Dolls.actualList[itemKey].icon + '" alt=""></div>' +
                         '<div class="title">' + Dolls.actualList[itemKey].title + '</div>' +
                         '</div>'
                     );
@@ -11511,7 +11511,7 @@ var Dolls = {
 
                 item = $('<div></div>').html(
                     '<div class="item" id="' + Dolls.actualList[itemKey].id + '" data-image="' + Dolls.actualList[itemKey].icon + '" data-type="' + type + '">' +
-                    '<div class="icon"><img src="' + Dolls.actualList[itemKey].icon + '" alt=""></div>' +
+                    '<div class="icon"><img loading="lazy" decoding="async" src="' + Dolls.actualList[itemKey].icon + '" alt=""></div>' +
                     '<div class="title">' + Dolls.actualList[itemKey].title + '</div>' +
                     '</div>'
                 );
@@ -11894,7 +11894,7 @@ $(document).ready(function () {
 
                             item = $('<div></div>').html(
                                 '<div class="item" id="' + json.items[i].id + '" data-image="' + json.items[i].icon + '" data-type="' + type + '">' +
-                                '<div class="icon"><img src="' + json.items[i].icon + '" alt=""></div>' +
+                                '<div class="icon"><img loading="lazy" decoding="async" src="' + json.items[i].icon + '" alt=""></div>' +
                                 '<div class="title">' + json.items[i].title + '</div>' +
                                 '</div>'
                             );

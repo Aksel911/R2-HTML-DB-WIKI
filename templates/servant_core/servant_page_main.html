@@ -587,7 +587,7 @@
         <div class="atropos" style="--index: {{ loop.index }}">
             <div class="atropos-inner" data-stid2="{{ servant.element_id }}">
                 <div class="servant-image">
-                    <img src="{{ servant.image_url }}" alt="{{ servant.name }}" />
+                    <img loading="lazy" decoding="async" src="{{ servant.image_url }}" alt="{{ servant.name }}" />
                 </div>
                 
                 <div class="servant-info">

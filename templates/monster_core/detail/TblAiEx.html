@@ -422,7 +422,7 @@
                             <div class="content-grid">
                                 {% for skill in skills %}
                                 <div class="content-item">
-                                    <img src="{{ skill.icon_url }}" alt="Skill icon">
+                                    <img loading="lazy" decoding="async" src="{{ skill.icon_url }}" alt="Skill icon">
                                     <a href="/skill/{{ skill.id }}" class="skill-link">{{ skill.name }}</a>
                                 </div>
                                 {% endfor %}
@@ -467,7 +467,7 @@
                             <div class="content-grid">
                                 {% for skill in skills %}
                                 <div class="content-item">
-                                    <img src="{{ skill.icon_url }}" alt="Skill icon">
+                                    <img loading="lazy" decoding="async" src="{{ skill.icon_url }}" alt="Skill icon">
                                     <a href="/skill/{{ skill.id }}" class="skill-link">{{ skill.name }}</a>
                                 </div>
                                 {% endfor %}
@@ -499,7 +499,7 @@
                         <div class="content-grid">
                             {% for item in aiex_data.items_up.battle %}
                             <div class="content-item">
-                                <img src="{{ item.pic_url }}" alt="{{ item.name }}">
+                                <img loading="lazy" decoding="async" src="{{ item.pic_url }}" alt="{{ item.name }}">
                                 <a href="/item/{{ item.id }}" class="item-link">{{ item.name }}</a>
                             </div>
                             {% endfor %}
@@ -519,7 +519,7 @@
                         <div class="content-grid">
                             {% for item in aiex_data.items_up.chase %}
                             <div class="content-item">
-                                <img src="{{ item.pic_url }}" alt="{{ item.name }}">
+                                <img loading="lazy" decoding="async" src="{{ item.pic_url }}" alt="{{ item.name }}">
                                 <a href="/item/{{ item.id }}" class="item-link">{{ item.name }}</a>
                             </div>
                             {% endfor %}
@@ -550,7 +550,7 @@
                         <div class="content-grid">
                             {% for item in aiex_data.items_down.battle %}
                             <div class="content-item">
-                                <img src="{{ item.pic_url }}" alt="{{ item.name }}">
+                                <img loading="lazy" decoding="async" src="{{ item.pic_url }}" alt="{{ item.name }}">
                                 <a href="/item/{{ item.id }}" class="item-link">{{ item.name }}</a>
                             </div>
                             {% endfor %}
@@ -571,7 +571,7 @@
                         <div class="content-grid">
                             {% for item in aiex_data.items_down.chase %}
                             <div class="content-item">
-                                <img src="{{ item.pic_url }}" alt="{{ item.name }}">
+                                <img loading="lazy" decoding="async" src="{{ item.pic_url }}" alt="{{ item.name }}">
                                 <a href="/item/{{ item.id }}" class="item-link">{{ item.name }}</a>
                             </div>
                             {% endfor %}

@@ -222,7 +222,7 @@
                     </div>
                     {% if quest.npcs.find %}
                     <div class="npc-card">
-                        <img src="{{ quest.npcs.find.pic }}" class="npc-image" alt="{{ quest.npcs.find.name }}">
+                        <img loading="lazy" decoding="async" src="{{ quest.npcs.find.pic }}" class="npc-image" alt="{{ quest.npcs.find.name }}">
                         <div>
                             <div class="item-name">{{ quest.npcs.find.name }}</div>
                             <div class="item-count">Получение квеста | ID: {{ quest.npcs.find.id }}</div>
@@ -232,7 +232,7 @@
                     
                     {% if quest.npcs.completion %}
                     <div class="npc-card">
-                        <img src="{{ quest.npcs.completion.pic }}" class="npc-image" alt="{{ quest.npcs.completion.name }}">
+                        <img loading="lazy" decoding="async" src="{{ quest.npcs.completion.pic }}" class="npc-image" alt="{{ quest.npcs.completion.name }}">
                         <div>
                             <div class="item-name">{{ quest.npcs.completion.name }}</div>
                             <div class="item-count">Завершение квеста | ID: {{ quest.npcs.completion.id }}</div>
@@ -248,7 +248,7 @@
                     <div class="item-grid">
                         {% for item in quest.requirements.itemList %}
                         <div class="item-card">
-                            <img src="{{ item.pic }}" class="item-image" alt="{{ item.name }}">
+                            <img loading="lazy" decoding="async" src="{{ item.pic }}" class="item-image" alt="{{ item.name }}">
                             <div class="item-details">
                                 <div class="item-name">{{ item.name }}</div>
                                 <div class="item-count">Количество: {{ item.count }} | ID: {{ item.id }}</div>
@@ -272,7 +272,7 @@
                     <div class="item-grid">
                         {% for item in quest.rewards.itemList %}
                         <div class="item-card">
-                            <img src="{{ item.pic }}" class="item-image" alt="{{ item.name }}">
+                            <img loading="lazy" decoding="async" src="{{ item.pic }}" class="item-image" alt="{{ item.name }}">
                             <div class="item-details">
                                 <div class="item-name">{{ item.name }}</div>
                                 <div class="item-count">Количество: {{ item.count }} | ID: {{ item.id }}</div>

@@ -6,7 +6,7 @@
 	<div class="skill-content">
 		{% for craft in craft_result %}
 		<div class="item-row">
-			<img class="item-icon"
+			<img loading="lazy" decoding="async" class="item-icon"
 				 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'"
 				 src="{{ craft.ImagePath }}">
 			<a href="{{ url_for('items.item_detail', item_id=craft.RItemID) }}"

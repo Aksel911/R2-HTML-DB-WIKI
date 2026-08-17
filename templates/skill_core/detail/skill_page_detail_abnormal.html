@@ -102,7 +102,7 @@
 		{% if skill.abnormal_type_data %}
 			<div class="abnormal-primary-info">
 				<div class="item-row">
-					<img class="item-icon" src="{{ skill.abnormal_type_pic }}"
+					<img loading="lazy" decoding="async" class="item-icon" src="{{ skill.abnormal_type_pic }}"
 						 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
 					<a href="{{ url_for('abnormals.abnormal_detail', aid=skill.abnormal_type_data[0]) }}"
 					   class="item-name">{{ skill.abnormal_type_data[1] }}</a>

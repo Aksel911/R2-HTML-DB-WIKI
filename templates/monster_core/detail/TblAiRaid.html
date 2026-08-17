@@ -334,9 +334,9 @@
                                 <div class="skill-item">
                                     <div class="picandlink">
                                     {% if raid['mSID' ~ i ~ '_pic'] %}
-                                        <img src="{{ raid['mSID' ~ i ~ '_pic'] }}" alt="Skill icon">
+                                        <img loading="lazy" decoding="async" src="{{ raid['mSID' ~ i ~ '_pic'] }}" alt="Skill icon">
                                     {% elif data[0].abnormal_type_pic %}
-                                        <img src="{{ data[0].abnormal_type_pic }}" alt="Abnormal icon">
+                                        <img loading="lazy" decoding="async" src="{{ data[0].abnormal_type_pic }}" alt="Abnormal icon">
                                     {% endif %}
                                     <a href="/skill/{{ sid }}" class="skill-link">{{ data[0].name }}</a>
                                 </div>

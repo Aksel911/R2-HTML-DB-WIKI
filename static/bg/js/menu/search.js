@@ -142,7 +142,7 @@ function displaySuggestions(suggestions, searchTerm) {
                class="search-suggestion" 
                data-id="${id}"
                style="--index: ${index}">
-                <img src="${imageUrl}" 
+                <img loading="lazy" decoding="async" src="${imageUrl}" 
                      alt="${name}" 
                      onerror="this.src='${CONSTANTS.FALLBACK_IMAGE}';">
                 <span>[${itemId}] ${itemName}</span>

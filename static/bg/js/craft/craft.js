@@ -92,7 +92,7 @@ function generateItemsList(items) {
                  onclick="showCraftDetails('${item.rid}')"
                  data-search-text="${item.result_name.toLowerCase()}"
                  data-rid="${item.rid}">
-                <img src="${item.result_pic}" 
+                <img decoding="async" src="${item.result_pic}" 
                      alt="${item.result_name}" 
                      width="24" height="24" 
                      loading="lazy"
@@ -228,7 +228,7 @@ function generateCraftHtml(craftData) {
                     <div class="item-preview">
                         <a href="/item/${craftData.result_item_id}">
                             <div class="item-frame">
-                                <img src="${craftData.result_pic}" 
+                                <img decoding="async" src="${craftData.result_pic}" 
                                      alt="${craftData.result_name}" 
                                      class="item-icon"
                                      loading="lazy"
@@ -270,7 +270,7 @@ function generateCraftHtml(craftData) {
                     <div class="material-slot">
                         <a href="/item/${material.item_id}" class="material-preview">
                             <div class="material-frame">
-                                <img src="${material.pic}" 
+                                <img decoding="async" src="${material.pic}" 
                                      alt="${material.name}"
                                      loading="lazy"
                                      onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
@@ -380,7 +380,7 @@ function showCraftNotification(craftData, success) {
             <div class="notification-content">
                 <div>Предмет успешно создан!</div>
                 <div class="item-result">
-                    <img src="${craftData.result_pic}" alt="${craftData.result_name}">
+                    <img loading="lazy" decoding="async" src="${craftData.result_pic}" alt="${craftData.result_name}">
                     <span>Вы получили: ${craftData.result_name}</span>
                 </div>
             </div>

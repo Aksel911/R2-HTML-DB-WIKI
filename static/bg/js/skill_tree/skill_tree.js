@@ -300,7 +300,9 @@ class SkillTreeManager {
         // Add skill image
         $('<img>', {
             src: node.skill.iconUrl || '/static/img/trees/default-skill.png',
-            alt: node.skill.name
+            alt: node.skill.name,
+            loading: 'lazy',
+            decoding: 'async'
         }).appendTo(skillDiv);
     
         // Add badge with points

@@ -6,7 +6,7 @@
 		<div class="skill-content">
 			{% for skill in abnormal_skills %}
 				<div class="item-row">
-					<img class="item-icon" src="{{ skill.icon }}"
+					<img loading="lazy" decoding="async" class="item-icon" src="{{ skill.icon }}"
 						 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
 					<a href="{{ url_for('skills.skill_detail', skill_id=skill.id) }}"
 					   class="item-name">{{ skill.name }}</a>

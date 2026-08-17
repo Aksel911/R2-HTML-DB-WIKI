@@ -75,7 +75,7 @@
                         {% for item in regular_items %}
                         <a href="/item/{{ item.ItemID }}" class="item-card">
                             <div class="item-image">
-                                <img src="{{ item.ItemPicture }}" alt="{{ item.ItemName }}">
+                                <img loading="lazy" decoding="async" src="{{ item.ItemPicture }}" alt="{{ item.ItemName }}">
                             </div>
                             <div class="item-info">
                                 <span class="item-name">{{ item.ItemName }}</span>
@@ -102,7 +102,7 @@
                         {% for item in event_items %}
                         <a href="/item/{{ item.ItemID }}" class="item-card event-item">
                             <div class="item-image">
-                                <img src="{{ item.ItemPicture }}" alt="{{ item.ItemName }}">
+                                <img loading="lazy" decoding="async" src="{{ item.ItemPicture }}" alt="{{ item.ItemName }}">
                             </div>
                             <div class="item-info">
                                 <span class="item-name">{{ item.ItemName }}</span>

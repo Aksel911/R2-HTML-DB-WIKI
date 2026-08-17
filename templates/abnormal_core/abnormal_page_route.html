@@ -23,7 +23,7 @@
                 {% set file_path = item_resources[abnormal.AID] %}  {# Используем AID как ключ #}
                 {% if file_path %}
                     <div class="hover-text-wrapper" data-sort-id="{{ abnormal.AID }}">
-                        <img src="{{ file_path }}"
+                        <img decoding="async" src="{{ file_path }}"
                              width="32"
                              height="32"
                              loading="lazy"

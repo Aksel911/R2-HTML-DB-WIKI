@@ -316,7 +316,7 @@ class UIManager {
                             <div class="atropos-rotate">
                                 <div class="atropos-inner" data-merchant-type="${merchant.PaymentType}">
                                     <div class="merchant-image" data-atropos-offset="8" data-merchant-type="${merchant.PaymentType}">
-                                        <img src="${this._getMerchantImage(merchant)}"
+                                        <img decoding="async" src="${this._getMerchantImage(merchant)}"
                                             alt="${merchant.MName}"
                                             loading="lazy"
                                             class="merchant-image"

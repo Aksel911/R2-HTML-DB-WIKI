@@ -811,14 +811,14 @@ class ItemUIManager {
                                         </div>
                             
                                         <div class="item-card-image" data-atropos-offset="8" data-class="${classValue}">
-                                            <img src="${resources[item.IID] || CONSTANTS.FALLBACK_IMAGE}"
+                                            <img decoding="async" src="${resources[item.IID] || CONSTANTS.FALLBACK_IMAGE}"
                                                 alt="${item.IName}"
                                                 loading="lazy"
                                                 onerror="this.src='${CONSTANTS.FALLBACK_IMAGE}';">
                                         </div>
                                         
                                         <div class="item-card-title" data-atropos-offset="8">
-                                            <span><img src="${item.IUseClass}" alt="Image description"></span>
+                                            <span><img loading="lazy" decoding="async" src="${item.IUseClass}" alt="Image description"></span>
                                         </div>
                 
                                         <div class="item-card-title" data-atropos-offset="6">
@@ -1227,7 +1227,7 @@ class ItemUIManager {
                     <td>
                         <div class="hover-text-wrapper">
                             <a href="/item/${item.IID}">
-                                <img src="${resources[item.IID] || CONSTANTS.FALLBACK_IMAGE}"
+                                <img decoding="async" src="${resources[item.IID] || CONSTANTS.FALLBACK_IMAGE}"
                                     alt="${item.IName}"
                                     title="${item.IName}"
                                     width="48"
@@ -1246,7 +1246,7 @@ class ItemUIManager {
                     </td>
                     <td class="item-desc">${item.IDesc || 'Нет описания'}</td>
                     <td>${item.IWeight || 'N/A'}</td>
-                    <td><img src="${item.IUseClass || 'N/A'}" alt="${item.IName}"></td>
+                    <td><img loading="lazy" decoding="async" src="${item.IUseClass || 'N/A'}" alt="${item.IName}"></td>
                 </tr>
             `;
 	}

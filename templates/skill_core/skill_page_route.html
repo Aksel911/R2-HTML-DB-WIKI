@@ -27,7 +27,7 @@
                     {% set file_path = item_resources[skill[0]] %}
                     {% if file_path %}
                         <div class="skill-wrapper" data-sort-id="{{ skill[0] }}">
-                            <img src="{{ file_path }}"
+                            <img decoding="async" src="{{ file_path }}"
                                  width="48"
                                  height="48"
                                  loading="lazy"

@@ -8,7 +8,7 @@
         <!-- Монстры -->
         {% for monster in morph_chain_data.monsters %}
         <div class="item-row">
-            <img class="item-icon"
+            <img loading="lazy" decoding="async" class="item-icon"
                 onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'"
                 src="https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/{{ monster.id }}.png">
             <a href="{{ url_for('monsters.monster_detail', monster_id=monster.id) }}" class="item-name">{{ monster.name }}</a>

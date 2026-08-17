@@ -107,7 +107,7 @@
             <div class="stat-row">
                 <span class="stat-label">Для класса</span>
                 <span class="stat-value">
-                    <span class="fadeIn"><img src="{{ penalty.PanaltyClassPic }}"></span>
+                    <span class="fadeIn"><img loading="lazy" decoding="async" src="{{ penalty.PanaltyClassPic }}"></span>
                     {% if penalty.IUseClass|int == 0 %}Нет класса
                     {% elif penalty.IUseClass|int == 1 %}Рыцарь
                     {% elif penalty.IUseClass|int == 2 %}Рейнджер

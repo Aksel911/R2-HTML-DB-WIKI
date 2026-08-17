@@ -641,7 +641,7 @@ class UIManager {
                                 </div>
                         
                                 <div class="monster-image" data-atropos-offset="8" data-monster-type="${monster.MClass}">
-                                    <img src="${this._getMonsterImage(monster)}"
+                                    <img decoding="async" src="${this._getMonsterImage(monster)}"
                                         alt="${monster.MName}"
                                         loading="lazy"
                                         class="monster-image"

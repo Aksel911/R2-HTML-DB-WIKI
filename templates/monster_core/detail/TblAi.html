@@ -364,7 +364,7 @@
                     <div class="items-grid">
                         {% for item in ai_data.angry_items %}
                             <div class="item-cell">
-                                <img src="{{ item.pic_url }}" alt="{{ item.name }}" class="item-image">
+                                <img loading="lazy" decoding="async" src="{{ item.pic_url }}" alt="{{ item.name }}" class="item-image">
                                 <a href="/item/{{ item.id }}" class="item-name">{{ item.name }}</a>
                             </div>
                         {% endfor %}
@@ -390,7 +390,7 @@
                     <div class="items-grid">
                         {% for item in ai_data.rage_items %}
                             <div class="item-cell">
-                                <img src="{{ item.pic_url }}" alt="{{ item.name }}" class="item-image">
+                                <img loading="lazy" decoding="async" src="{{ item.pic_url }}" alt="{{ item.name }}" class="item-image">
                                 <a href="/item/{{ item.id }}" class="item-name">{{ item.name }}</a>
                             </div>
                         {% endfor %}

@@ -114,7 +114,7 @@ function openEditor(mid) {
 
             const currentMIDElement = document.getElementById('currentMID');
             currentMIDElement.innerHTML = `
-                <h1><img src="${currentMonsterPic}" 
+                <h1><img loading="lazy" decoding="async" src="${currentMonsterPic}" 
                         class="monster-pic" 
                         alt="${currentMonsterName}" 
                         onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';" /></h1>
@@ -140,7 +140,7 @@ function renderItems() {
         
         return `
         <div class="item-edit-row" data-index="${index}" data-status="${status}">
-            <img src="${item.itemPic || ''}"
+            <img loading="lazy" decoding="async" src="${item.itemPic || ''}"
                  class="item-pic"
                  alt="${item.itemName || ''}"
                  onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">

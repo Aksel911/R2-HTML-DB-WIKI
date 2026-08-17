@@ -10,7 +10,7 @@
 				{% set _ = unique_sids.append(resist.SID) %}
 				<div class="abnormal-resist-row">
 					<div class="abnormal-resist-info">
-						<img class="skill-sprite-icon"
+						<img loading="lazy" decoding="async" class="skill-sprite-icon"
 							src="{{ resist.skill_icon_path }}"
 							alt="{{ resist.SName or 'Skill icon' }}"
 							onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">

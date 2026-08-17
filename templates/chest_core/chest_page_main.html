@@ -27,7 +27,7 @@
         <div class="chest-card" data-mid="{{ ChestMid[i] }}">
             <div class="chest-header">
                 <div class="monster-info">
-                    <img src="{{ items[i][0].MID_pic }}" 
+                    <img loading="lazy" decoding="async" src="{{ items[i][0].MID_pic }}" 
                          class="monster-image"
                          alt="{{ items[i][0].MName }}"
                          onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
@@ -48,7 +48,7 @@
                 <div class="item-row">
                     <div class="item-image-container">
                         <div class="hover-text-wrapper">
-                            <img src="{{ item.item_pic }}"
+                            <img loading="lazy" decoding="async" src="{{ item.item_pic }}"
                                  class="item-image"
                                  alt="{{ item.item_name }}"
                                  onerror="this.onerror=null; this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png';">
