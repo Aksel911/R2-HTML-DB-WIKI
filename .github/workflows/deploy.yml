@@ -13,9 +13,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Секреты и запуск — только через environment "production"
-    # (required reviewer в настройках окружения = деплой стартует
-    # только после ручного одобрения владельца)
+    # Секреты живут в environment "production", у которого в настройках
+    # разрешена только ветка deploy: ран с любой другой ветки/из PR
+    # не получит ни окружения, ни секретов. Одобрение вручную не требуется.
     environment: production
 
     steps:
