@@ -26,8 +26,13 @@ const elements = {
     prevModel: document.getElementById('prevModel'),
     nextModel: document.getElementById('nextModel'),
     modelInfo: document.getElementById('modelInfo'),
-    animInfo: document.getElementById('animInfo')
+    animInfo: document.getElementById('animInfo'),
+    loader: document.getElementById('modelLoader')
 };
+
+function hideLoader() {
+    if (elements.loader) elements.loader.classList.add('hidden');
+}
 
 // Class mapping
 const classMapping = {
@@ -416,12 +421,17 @@ async function initialize() {
             elements.container.classList.remove('hidden');
             await libLoading;
             await loadModel(0);
+            // Спиннер снимет обработчик 'load' у model-viewer; страховка на случай,
+            // если событие не придёт (нет поддержки WebGL, битый файл)
+            setTimeout(hideLoader, 10000);
         } else {
             elements.container.classList.add('hidden');
+            hideLoader();
         }
     } catch (error) {
         console.error('Error during initialization:', error);
         elements.modelInfo.textContent = 'Error loading models';
+        hideLoader();
     }
 }
 
@@ -446,6 +456,7 @@ function scheduleInitialize() {
 
 // Event listeners
 elements.modelViewer.addEventListener('load', () => {
+    hideLoader();
     const animations = elements.modelViewer.availableAnimations;
     elements.animInfo.innerHTML = animations.length > 0
         ? `Animation name: ${animations.map(anim => 

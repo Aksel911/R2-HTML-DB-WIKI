@@ -145,3 +145,43 @@ button:disabled {
     color: var(--animation-name);
     font-weight: bold;
 }
+/* Индикатор загрузки модели — в стиле спиннера сайта (.spinner в main_css.css).
+   Контейнер до загрузки библиотеки имеет размер 0×0, поэтому задаём высоту сами. */
+.model-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 220px;
+    color: #6b7280;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    transition: opacity .3s ease;
+}
+
+.model-loader.hidden {
+    display: none;
+}
+
+.model-loader-spinner {
+    width: 42px;
+    height: 42px;
+    border: 3px solid rgba(128, 128, 128, .25);
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: model-loader-spin 1s linear infinite;
+}
+
+.model-loader-text {
+    opacity: .8;
+    letter-spacing: .02em;
+}
+
+.dark-theme .model-loader {
+    color: #cbd5e0;
+}
+
+@keyframes model-loader-spin {
+    to { transform: rotate(360deg); }
+}
