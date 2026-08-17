@@ -81,6 +81,12 @@ celerybeat-schedule
 # Бэкапы БД — никогда не коммитить в публичный репозиторий
 *.bak
 
+# Настройки Claude Code / AI-инструментов — не коммитить в публичный репозиторий
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
+
 # virtualenv
 venv/
 ENV/
