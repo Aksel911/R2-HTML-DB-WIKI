@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, render_template, request, jsonify, current_app, abort
 import requests
 from services.merchant_service import (
@@ -10,6 +11,8 @@ from services.merchant_service import (
 from functools import wraps
 
 bp = Blueprint('merchants', __name__)
+
+logger = logging.getLogger(__name__)
 
 def with_merchant_filters(view_func):
     """Decorator for merchant filtering"""
@@ -54,9 +57,7 @@ def with_merchant_filters(view_func):
             return view_func(items=merchants, item_resources=file_paths, *args, **kwargs)
             
         except Exception as e:
-            print(f"Error in route: {str(e)}")
-            import traceback
-            traceback.print_exc()
+            logger.error("Ошибка в маршруте списка торговцев: %s", e, exc_info=True)
             return jsonify({'error': str(e)}), 500
             
     return wrapped_view

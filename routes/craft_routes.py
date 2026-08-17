@@ -1,39 +1,23 @@
-from flask import Blueprint, render_template, jsonify, request, current_app
+from flask import Blueprint, render_template, jsonify, request, current_app, json
 from services.craft_service import (
     get_craft_data,
     get_group_names,
     get_group_items,
     get_all_craft_data
 )
-from functools import wraps
-import ujson
-from flask_caching import Cache
-import time
 
 bp = Blueprint('craft', __name__)
-cache = Cache(config={'CACHE_TYPE': 'simple'})
 
-def cached_response(timeout=5 * 60):
-    """Декоратор для кэширования ответов API"""
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            cache_key = f'route_{request.path}_{str(kwargs)}_{str(request.args)}'
-            response = cache.get(cache_key)
-            
-            if response is not None:
-                return response
-                
-            response = f(*args, **kwargs)
-            cache.set(cache_key, response, timeout=timeout)
-            return response
-        return decorated_function
-    return decorator
+# Здесь был кэш flask-caching (Cache + декоратор cached_response): объект
+# создавался, но init_app никогда не вызывался, а декоратор ни к одному
+# маршруту не применялся. Мёртвый код выпилен вместе с зависимостями
+# flask-caching и ujson — списочные выборки кэширует services/ttl_cache.py.
+
 
 def json_response(data, status=200):
-    """Оптимизированный JSON ответ"""
+    """JSON-ответ штатным сериализатором Flask"""
     return current_app.response_class(
-        ujson.dumps(data),
+        json.dumps(data),
         mimetype='application/json',
         status=status
     )
@@ -85,7 +69,3 @@ def get_craft_details(rid):
     except Exception as e:
         current_app.logger.error(f"Error in get_craft_details: {e}")
         return jsonify({'error': str(e)}), 500
-
-def init_app(app):
-    """Инициализация расширений"""
-    cache.init_app(app)

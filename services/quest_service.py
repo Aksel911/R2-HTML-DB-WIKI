@@ -1,7 +1,10 @@
 from typing import List, Dict, Optional
+import logging
 from flask import current_app
 from services.database import execute_query
 from services.utils import get_monster_pic_url, get_item_pic_url
+
+logger = logging.getLogger(__name__)
 
 
 DEFAULT_IMAGE_URL = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
@@ -154,5 +157,5 @@ def get_quests_data() -> List[Dict]:
         return quests
         
     except Exception as e:
-        print(f"Error getting quests data: {e}")
+        logger.error("Ошибка получения данных квестов: %s", e, exc_info=True)
         return []

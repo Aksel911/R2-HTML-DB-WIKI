@@ -1,4 +1,4 @@
-import traceback
+import logging
 from flask import Blueprint, abort, render_template, jsonify, request, render_template, current_app
 
 from services.item_service import (
@@ -36,6 +36,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 bp = Blueprint('items', __name__)
+
+logger = logging.getLogger(__name__)
 
 
 # ! Словарь с маппингом URL -> конфигурация
@@ -193,9 +195,7 @@ def with_filters(allowed_types):
                 return original_route(items_wep=items, item_resources=file_paths, *args, **kwargs)
                 
             except Exception as e:
-                print(f"Error in route: {str(e)}")
-                import traceback
-                traceback.print_exc()
+                logger.error("Ошибка в маршруте списка предметов: %s", e, exc_info=True)
                 return jsonify({'error': str(e)}), 500
                 
         return wrapped_route
@@ -336,9 +336,7 @@ def item_detail(item_id: int):
             has_data=has_data
         )
     except Exception as e:
-        print(f"Error in item detail route: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        logger.error("Ошибка на детальной странице предмета %s: %s", item_id, e, exc_info=True)
         return "Internal server error", 500
 
 
@@ -361,8 +359,7 @@ def api_response(func):
         try:
             return jsonify(func(*args, **kwargs))
         except Exception as e:
-            print(f"Error in {func.__name__}: {str(e)}")
-            traceback.print_exc()
+            logger.error("Ошибка в %s: %s", func.__name__, e, exc_info=True)
             return jsonify({'error': str(e)}), 500
     return wrapper
 
@@ -531,7 +528,7 @@ def get_item_transform_chain_data(item_id):
     IType12check = get_item_itype(item_id)
     if IType12check == 12:
         morph_chain_data = get_item_morph_transform_chain_data(item_id)
-        print(f"morph_chain_data {morph_chain_data}")
+        logger.debug("morph_chain_data %s", morph_chain_data)
         
         if morph_chain_data is None:
             return {"error": f"No transform chain data found for item {item_id}"}, 404
@@ -571,7 +568,6 @@ def get_item_skill_detail(item_id):
 @bp.route('/api/item/<int:item_id>/material-item-info')
 @api_response
 def get_material_item_info_data_route(item_id):
-    print(f"Route called with item_id: {item_id}")
     data = get_material_item_info_data(item_id)
     return {'material_item_info_data': data}
 

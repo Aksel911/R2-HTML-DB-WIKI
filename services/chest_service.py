@@ -4,10 +4,16 @@ from services.database import execute_query
 from services.item_service import get_item_name
 from services.monster_service import get_monster_name
 from services.utils import get_monster_pic_url, get_item_pic_url
+from services.ttl_cache import TTLCache, cached, DEFAULT_TTL
 import re
+import logging
 from datetime import datetime
 
+logger = logging.getLogger(__name__)
 
+# Кэш содержимого сундуков (страница /chests): парсинг скрипта + запрос имён
+# предметов/монстров по каждому дропу. Сбрасывается при сохранении сундука.
+chest_list_cache = TTLCache(max_size=8, ttl=DEFAULT_TTL, name='chest_route_call')
 
 
 
@@ -19,7 +25,7 @@ def get_chest_script(chest_mid: int) -> Optional[str]:
         row = execute_query(query, (chest_mid,), fetch_one=True)
         return row[0] if row else None
     except Exception as e:
-        print(f"Error getting chest script: {e}")
+        logger.error("Ошибка получения скрипта сундука %s: %s", chest_mid, e, exc_info=True)
         return None
 
 # Парсим диалог скрипты
@@ -83,8 +89,8 @@ def parse_script(script: str, chest_mid: int) -> List[Dict]:
         return drops, item_pic
         
     except Exception as e:
-        print(f"Error parsing script for chest {chest_mid}: {e}")
-        print(f"Script content: {script}")
+        logger.error("Ошибка разбора скрипта сундука %s: %s", chest_mid, e, exc_info=True)
+        logger.debug("Содержимое скрипта: %s", script)
         return [], None
    
 
@@ -95,25 +101,30 @@ def analyze_drops(mid: int) -> Tuple[List[Dict], Optional[str]]:
         # Получаем скрипт
         script = get_chest_script(mid)
         if not script:
-            print(f"No script found for chest {mid}")
+            logger.warning("Не найден скрипт для сундука %s", mid)
             return [], None
             
         # Парсим скрипт
         drops, item_pic = parse_script(script, mid)
         if not drops:
-            print(f"No drops found in script for chest {mid}")
+            logger.warning("В скрипте сундука %s не найден дроп", mid)
             return [], None
             
         return drops, item_pic
         
     except Exception as e:
-        print(f"Error analyzing drops for chest {mid}: {e}")
+        logger.error("Ошибка анализа дропа сундука %s: %s", mid, e, exc_info=True)
         return [], None
 
     
 # * [929, 2578] # MID NPC (Золотой: 929, Изумрудный: 2578)
+@cached(chest_list_cache)
 def get_chest_route_call(chest_mids: List[int]) -> Tuple[List[Dict], Set[str]]:
-    """Получение данных о сундуках"""
+    """Получение данных о сундуках
+
+    Кэшируется на 10 минут; кэш сбрасывается в update_chest_loot,
+    чтобы после редактирования сундука страница показывала свежие данные.
+    """
     all_data = []
     all_item_pics = set()
     
@@ -124,7 +135,7 @@ def get_chest_route_call(chest_mids: List[int]) -> Tuple[List[Dict], Set[str]]:
                 all_data.extend(data)
                 all_item_pics.add(item_pic)
         except Exception as e:
-            print(f"Error processing chest {mid}: {e}")
+            logger.error("Ошибка обработки сундука %s: %s", mid, e, exc_info=True)
             continue  # Продолжаем со следующим сундуком
     
     # Если вообще нет данных, возвращаем пустые структуры
@@ -178,7 +189,7 @@ elseif menu == 2
         
         #chance = int(float(item['dropChance']) * 100)  # Конвертируем проценты в базовые единицы
         chance = int(float(item['dropChance']) * 100)
-        print(f"generate_dialog_script: {chance}, {item['dropChance'] }, {main_chance}")
+        logger.debug("generate_dialog_script: %s, %s, %s", chance, item['dropChance'], main_chance)
         
         condition = "if" if i == 0 else "elseif"
         script += f"  {condition} rand <= {chance}\n"
@@ -330,7 +341,7 @@ def update_chest_database(mid: int, script_text: str, dialog_text: str) -> bool:
         return True
         
     except Exception as e:
-        print(f"Error updating chest database: {e}")
+        logger.error("Ошибка обновления БД сундука %s: %s", mid, e, exc_info=True)
         return False
     
     
@@ -343,8 +354,12 @@ def update_chest_loot(mid: int, items: List[Dict], main_chance: int) -> bool:
         
         # Обновляем базу данных
         success = update_chest_database(mid, script_text, dialog_text)
-        
+
+        # Данные сундука изменились — сбрасываем кэш списка
+        if success:
+            chest_list_cache.clear()
+
         return success
     except Exception as e:
-        print(f"Error updating chest loot: {e}")
+        logger.error("Ошибка при обновлении содержимого сундука %s: %s", mid, e, exc_info=True)
         return False

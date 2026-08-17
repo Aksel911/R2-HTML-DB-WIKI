@@ -1,6 +1,7 @@
 from typing import List, Dict, Optional, Tuple, Union
 from os.path import splitext
 from functools import lru_cache
+import logging
 from flask import current_app
 
 from models.item import (DT_Item, DT_ItemResource, TblSpecificProcItem, DT_ItemAbnormalResist,
@@ -11,6 +12,16 @@ from services.database import execute_query
 from services.utils import clean_description, get_google_sheets_data, get_skill_icon_path, get_item_resource, get_item_pic_url
 from services.skill_service import get_sid_by_spid
 from config.settings import ATTRIBUTE_TYPE_WEAPON_URL, ATTRIBUTE_TYPE_ARMOR_URL
+from services.ttl_cache import TTLCache, cached, DEFAULT_TTL
+
+logger = logging.getLogger(__name__)
+
+# Кэш списочных выборок предметов: ключ — ОДИН тип предмета, без строки поиска.
+# Так предметы не дублируются в кэше: наборы типов у маршрутов пересекаются
+# (/item_all = типы 0..42, остальные страницы — их подмножества), а поиск
+# больше не плодит по полной копии выборки на каждый пользовательский запрос.
+# 43 типа + запас.
+items_list_cache = TTLCache(max_size=48, ttl=DEFAULT_TTL, name='items_by_type')
 
 # Фильтры
 def apply_filters(items, filters):
@@ -133,9 +144,7 @@ def apply_filters(items, filters):
         return filtered_items
 
     except Exception as e:
-        print(f"Error in apply_filters: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error("Ошибка в apply_filters: %s", e, exc_info=True)
         return []
 
 # Какие ячейки из запроса передаем на сайт для фильтров
@@ -269,53 +278,97 @@ def item_to_dict(item):
 #             file_paths[item_id] = f"{current_app.config['GITHUB_URL']}no_item_image.png"
                
 #     return items, file_paths
-# ! Загрузка предметов (ГЛАВНАЯ СТРАНИЦА ПО /items/)
 # * Fixed for laptop and slow PC (chank-mode)
-def get_items_by_type(item_types: List[int], search_term: str = '') -> Tuple[List[DT_Item], Dict[int, str]]:
-    """Generic function to fetch items by type with optional search"""
-    placeholders = ','.join('?' * len(item_types))
-   
-    query = f"""
+@cached(items_list_cache)
+def _get_items_of_type(item_type: int) -> Tuple[List[DT_Item], Dict[int, str]]:
+    """Полная выборка предметов ОДНОГО типа (без поиска) — единица кэширования.
+
+    Результат кэшируется на 10 минут. Возвращается ССЫЛКА на закэшированные
+    данные — мутировать их нельзя (apply_filters/item_to_dict только читают,
+    routes копируют через extend/update).
+    """
+    query = """
     SELECT IID
-    FROM DT_Item  
-    WHERE IType IN ({placeholders})
-    AND IName LIKE ?
+    FROM DT_Item
+    WHERE IType = ?
     ORDER BY IID
     """
-   
-    params = item_types + [f'%{search_term}%']
-   
-    rows = execute_query(query, params, fetch_one=False)
+
+    rows = execute_query(query, [item_type], fetch_one=False)
     item_ids = [row.IID for row in rows]
-    
+    del rows
+
     if not item_ids:
         return [], {}
-    
+
     # Разбиваем большой список ID на части
     chunk_size = 1000  # Меньший размер чанка для безопасности
     all_items = []
-    all_resources = {}
-    
+    # Храним сразу готовые строки-пути, а не объекты DT_ItemResource:
+    # сами ресурсы после построения пути не нужны и только держат память
+    file_paths = {}
+
     for i in range(0, len(item_ids), chunk_size):
         chunk_ids = item_ids[i:i + chunk_size]
         # Получаем предметы для текущего чанка
         chunk_items = get_item_by_id(chunk_ids)
         # Получаем ресурсы для текущего чанка
         chunk_resources = get_item_resource(chunk_ids)
-        
+
         if isinstance(chunk_items, list):
-            all_items.extend([item for item in chunk_items if item is not None])
-        all_resources.update(chunk_resources)
-    
-    # Формируем словарь путей к файлам
-    file_paths = {}
+            all_items.extend(item for item in chunk_items if item is not None)
+
+        for item_id, resource in chunk_resources.items():
+            file_paths[item_id] = resource.file_path
+
+        # Промежуточные структуры чанка больше не нужны
+        del chunk_items, chunk_resources
+
+    # Предметы без ресурса получают заглушку
+    no_image = f"{current_app.config['GITHUB_URL']}no_item_image.png"
     for item_id in item_ids:
-        if item_id in all_resources:
-            file_paths[item_id] = all_resources[item_id].file_path
-        else:
-            file_paths[item_id] = f"{current_app.config['GITHUB_URL']}no_item_image.png"
-               
+        if item_id not in file_paths:
+            file_paths[item_id] = no_image
+
     return all_items, file_paths
+
+
+# ! Загрузка предметов (ГЛАВНАЯ СТРАНИЦА ПО /items/)
+def get_items_by_type(item_types: List[int], search_term: str = '') -> Tuple[List[DT_Item], Dict[int, str]]:
+    """Generic function to fetch items by type with optional search
+
+    Кэшируются только per-type выборки без поиска (см. _get_items_of_type);
+    несколько типов склеиваются на лету, поиск применяется фильтром в Python
+    с той же семантикой, что и SQL `IName LIKE '%term%'` (без учёта регистра).
+    """
+    # Один тип без поиска — самый частый случай (routes ходят потипово):
+    # отдаём ссылку на кэш как есть, без лишних копий
+    if len(item_types) == 1 and not search_term:
+        return _get_items_of_type(item_types[0])
+
+    items = []
+    file_paths = {}
+    seen_types = set()
+    for item_type in item_types:
+        # Наборы типов в ITEM_ROUTES местами дублируются — не тянем дважды
+        if item_type in seen_types:
+            continue
+        seen_types.add(item_type)
+        type_items, type_paths = _get_items_of_type(item_type)
+        items.extend(type_items)
+        file_paths.update(type_paths)
+
+    if len(seen_types) > 1:
+        # Сохраняем прежний порядок ORDER BY IID
+        items.sort(key=lambda item: item.IID)
+
+    if search_term:
+        needle = search_term.lower()
+        items = [item for item in items if item.IName and needle in item.IName.lower()]
+        file_paths = {item.IID: file_paths[item.IID]
+                      for item in items if item.IID in file_paths}
+
+    return items, file_paths
 
 
 

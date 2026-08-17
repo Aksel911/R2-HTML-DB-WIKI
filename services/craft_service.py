@@ -1,48 +1,19 @@
-from typing import List, Dict, Optional, Tuple, Any
+from typing import List, Dict, Optional, Tuple
 from flask import current_app
 from services.database import execute_query
 from services.utils import get_item_pic_url
 from services.item_service import get_item_resource
+from services.ttl_cache import TTLCache
 from functools import lru_cache
-import time
-from concurrent.futures import ThreadPoolExecutor
 from collections import defaultdict
-from apscheduler.schedulers.background import BackgroundScheduler
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-# Оптимизированное кэширование
-class OptimizedCache:
-    def __init__(self, max_size: int = 1000, ttl: int = 3600):
-        self.cache = {}
-        self.timestamps = {}
-        self.max_size = max_size
-        self.ttl = ttl
-        self._executor = ThreadPoolExecutor(max_workers=4)
-
-    def get(self, key: str) -> Optional[Any]:
-        if key in self.cache:
-            if time.time() - self.timestamps[key] < self.ttl:
-                return self.cache[key]
-            self._cleanup_key(key)
-        return None
-
-    def set(self, key: str, value: Any) -> None:
-        if len(self.cache) >= self.max_size:
-            self._cleanup_oldest()
-        self.cache[key] = value
-        self.timestamps[key] = time.time()
-
-    def _cleanup_key(self, key: str) -> None:
-        self.cache.pop(key, None)
-        self.timestamps.pop(key, None)
-
-    def _cleanup_oldest(self) -> None:
-        if not self.timestamps:
-            return
-        oldest_key = min(self.timestamps, key=self.timestamps.get)
-        self._cleanup_key(oldest_key)
-
-query_cache = OptimizedCache()
+# Кэш данных крафта: потокобезопасный, объём и TTL как раньше (1000 ключей / 1 час).
+# Протухшее вычищается лениво при обращении и вставке — планировщик не нужен.
+query_cache = TTLCache(max_size=1000, ttl=3600, name='craft')
 
 def get_group_names() -> Tuple[Dict[int, str], Dict[str, str]]:
     """Получение названий групп"""
@@ -121,14 +92,14 @@ def get_group_items(group_id: int, group2: str = None) -> Tuple[List[Dict], bool
         return items, len(items) >= 20
             
     except Exception as e:
-        print(f"Error getting group items: {e}")
+        logger.error("Ошибка получения предметов группы: %s", e, exc_info=True)
         return [], False
 
 def get_craft_data(rid: int) -> Optional[Dict]:
     """Получение данных конкретного крафта"""
     cache_key = f'craft_data_{rid}'
     cached_result = query_cache.get(cache_key)
-    if cached_result:
+    if cached_result is not None:
         return cached_result
 
     try:
@@ -192,7 +163,7 @@ def get_craft_data(rid: int) -> Optional[Dict]:
         return result
         
     except Exception as e:
-        print(f"Error getting craft data: {e}")
+        logger.error("Ошибка получения данных крафта: %s", e, exc_info=True)
         return None
 
 def get_all_craft_data() -> Dict:
@@ -239,7 +210,7 @@ def get_all_craft_data() -> Dict:
         }
         
     except Exception as e:
-        print(f"Error getting all craft data: {e}")
+        logger.error("Ошибка получения всех данных крафта: %s", e, exc_info=True)
         return {}
 
 def check_base_items_for_craft(item_id: int) -> List[Dict]:
@@ -444,28 +415,6 @@ def check_all_base_items_for_craft(item_id: int) -> List[Dict]:
         })
     
     return craft_tree
-
-# Функции для очистки кэша
-def cleanup_cache():
-    """Периодическая очистка кэша"""
-    try:
-        query_cache._cleanup_oldest()
-    except Exception as e:
-        print(f"Error cleaning cache: {e}")
-
-# Инициализация фоновой задачи очистки кэша
-def init_cache_cleanup(app):
-    """Инициализация периодической очистки кэша"""
-    scheduler = BackgroundScheduler()
-    
-    with app.app_context():
-        scheduler.add_job(
-            cleanup_cache,
-            'interval',
-            hours=1,
-            id='cache_cleanup'
-        )
-        scheduler.start()
 
 # Вспомогательные функции для оптимизации
 

@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
 
-@dataclass
+# slots=True: экономия памяти на экземплярах (см. models/item.py)
+
+@dataclass(slots=True)
 class CraftRecipe:
     """Data class for craft recipes"""
     RID: int
@@ -14,7 +16,7 @@ class CraftRecipe:
     ROrderNo: int
     ImagePath: str
 
-@dataclass
+@dataclass(slots=True)
 class CraftResult:
     """Data class for items that can be crafted"""
     RID: int

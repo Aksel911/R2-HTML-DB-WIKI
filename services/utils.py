@@ -1,3 +1,8 @@
+import io
+import time
+import logging
+import threading
+
 import pandas as pd
 from typing import List, Dict, Optional, Tuple, Union
 from flask import current_app
@@ -8,6 +13,8 @@ DT_Bead, DT_ItemBeadModule, TblBeadHoleProb, DT_ItemAttributeAdd,
 DT_ItemAttributeResist, DT_ItemProtect, DT_ItemSlain, DT_ItemPanalty)
 
 
+logger = logging.getLogger(__name__)
+
 __all__ = ['with_app_context', 'clean_description', 'get_google_sheets_data', 'get_skill_icon_path', 'clean_dict', 'get_monster_pic_url']
 DEFAULT_IMAGE_URL = "https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png"
 
@@ -17,30 +24,69 @@ def with_app_context(func, app, *args, **kwargs):
         return func(*args, **kwargs)
 
 
+# --- Кэш Google Sheets ---------------------------------------------------
+# Данные справочные и меняются редко, а страница монстра тянет до 4 таблиц,
+# поэтому держим их в памяти процесса с TTL.
+SHEETS_CACHE_TTL = 3600      # сек
+SHEETS_HTTP_TIMEOUT = 10     # сек, иначе запрос может висеть бесконечно
+
+_sheets_cache: Dict[str, Tuple[float, pd.DataFrame]] = {}  # sheet_id -> (время загрузки, данные)
+_sheets_cache_lock = threading.Lock()
+_sheets_fetch_locks: Dict[str, threading.Lock] = {}        # чтобы один лист не качали несколько потоков сразу
+
+
+def _get_fetch_lock(sheet_id: str) -> threading.Lock:
+    with _sheets_cache_lock:
+        lock = _sheets_fetch_locks.get(sheet_id)
+        if lock is None:
+            lock = _sheets_fetch_locks[sheet_id] = threading.Lock()
+        return lock
+
+
+def _download_sheet(sheet_id: str) -> pd.DataFrame:
+    export_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+    response = requests.get(export_url, timeout=SHEETS_HTTP_TIMEOUT)
+    response.raise_for_status()
+    # BytesIO, а не response.text: не даём requests угадывать кодировку (там UTF-8)
+    return pd.read_csv(io.BytesIO(response.content))
+
 
 def get_google_sheets_data(url: str) -> pd.DataFrame:
-    """Fetch data from Google Sheets"""
+    """Fetch data from Google Sheets (с TTL-кэшем в памяти процесса).
+
+    Возвращает объект ИЗ кэша без копии — вызывающий код обязан только читать
+    (булевы маски/срезы создают новые DataFrame, кэш они не трогают).
+    """
     try:
         sheet_id = url.split('/d/')[1].split('/')[0]
-        
-        export_urls = [
-            f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv",
-            f"https://c/spreadsheets/d/{sheet_id}/export?format=csv"  # запасной вариант
-        ]
-        
-        for export_url in export_urls:
-            try:
-                df = pd.read_csv(export_url)
-                return df
-            except:
-                continue
-        
-        print("All export URLs failed")
+    except (IndexError, AttributeError):
+        logger.error(f"Не удалось разобрать ссылку на Google Sheets: {url}")
         return pd.DataFrame()
-        
-    except Exception as e:
-        print(f"Error fetching Google Sheets data: {e}")
-        return pd.DataFrame()
+
+    with _sheets_cache_lock:
+        entry = _sheets_cache.get(sheet_id)
+    if entry and time.monotonic() - entry[0] < SHEETS_CACHE_TTL:
+        return entry[1]
+
+    with _get_fetch_lock(sheet_id):
+        # Пока ждали блокировку, кэш мог обновить другой поток
+        with _sheets_cache_lock:
+            entry = _sheets_cache.get(sheet_id)
+        if entry and time.monotonic() - entry[0] < SHEETS_CACHE_TTL:
+            return entry[1]
+
+        try:
+            df = _download_sheet(sheet_id)
+            with _sheets_cache_lock:
+                _sheets_cache[sheet_id] = (time.monotonic(), df)
+            return df
+        except Exception as e:
+            logger.error(f"Error fetching Google Sheets data ({sheet_id}): {e}")
+            # stale-while-error: лучше отдать устаревшие данные, чем пустую таблицу
+            if entry is not None:
+                logger.warning(f"Отдаём устаревшие данные из кэша для {sheet_id}")
+                return entry[1]
+            return pd.DataFrame()
 
 def clean_description(desc: Optional[str]) -> str:
     """Clean and format description text"""
@@ -74,7 +120,7 @@ def get_skill_icon_path(sprite_file: Optional[str], sprite_x: Optional[int],
             return DEFAULT_IMAGE_URL
 
     except Exception as e:
-        print(f"Error creating icon path: {e}")
+        logger.error(f"Error creating icon path: {e}")
         return DEFAULT_IMAGE_URL
     
     
@@ -84,7 +130,7 @@ def get_monster_pic_url(monster_id: int):
         monster_pic_url = f"{current_app.config['GITHUB_URL']}{monster_id}.png"
         return monster_pic_url
     except Exception as e:
-        print(e)
+        logger.error(f"Error creating monster pic url: {e}")
         return DEFAULT_IMAGE_URL
 
 
@@ -114,7 +160,11 @@ def get_item_resource(item_ids: Union[int, List[int]], r_type: int = 2) -> Union
         return None if single_id else {}
         
     placeholders = ','.join('?' * len(ids))
-    query = f"SELECT * FROM DT_ItemResource WHERE ROwnerID IN ({placeholders}) AND RType = ?"
+    # Явный список колонок вместо SELECT * — тянем только то, что реально нужно
+    query = (
+        f"SELECT ROwnerID, RFileName, RPosX, RPosY FROM DT_ItemResource "
+        f"WHERE ROwnerID IN ({placeholders}) AND RType = ?"
+    )
     
     rows = execute_query(query, ids + [r_type], fetch_one=False)
     
@@ -147,5 +197,5 @@ def get_item_pic_url(item_id, r_type: int = 2):
         
         return item_pic_url
     else:
-        print(f"Объект item_id ({item_id}) не содержит необходимых атрибутов (RFileName, RPosX, RPosY)")
+        logger.warning(f"Объект item_id ({item_id}) не содержит необходимых атрибутов (RFileName, RPosX, RPosY)")
         return DEFAULT_IMAGE_URL

@@ -1,10 +1,12 @@
-import traceback
+import logging
 from flask import Blueprint, render_template, jsonify, request
 from services.servant_service import get_servants_list, servant_to_dict, check_servant_gathering, check_servant_skill_tree
 from services.craft_service import check_all_base_items_for_craft, check_next_craft_item
 
 
 bp = Blueprint('servants', __name__)
+
+logger = logging.getLogger(__name__)
 
 # ! Main page
 @bp.route('/servants')
@@ -28,8 +30,7 @@ def servants_list():
         )
         
     except Exception as e:
-        print(f"Error in servants route: {str(e)}")
-        traceback.print_exc()
+        logger.error("Ошибка в маршруте списка питомцев: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
@@ -83,8 +84,7 @@ def servant_detail(servant_id: int):
         )
 
     except Exception as e:
-        print(f"Error in servant detail route: {str(e)}")
-        traceback.print_exc()
+        logger.error("Ошибка на детальной странице питомца %s: %s", servant_id, e, exc_info=True)
         return "Internal server error", 500
 
 
@@ -97,7 +97,7 @@ def render_template_part(template_name):
         data = request.get_json()
         
         if not template_name.startswith('servant_core/detail/'):
-            print(f"Invalid template path: {template_name}")
+            logger.warning("Недопустимый путь шаблона: %s", template_name)
             return "Invalid template path", 400
 
         # Отфильтровываем None значения и передаем все данные напрямую в шаблон
@@ -106,8 +106,7 @@ def render_template_part(template_name):
         return rendered
             
     except Exception as e:
-        print(f"Error rendering template: {str(e)}")
-        traceback.print_exc()
+        logger.error("Ошибка рендеринга шаблона %s: %s", template_name, e, exc_info=True)
         return str(e), 500
 
 
@@ -124,8 +123,7 @@ def get_servant_craft_info(servant_id):
         
         return jsonify(response_data)
     except Exception as e:
-        print(f"Error in base-craft: {str(e)}")
-        traceback.print_exc()
+        logger.error("Ошибка в base-craft для питомца %s: %s", servant_id, e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/api/servant/<int:servant_id>/gathering')
@@ -144,8 +142,7 @@ def get_servant_gathering_info(servant_id):
         return jsonify(response_data)
         
     except Exception as e:
-        print(f"Error in gathering info: {str(e)}")
-        traceback.print_exc()
+        logger.error("Ошибка в gathering info для питомца %s: %s", servant_id, e, exc_info=True)
         return jsonify({
             'error': 'Internal server error',
             'message': str(e)
@@ -170,8 +167,7 @@ def get_servant_skilltree_info(servant_id):
         return jsonify(response_data)
         
     except Exception as e:
-        print(f"Error in gathering info: {str(e)}")
-        traceback.print_exc()
+        logger.error("Ошибка в skill-tree для питомца %s: %s", servant_id, e, exc_info=True)
         return jsonify({
             'error': 'Internal server error',
             'message': str(e)

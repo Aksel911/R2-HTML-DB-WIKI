@@ -1,8 +1,17 @@
 from flask import current_app
 from typing import List, Dict, Optional, Tuple
+import logging
 from services.database import execute_query
 from services.utils import get_item_pic_url
 from models.merchant import Merchant
+from services.ttl_cache import TTLCache, cached, DEFAULT_TTL
+
+logger = logging.getLogger(__name__)
+
+# Кэш списка торговцев (страница /merchants). Кэшируется ТОЛЬКО базовая
+# выборка без поиска — иначе каждый уникальный поисковый запрос держал бы
+# в памяти ещё одну полную копию списка на весь TTL. Ключ всегда один.
+merchants_list_cache = TTLCache(max_size=2, ttl=DEFAULT_TTL, name='merchants_list')
 
 def get_payment_type_name(payment_type: int) -> str:
     payment_types = {
@@ -54,9 +63,7 @@ def apply_merchant_filters(merchants: List[Merchant], filters: Dict) -> List[Mer
         return filtered_merchants
 
     except Exception as e:
-        print(f"Error in apply_merchant_filters: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error("Ошибка в apply_merchant_filters: %s", e, exc_info=True)
         return []
 
 def merchant_to_dict(merchant: Merchant) -> dict:
@@ -138,7 +145,25 @@ def get_merchant_by_id(merchant_list_id: int) -> Dict:
     return result
 
 def get_merchants_list(search_term: str = '') -> Tuple[List[Merchant], Dict]:
-    """Get all merchants with optional search"""
+    """Get all merchants with optional search
+
+    Базовая выборка (без поиска) кэшируется на 10 минут, запросы с поиском
+    выполняются мимо кэша — их много и каждый занимал бы память под свою
+    полную копию списка. Возвращается ССЫЛКА на закэшированные данные —
+    apply_merchant_filters и merchant_to_dict только читают, мутаций нет.
+    """
+    if not search_term:
+        return _get_merchants_list_base()
+    return _fetch_merchants_list(search_term)
+
+
+@cached(merchants_list_cache)
+def _get_merchants_list_base() -> Tuple[List[Merchant], Dict]:
+    """Полный список торговцев без поиска — единственная кэшируемая выборка"""
+    return _fetch_merchants_list('')
+
+
+def _fetch_merchants_list(search_term: str) -> Tuple[List[Merchant], Dict]:
     query = """
     SELECT
       a.ListID,
@@ -171,15 +196,17 @@ def get_merchants_list(search_term: str = '') -> Tuple[List[Merchant], Dict]:
     merchants = []
     file_paths = {}
     
-    # Используем словарь для группировки предметов по торговцам
+    # Считаем предметы по торговцам счётчиком: раньше здесь собирался
+    # словарь со ВСЕМИ строками продаж (десятки тысяч временных dict),
+    # хотя нужно было только их количество
     merchant_items = {}
     seen_monsters = set()
-    
+
     for row in rows:
         if row.MID not in seen_monsters:
             seen_monsters.add(row.MID)
-            merchant_items[row.MID] = []
-            
+            merchant_items[row.MID] = 0
+
             merchant = Merchant(
                 ListID=row.ListID,
                 MID=row.MID,
@@ -195,15 +222,13 @@ def get_merchants_list(search_term: str = '') -> Tuple[List[Merchant], Dict]:
             merchants.append(merchant)
             file_paths[row.ListID] = f"{current_app.config['GITHUB_URL']}{row.MID}.png"
         
-        merchant_items[row.MID].append({
-            'ItemID': row.ItemID,
-            'IName': row.IName,
-            'Price': row.Price
-        })
-    
+        merchant_items[row.MID] += 1
+
+    del rows
+
     # Добавляем количество предметов каждому торговцу
     for merchant in merchants:
-        merchant.ItemCount = len(merchant_items[merchant.MID])
+        merchant.ItemCount = merchant_items[merchant.MID]
 
     #print(f"Уникальных торговцев: {len(merchants)}")
     return merchants, file_paths

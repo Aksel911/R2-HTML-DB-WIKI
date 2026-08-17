@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Tuple
+import logging
 from flask import current_app
 from models.skill import Skill, DT_Attribute, DT_SkillSlain
 from services.database import execute_query
@@ -8,13 +9,21 @@ from services.abnormal_service import (
     get_abnormal_skills
 )
 from config.settings import ATTRIBUTE_TYPE_WEAPON_URL
+from services.ttl_cache import TTLCache, cached, DEFAULT_TTL
 
+logger = logging.getLogger(__name__)
 
+# Кэш полной выборки скиллов (страница /skills) — ключ всегда один
+skills_list_cache = TTLCache(max_size=4, ttl=DEFAULT_TTL, name='skills_list')
 
 
 # rest of the code
+@cached(skills_list_cache)
 def get_skills_list() -> Tuple[List[Tuple], Dict[int, str]]:
-    """Get list of all skills"""
+    """Get list of all skills
+
+    Полная выборка таблицы, кэшируется на 10 минут (данные read-only).
+    """
     query = """
         SELECT
           c.SID,
@@ -266,7 +275,7 @@ def get_abnormal_in_skill(aid: int) -> Optional[Tuple]:
         return abnormaltype_data, atype_pic_data
 
     except Exception as e:
-        print(f"Error in get_abnormal_in_skill: {e}")
+        logger.error("Ошибка в get_abnormal_in_skill: %s", e, exc_info=True)
         return None
 
 
@@ -356,11 +365,11 @@ def get_item_skill(item_id: int) -> Optional[Tuple]:
             itemdskill_data = None
             itemskill_pic = None
             linked_skills = get_abnormal_skills(row.AID)
-        print(itemdskill_data, transformlist_data)
+        logger.debug("get_item_skill: %s, %s", itemdskill_data, transformlist_data)
         return itemdskill_data, itemskill_pic, linked_skills, linked_skillsaid, transformlist_data, monster_pic_url
 
     except Exception as e:
-        print(f"Error in get_item_skill: {e}")
+        logger.error("Ошибка в get_item_skill: %s", e, exc_info=True)
         return None
     
     
@@ -392,7 +401,7 @@ def get_transformlist_by_mttype(mttype: int) -> Optional[List[Tuple]]:
            
         return results  # Возвращаем весь список трансформаций
     except Exception as e:
-        print(f"Error in get_transformlist_by_mttype: {e}")
+        logger.error("Ошибка в get_transformlist_by_mttype: %s", e, exc_info=True)
         return None
     
 
@@ -436,7 +445,7 @@ def get_skill_use_by_spid_items(spid_id: int) -> Optional[Tuple]:
         return skill_for_item_data, skill_for_item_pic
 
     except Exception as e:
-        print(f"Error in get_skill_use_by_spid_items: {e}")
+        logger.error("Ошибка в get_skill_use_by_spid_items: %s", e, exc_info=True)
         return None
     
 
@@ -488,7 +497,7 @@ def get_skill_use_by_sid(spid_id: int) -> Optional[Tuple]:
         return skill_for_skill_data, skill_for_skill_pic
 
     except Exception as e:
-        print(f"Error in get_skill_use_by_sid: {e}")
+        logger.error("Ошибка в get_skill_use_by_sid: %s", e, exc_info=True)
         return None
     
 

@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Dict, Optional, List
 
-@dataclass
+# slots=True: экономия памяти на экземплярах (см. models/item.py)
+
+@dataclass(slots=True)
 class Abnormal:
     """Data class for abnormal effects"""
     abnormal_data: Dict
@@ -10,14 +12,14 @@ class Abnormal:
     abnormal_type_data: Optional[tuple]
     abnormal_type_pic: Optional[str]
 
-@dataclass
+@dataclass(slots=True)
 class AbnormalItem:
     """Data class for items related to abnormal effects"""
     id: int
     name: str
     icon: Optional[str]
 
-@dataclass
+@dataclass(slots=True)
 class AbnormalSkill:
     """Data class for skills related to abnormal effects"""
     id: int
@@ -25,7 +27,7 @@ class AbnormalSkill:
     desc: str
     icon: Optional[str]
 
-@dataclass
+@dataclass(slots=True)
 class AbnormalListItem:
     """Data class for abnormal list display"""
     AID: int

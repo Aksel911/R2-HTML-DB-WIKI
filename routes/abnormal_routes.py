@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, render_template, current_app
 from services.abnormal_service import (
     get_abnormal_detail,
@@ -9,6 +10,8 @@ from concurrent.futures import ThreadPoolExecutor
 from services.utils import with_app_context
 
 bp = Blueprint('abnormals', __name__)
+
+logger = logging.getLogger(__name__)
 
 
 # ! Главная страница абнормалов
@@ -59,7 +62,5 @@ def abnormal_detail(aid: int):
         )
 
     except Exception as e:
-        print(f"Error in abnormal detail route: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        logger.error("Ошибка на детальной странице абнормала %s: %s", aid, e, exc_info=True)
         return "Internal server error", 500

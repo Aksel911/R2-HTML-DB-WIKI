@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 # URLs for Google Sheets
 MONSTER_CLASS_URL = "https://docs.google.com/spreadsheets/d/1fcCO8ZwJsENYZhKBpEfdgaTswANkrGolBtAcqVeTECs/edit?usp=sharing"
 MONSTER_RACE_URL = "https://docs.google.com/spreadsheets/d/1c3Yh1GD-6GnDufvGzUdfRQtq5zHXkj9DRq_S9t1Lf9s/edit?usp=sharing"
-#MONSTER_LOCATION_URL = "https://docs.google.com/spreadsheets/d/1rBuuiMUvlYZwNPaRhdk5PkhTQa1mwj5z8dUDKWoBetU/edit?usp=sharing"
 MONSTER_LOCATION_URL = "https://docs.google.com/spreadsheets/d/1i4w5CL7Jn3t_N8A44uG6FppqjPEEBlVw4JFPjzo5jSk/edit?usp=sharing"
 SKILLAPPLYRACE_URL = "https://docs.google.com/spreadsheets/d/1Vz-YWTOGnFUqzlieWfUg0NM-fSilneIEZ03FratjC2E/edit?usp=sharing"
 ATTRIBUTE_TYPE_WEAPON_URL ="https://docs.google.com/spreadsheets/d/1p8ghiK3AR7Qy-Ckpc3tRcHgIDm507S5i_JBXHHe1dHM/edit?usp=sharing"

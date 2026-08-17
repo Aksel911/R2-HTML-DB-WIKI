@@ -1,13 +1,12 @@
 import os
-from flask import Flask, json, render_template, request
+from flask import Flask, g, redirect, render_template, request, send_from_directory
 from routes import register_routes
 from config.settings import load_config
-from os.path import splitext, exists
+from os.path import splitext, exists, join
 from os import makedirs
-from flask_talisman import Talisman
 import logging
-import traceback
-from datetime import datetime
+from logging.handlers import TimedRotatingFileHandler
+from time import perf_counter
 from config.color_logging import *
 
 
@@ -35,76 +34,51 @@ def setup_logging(app):
     log_dir = 'logs'
     if not exists(log_dir):
         makedirs(log_dir)
-        
-    # Get current date for file names
-    current_date = datetime.now().strftime('%Y-%m-%d')
-    
-    # Форматтер для обычных логов
-    class RequestFormatter(logging.Formatter):
-        def format(self, record):
-            if hasattr(record, 'request_data'):
-                # Форматирование для запроса
-                return (
-                    f"\n{'='*100}\n"
-                    f"TIME: {self.formatTime(record)}\n"
-                    f"TYPE: {record.levelname}\n"
-                    f"REQUEST: {record.request_data['method']} {record.request_data['url']}\n"
-                    f"HEADERS:\n{json.dumps(record.request_data['headers'], indent=2)}\n"
-                    f"BODY: {record.request_data['body']}\n"
-                    f"{'='*100}"
-                )
-            elif hasattr(record, 'response_data'):
-                # Форматирование для ответа
-                return (
-                    f"\n{'-'*100}\n"
-                    f"TIME: {self.formatTime(record)}\n"
-                    f"RESPONSE: {record.response_data['status']}\n"
-                    f"HEADERS:\n{json.dumps(record.response_data['headers'], indent=2)}\n"
-                    f"{'-'*100}"
-                )
-            else:
-                # Общий формат для других логов
-                return (
-                    f"\n{'-'*50}\n"
-                    f"TIME: {self.formatTime(record)}\n"
-                    f"TYPE: {record.levelname}\n"
-                    f"MODULE: {record.module}\n"
-                    f"MESSAGE: {record.getMessage()}\n"
-                    f"{'-'*50}"
-                )
 
-    # File handler for all logs with date in filename
-    file_handler = logging.FileHandler(
-        f'{log_dir}/app_{current_date}.log',
-        encoding='utf-8'
+    # Общий лог: одна компактная строка на событие, ротация раз в сутки, 14 дней истории
+    file_handler = TimedRotatingFileHandler(
+        f'{log_dir}/app.log',
+        when='midnight',
+        interval=1,
+        backupCount=14,
+        encoding='utf-8',
+        utc=False
     )
-    file_handler.setFormatter(RequestFormatter())
+    file_handler.suffix = '%Y-%m-%d'
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s [%(module)s] %(message)s'
+    ))
     file_handler.setLevel(logging.INFO)
-    
-    # Error file handler with date in filename
-    error_file_handler = logging.FileHandler(
-        f'{log_dir}/error_{current_date}.log',
-        encoding='utf-8'
+
+    # Отдельный лог ошибок (с трейсбеком, если он есть), та же ротация
+    error_file_handler = TimedRotatingFileHandler(
+        f'{log_dir}/error.log',
+        when='midnight',
+        interval=1,
+        backupCount=14,
+        encoding='utf-8',
+        utc=False
     )
+    error_file_handler.suffix = '%Y-%m-%d'
     error_file_handler.setFormatter(logging.Formatter(
-        "\n{'='*100}\n"
-        "TIME: %(asctime)s\n"
-        "ERROR: %(levelname)s\n"
-        "MODULE: %(module)s\n"
-        "LOCATION: %(pathname)s:%(lineno)d\n"
-        "FUNCTION: %(funcName)s\n"
-        "MESSAGE: %(message)s\n"
-        "TRACEBACK:\n%(exc_info)s\n"
-        f"{'='*100}"
+        '%(asctime)s %(levelname)s [%(module)s] %(pathname)s:%(lineno)d %(funcName)s: %(message)s'
     ))
     error_file_handler.setLevel(logging.ERROR)
-    
+
+    # Дублируем в stdout — чтобы строки были видны в `docker logs`
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(logging.Formatter(
+        '%(asctime)s %(levelname)s [%(module)s] %(message)s'
+    ))
+    stream_handler.setLevel(logging.INFO)
+
     # Remove default handlers
     app.logger.handlers.clear()
-    
+
     # Add handlers to app logger
     app.logger.addHandler(file_handler)
     app.logger.addHandler(error_file_handler)
+    app.logger.addHandler(stream_handler)
     app.logger.setLevel(logging.INFO)
     
     # Log startup
@@ -113,13 +87,6 @@ def setup_logging(app):
     
 
 app = Flask(__name__)
-
-# Configure Talisman security headers
-# Talisman(app, force_https=False, content_security_policy={
-#     'style-src': "'self' 'unsafe-inline' https://fonts.googleapis.com https://maxcdn.bootstrapcdn.com https://cdnjs.cloudflare.com https://cdn.datatables.net https://use.fontawesome.com https://ka-f.fontawesome.com",
-#     'script-src': "'self' 'unsafe-inline' https://code.jquery.com https://cdnjs.cloudflare.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com",
-#     'img-src': "'self' data: https://raw.githubusercontent.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://use.fontawesome.com https://ka-f.fontawesome.com"
-# })
 
 # Load configuration and setup logging
 load_config(app)
@@ -135,14 +102,29 @@ def inject_analytics_config():
     }
 
 
-# Request logging middleware
+def client_ip():
+    """Реальный IP клиента (за Caddy/reverse-proxy)"""
+    forwarded = request.headers.get('X-Forwarded-For', '')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.remote_addr or '-'
+
+
+# Request logging middleware: только засекаем время, тело и заголовки не трогаем
 @app.before_request
-def log_request_info():
-    app.logger.info(f'Request: {request.method} {request.url}\nHeaders: {dict(request.headers)}\nBody: {request.get_data()}')
+def start_request_timer():
+    g._started_at = perf_counter()
+
 
 @app.after_request
-def log_response_info(response):
-    app.logger.info(f'Response: {response.status}\nHeaders: {dict(response.headers)}')
+def log_request_summary(response):
+    started_at = g.pop('_started_at', None)
+    duration_ms = (perf_counter() - started_at) * 1000 if started_at else 0.0
+    # Одна компактная строка на запрос
+    app.logger.info(
+        f'{request.method} {request.path} {response.status_code} '
+        f'{duration_ms:.1f}ms {client_ip()}'
+    )
     return response
 
 # Register routes
@@ -152,34 +134,48 @@ register_routes(app)
 def remove_extension(value):
     return splitext(value)[0]
 
+FAVICON_DIR = join(app.root_path, 'static', 'favicon')
+FAVICON_FALLBACK_URL = (
+    'https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/'
+    'refs/heads/main/static/favicon/favicon.ico'
+)
+
+
 @app.route('/favicon.ico')
 def favicon():
-    return '<link rel="shortcut icon" href="https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/refs/heads/main/static/favicon/favicon.ico" />'
+    # Отдаём саму иконку; если файла нет в образе — редиректим на GitHub
+    if exists(join(FAVICON_DIR, 'favicon.ico')):
+        return send_from_directory(
+            FAVICON_DIR, 'favicon.ico', mimetype='image/vnd.microsoft.icon'
+        )
+    return redirect(FAVICON_FALLBACK_URL, code=302)
 
-# Enhanced error handlers with detailed logging
+# Error handlers: 4xx пишем кратко (warning), полный traceback — только в 500
 @app.errorhandler(404)
 def not_found_error(error):
-    app.logger.error(f"404 Error: {error}\nPath: {request.path}\nIP: {request.remote_addr}\n{traceback.format_exc()}")
+    app.logger.warning(f"404 {request.path} IP: {client_ip()}")
     return render_template('errors/404.html', error=error), 404
 
 @app.errorhandler(500)
 def internal_error(error):
-    app.logger.error(f"500 Error: {error}\nPath: {request.path}\nIP: {request.remote_addr}\n{traceback.format_exc()}")
+    app.logger.error(
+        f"500 {request.path} IP: {client_ip()} — {error}", exc_info=True
+    )
     return render_template('errors/500.html', error=error), 500
 
 @app.errorhandler(400)
 def bad_request_error(error):
-    app.logger.error(f"400 Error: {error}\nPath: {request.path}\nIP: {request.remote_addr}\n{traceback.format_exc()}")
+    app.logger.warning(f"400 {request.path} IP: {client_ip()} — {error}")
     return render_template('errors/400.html', error=error), 400
 
 @app.errorhandler(403)
 def forbidden_error(error):
-    app.logger.error(f"403 Error: {error}\nPath: {request.path}\nIP: {request.remote_addr}\n{traceback.format_exc()}")
+    app.logger.warning(f"403 {request.path} IP: {client_ip()}")
     return render_template('errors/403.html', error=error), 403
 
 @app.errorhandler(405)
 def method_not_allowed(error):
-    app.logger.error(f"405 Error: {error}\nPath: {request.path}\nIP: {request.remote_addr}\n{traceback.format_exc()}")
+    app.logger.warning(f"405 {request.method} {request.path} IP: {client_ip()}")
     return render_template('errors/405.html', error=error), 405
 
 
@@ -192,4 +188,6 @@ if __name__ == '__main__':
     check_version()
     app.logger.info(f"{Colors.GREEN}R2-HTML-DB-WIKI{Colors.RESET}{Colors.YELLOW} Started successfully!{Colors.RESET}{Colors.GRAY} Version: {Colors.RESET}{Colors.GREEN}{app.config['VERSION']}{Colors.RESET}")
     
-    app.run(host='0.0.0.0', port=app.config['PORT'], debug=True)
+    # debug только по явному флагу окружения: Werkzeug-дебаггер на проде = RCE
+    debug = os.getenv('FLASK_DEBUG', 'false').strip().lower() in ('1', 'true', 'yes', 'on')
+    app.run(host='0.0.0.0', port=int(app.config['PORT']), debug=debug)

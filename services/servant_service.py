@@ -1,8 +1,17 @@
 from typing import List, Dict, Optional
+import logging
 from services.database import execute_query
 from services.utils import get_item_pic_url
 from services.item_service import get_material_draw_info
 from services.skill_service import get_sid_by_spid
+from services.ttl_cache import TTLCache, DEFAULT_TTL
+
+logger = logging.getLogger(__name__)
+
+# Кэш полного списка питомцев (страница /servants). Выборка по одному питомцу
+# НЕ кэшируется: routes/servant_routes.py мутирует полученный словарь.
+servants_list_cache = TTLCache(max_size=2, ttl=DEFAULT_TTL, name='servants_list')
+_SERVANTS_LIST_KEY = 'servants_list'
 
 
 # Main config
@@ -137,6 +146,13 @@ def extract_level(text: str) -> int:
 
 
 def get_servants_list(servant_id: int = None) -> List[Dict]:
+    # Полный список кэшируем на 10 минут (тяжёлый JOIN, данные read-only).
+    # Вызывающий код списка (страница и API) данные только читает.
+    if servant_id is None:
+        cached_list = servants_list_cache.get(_SERVANTS_LIST_KEY)
+        if cached_list is not None:
+            return cached_list
+
     query = """
     SELECT DISTINCT
         a1.IID,
@@ -283,7 +299,8 @@ def get_servants_list(servant_id: int = None) -> List[Dict]:
         get_sort_order_priority(x['element_info']) if x['element_info'] is not None else float('inf'),
         x['name'] if x['name'] is not None else ""
     ))
-    
+
+    servants_list_cache.set(_SERVANTS_LIST_KEY, result)
     return result
 
 
@@ -376,7 +393,7 @@ def get_servant_detail(servant_id: int) -> List[Dict]:
     try:
         rows = execute_query(query, (servant_id,), fetch_one=False)
         
-        print(f"Total rows: {len(rows)}")
+        logger.debug("get_servant_detail: строк получено %s", len(rows))
         
         if not rows:
             return {}
@@ -447,13 +464,13 @@ def get_servant_detail(servant_id: int) -> List[Dict]:
             # Добавляем данные в список
             servant_data_list.append(servant_data)
 
-        print(f"Number of servants: {len(servant_data_list)}")
+        logger.debug("get_servant_detail: питомцев получено %s", len(servant_data_list))
         #print(servant_data_list)  # Печатаем список
         return servant_data_list
 
 
     except Exception as e:
-        print(f"Ошибка в get_servant_detail: {e}")
+        logger.error("Ошибка в get_servant_detail: %s", e, exc_info=True)
         return {}
 
     

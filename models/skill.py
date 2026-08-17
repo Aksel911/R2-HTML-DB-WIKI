@@ -3,7 +3,9 @@ from typing import Dict, Optional
 from flask import current_app
 from services.utils import clean_description
 
-@dataclass
+# slots=True: экономия памяти на экземплярах (см. models/item.py)
+
+@dataclass(slots=True)
 class Skill:
     """Data class for skills"""
     sid: int
@@ -73,7 +75,7 @@ class Skill:
             
 
 
-@dataclass
+@dataclass(slots=True)
 class DT_Attribute:
     """Data class for beads"""
     AttrbuteID: int
@@ -84,7 +86,7 @@ class DT_Attribute:
     ADamage: int
     
 
-@dataclass
+@dataclass(slots=True)
 class DT_SkillSlain:
     SlainID: int
     SType: int

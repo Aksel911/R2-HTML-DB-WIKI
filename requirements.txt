@@ -1,9 +1,6 @@
 flask
-flask-talisman
+gunicorn
 python-dotenv
 pyodbc
 pandas
 requests
-apscheduler
-ujson
-flask-caching

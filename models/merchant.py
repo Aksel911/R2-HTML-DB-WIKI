@@ -1,4 +1,12 @@
 class Merchant:
+    # __slots__: список торговцев целиком лежит в TTL-кэше, без __dict__
+    # экземпляр заметно легче. ItemCount проставляется после создания
+    # (services/merchant_service.py), поэтому он тоже в слотах.
+    __slots__ = (
+        'ListID', 'MID', 'MName', 'MClass', 'ItemID',
+        'IName', 'Price', 'mPaymentType', 'mIsEvent', 'ItemCount',
+    )
+
     def __init__(
         self,
         ListID: int,

@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, render_template, current_app
 from services.skill_service import (
     get_skill_detail,
@@ -14,6 +15,8 @@ from services.utils import get_skill_icon_path, with_app_context
 from concurrent.futures import ThreadPoolExecutor
 
 bp = Blueprint('skills', __name__)
+
+logger = logging.getLogger(__name__)
 
 # ! Главная страница скиллов
 @bp.route('/skills')
@@ -106,7 +109,5 @@ def skill_detail(skill_id: int):
         )
 
     except Exception as e:
-        print(f"Error in skill detail route: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        logger.error("Ошибка на детальной странице скилла %s: %s", skill_id, e, exc_info=True)
         return "Internal server error", 500

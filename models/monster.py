@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import Dict, Optional
 
-@dataclass
+# slots=True: списки монстров (тысячи объектов) держатся в TTL-кэше,
+# отказ от __dict__ у экземпляра заметно снижает RSS воркера.
+
+@dataclass(slots=True)
 class Monster:
     """Data class for monsters"""
     MID: int
@@ -92,12 +95,12 @@ class Monster:
     #     }
 
 
-@dataclass
+@dataclass(slots=True)
 class DT_MonsterResource:
     """Data class for monster resources"""
     RFileName: str
 
-@dataclass
+@dataclass(slots=True)
 class DT_MonsterAbnormalResist:
     """Data class for monster abnormal resist"""
     MID: int
@@ -117,7 +120,7 @@ class DT_MonsterAbnormalResist:
     
 
 
-@dataclass
+@dataclass(slots=True)
 class DT_MonsterAttributeAdd:
     AID: int
     AType: int
@@ -127,7 +130,7 @@ class DT_MonsterAttributeAdd:
     ADamage: int
     
     
-@dataclass
+@dataclass(slots=True)
 class DT_MonsterAttributeResist:
     AID: int
     AType: int
@@ -138,7 +141,7 @@ class DT_MonsterAttributeResist:
     
 
 
-@dataclass
+@dataclass(slots=True)
 class DT_MonsterProtect:
     SID: int
     ProtectSID: int
@@ -151,7 +154,7 @@ class DT_MonsterProtect:
     SMDV: int
     SRDV: int
 
-@dataclass
+@dataclass(slots=True)
 class DT_MonsterSlain:
     SID: int
     SType: int

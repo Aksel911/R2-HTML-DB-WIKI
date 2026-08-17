@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, current_app, abort, jsonify, request, current_app
-import traceback
+import logging
 import requests
 from services.monster_service import (
     get_monster_by_id,
@@ -29,6 +29,8 @@ from functools import wraps, partial
 from concurrent.futures import ThreadPoolExecutor
 
 bp = Blueprint('monsters', __name__)
+
+logger = logging.getLogger(__name__)
 
 # ! Словарь с маппингом URL -> конфигурация
 MONSTER_ROUTES = {
@@ -123,9 +125,7 @@ def with_monster_filters(allowed_classes):
                 return original_route(items=monsters, item_resources=file_paths, *args, **kwargs)
                 
             except Exception as e:
-                print(f"Error in route: {str(e)}")
-                import traceback
-                traceback.print_exc()
+                logger.error("Ошибка в маршруте списка монстров: %s", e, exc_info=True)
                 return jsonify({'error': str(e)}), 500
                 
         return wrapped_route
@@ -171,9 +171,7 @@ def monster_page(type):
                 })
                 
             except Exception as e:
-                print(f"Error processing request: {str(e)}")
-                import traceback
-                traceback.print_exc()
+                logger.error("Ошибка обработки запроса списка монстров: %s", e, exc_info=True)
                 return jsonify({'error': str(e)}), 500
         
         # For normal page load
@@ -378,7 +376,8 @@ def monster_detail(monster_id: int):
         try:
             if requests.head(file_path_gif).status_code != 200:
                 file_path_gif = None
-        except:
+        except Exception as e:
+            logger.warning("Не удалось проверить gif монстра %s: %s", monster_id, e)
             file_path_gif = None
         
         
@@ -399,7 +398,6 @@ def monster_detail(monster_id: int):
             }
 
         
-        print(f"location: {monster_location}")
         # Рендеринг базового шаблона
         return render_template(
             'monster_core/monster_page_detail.html',
@@ -418,8 +416,7 @@ def monster_detail(monster_id: int):
         )
 
     except Exception as e:
-        print(f"Error in monster detail route: {str(e)}")
-        traceback.print_exc()
+        logger.error("Ошибка на детальной странице монстра %s: %s", monster_id, e, exc_info=True)
         return "Internal server error", 500
     
     

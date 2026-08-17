@@ -1,4 +1,5 @@
 from typing import List, Dict, Optional, Tuple, Union
+import logging
 import pandas as pd
 import requests
 from flask import current_app
@@ -9,7 +10,20 @@ from services.item_service import get_item_name
 from services.skill_service import get_skill_pic_icon, get_skill_name_by_sid, get_skill_detail
 from config.settings import MONSTER_CLASS_URL, ATTRIBUTE_TYPE_WEAPON_URL, ATTRIBUTE_TYPE_ARMOR_URL
 from models.monster import DT_MonsterResource, DT_MonsterAbnormalResist, DT_MonsterAttributeAdd, DT_MonsterAttributeResist, DT_MonsterProtect, DT_MonsterSlain
+from services.ttl_cache import TTLCache, DEFAULT_TTL
 
+logger = logging.getLogger(__name__)
+
+# Кэш списочных выборок монстров: ключ — ОДИН MClass, без строки поиска.
+# Наборы классов у страниц пересекаются (/monster_all — это классы 1..38,
+# страницы подтипов — их подмножества), поэтому раньше одни и те же монстры
+# лежали в кэше в нескольких копиях. Теперь кэшируется кусок на класс,
+# а ответ склеивается из кусков. Классов 38 — max_size с запасом.
+monsters_list_cache = TTLCache(max_size=48, ttl=DEFAULT_TTL, name='monsters_by_class')
+
+# Префикс ключа + маркер промаха (None — валидное значение для TTLCache.get)
+_MONSTERS_KEY = 'monsters_by_class'
+_CACHE_MISS = object()
 
 
 def apply_monster_filters(monsters: List[Monster], filters: Dict) -> List[Monster]:
@@ -100,9 +114,7 @@ def apply_monster_filters(monsters: List[Monster], filters: Dict) -> List[Monste
         return filtered_monsters
 
     except Exception as e:
-        print(f"Error in apply_monster_filters: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error("Ошибка в apply_monster_filters: %s", e, exc_info=True)
         return []
 
 def monster_to_dict(monster: Monster) -> dict:
@@ -492,38 +504,95 @@ def get_monster_drop_info(item_id: int) -> List[Dict]:
     return results
 
 
-def get_monsters_by_class(class_ids: List[int], search_term: str = '') -> Tuple[List[Monster], Dict]:
-    """Get monsters by class IDs with optional search"""
-    class_str = ','.join(str(c) for c in class_ids)
+def _load_monsters_grouped(class_ids: List[int]) -> Dict[int, List[Monster]]:
+    """Одним запросом тянет монстров указанных классов и раскладывает по MClass"""
+    class_str = ','.join(str(int(c)) for c in class_ids)
 
-    # Base query
     query = """
         SELECT m.*, r.RFileName
         FROM DT_Monster m
         LEFT JOIN DT_MonsterResource r ON r.ROwnerID = m.MID
         WHERE m.MClass IN ({})
+        ORDER BY MID
     """.format(class_str)
-    
-    # Add search condition if provided
-    params = []
-    if search_term:
-        query += " AND (MName LIKE ? OR CAST(MID AS VARCHAR) LIKE ?)"
-        search_pattern = f'%{search_term}%'
-        params.extend([search_pattern, search_pattern])
-        
-    query += " ORDER BY MID"
-    
-    #print(query)
-    
-    # Execute query
-    rows = execute_query(query, params, fetch_one=False)
-    
-    # Convert to DT_Monster objects (with only needed fields)
-    monsters = []
-    file_paths = {}
-    
+
+    rows = execute_query(query, [], fetch_one=False)
+
+    # Классы без монстров тоже кладём в кэш (пустым списком), чтобы не долбить БД
+    grouped = {int(c): [] for c in class_ids}
+
     for row in rows:
-        monster = Monster(
+        grouped.setdefault(int(row.MClass), []).append(_row_to_monster(row))
+
+    return grouped
+
+
+def get_monsters_by_class(class_ids: List[int], search_term: str = '') -> Tuple[List[Monster], Dict]:
+    """Get monsters by class IDs with optional search
+
+    Кэшируются куски по одному классу (без строки поиска), ответ собирается
+    из них на лету — одинаковые монстры не хранятся в кэше дважды, а поиск
+    не плодит по полной копии выборки на каждый пользовательский запрос.
+    Поиск повторяет семантику прежнего SQL: MName LIKE '%term%' (без учёта
+    регистра) ИЛИ вхождение подстроки в MID.
+
+    Списки монстров — ССЫЛКИ на закэшированные данные, мутировать их нельзя
+    (routes копируют через extend/update, фильтры создают новые списки).
+    """
+    # Убираем дубли классов, сохраняя порядок
+    keys = []
+    seen = set()
+    for class_id in class_ids:
+        class_id = int(class_id)
+        if class_id not in seen:
+            seen.add(class_id)
+            keys.append(class_id)
+
+    if not keys:
+        return [], {}
+
+    # Всё отсутствующее в кэше догружаем ОДНИМ запросом
+    missing = [c for c in keys
+               if monsters_list_cache.get((_MONSTERS_KEY, c), _CACHE_MISS) is _CACHE_MISS]
+    if missing:
+        grouped = _load_monsters_grouped(missing)
+        for class_id in missing:
+            monsters_list_cache.set((_MONSTERS_KEY, class_id), grouped.get(class_id, []))
+        del grouped
+
+    if len(keys) == 1 and not search_term:
+        # Самый частый случай — отдаём ссылку на кэш без копирования списка
+        monsters = monsters_list_cache.get((_MONSTERS_KEY, keys[0])) or []
+    else:
+        monsters = []
+        for class_id in keys:
+            chunk = monsters_list_cache.get((_MONSTERS_KEY, class_id), _CACHE_MISS)
+            if chunk is _CACHE_MISS:
+                # Запись успела протухнуть между вставкой и чтением — дочитываем
+                chunk = _load_monsters_grouped([class_id]).get(class_id, [])
+                monsters_list_cache.set((_MONSTERS_KEY, class_id), chunk)
+            monsters.extend(chunk)
+
+        if len(keys) > 1:
+            # Прежний запрос отдавал общий ORDER BY MID
+            monsters.sort(key=lambda m: m.MID)
+
+        if search_term:
+            needle = search_term.lower()
+            monsters = [m for m in monsters
+                        if (m.MName and needle in m.MName.lower())
+                        or needle in str(m.MID)]
+
+    # Пути к картинкам выводятся из MID, хранить их в кэше смысла нет
+    github_url = current_app.config['GITHUB_URL']
+    file_paths = {m.MID: f"{github_url}{m.MID}.png" for m in monsters}
+
+    return monsters, file_paths
+
+
+def _row_to_monster(row) -> Monster:
+    """Строка выборки DT_Monster -> объект Monster"""
+    return Monster(
             MID=row.MID,
             MName=row.MName,
             mLevel=row.mLevel,
@@ -592,10 +661,6 @@ def get_monsters_by_class(class_ids: List[int], search_term: str = '') -> Tuple[
             # DT_MonsterResource
             RFileName=row.RFileName
         )
-        monsters.append(monster)
-        file_paths[row.MID] = f"{current_app.config['GITHUB_URL']}{row.MID}.png"
-
-    return monsters, file_paths
 
 
 
@@ -1075,9 +1140,7 @@ def get_monster_aiex_data(monster_id: int) -> Optional[Dict]:
         return result
 
     except Exception as e:
-        print(f"Error in get_monster_aiex_data: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.error("Ошибка в get_monster_aiex_data: %s", e, exc_info=True)
         return None
     
     

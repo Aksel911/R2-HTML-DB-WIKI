@@ -1,7 +1,10 @@
+import logging
 from flask import Blueprint, jsonify, request, render_template
 from services.doll_service import get_items_by_type, get_doll_selection
 
 bp = Blueprint('dolls', __name__)
+
+logger = logging.getLogger(__name__)
 
 @bp.route('/doll')
 def doll_main():
@@ -15,7 +18,7 @@ def doll_main():
 def get_item_list():
     """Получение списка предметов для слота"""
     try:
-        print(request.form)
+        logger.debug("GetItemList form: %s", request.form)
         item_type = request.form.get('type')
         class_id = request.form.get('classID')
         arrow = request.form.get('arrow', 'N') # Для стрел
@@ -34,7 +37,7 @@ def get_item_list():
         return jsonify(items)
 
     except Exception as e:
-        print(f"Error in get_item_list: {str(e)}")
+        logger.error("Ошибка в get_item_list: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @bp.route('/ajax/Dolls/GetSelection/', methods=['POST'])
@@ -61,6 +64,6 @@ def get_selection():
         })
 
     except Exception as e:
-        print(f"Error in get_selection: {str(e)}")
+        logger.error("Ошибка в get_selection: %s", e, exc_info=True)
         return jsonify({'error': str(e)}), 500
 

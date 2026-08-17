@@ -1,12 +1,23 @@
 from typing import List, Dict, Optional, Tuple
+import logging
 from models.abnormal import Abnormal, AbnormalItem, AbnormalSkill, AbnormalListItem
 from services.database import execute_query
 from services.utils import get_skill_icon_path, clean_dict
 from services.item_service import get_item_resource
+from services.ttl_cache import TTLCache, cached, DEFAULT_TTL
+
+logger = logging.getLogger(__name__)
+
+# Кэш полной выборки абнормалов (страница /abnormals) — ключ всегда один
+abnormals_list_cache = TTLCache(max_size=4, ttl=DEFAULT_TTL, name='abnormals_list')
 
 
+@cached(abnormals_list_cache)
 def get_abnormals_list() -> Tuple[List[AbnormalListItem], Dict[int, str]]:
-    """Get list of all abnormal effects"""
+    """Get list of all abnormal effects
+
+    Полная выборка таблицы, кэшируется на 10 минут (данные read-only).
+    """
     query = """
         SELECT 
             e1.AID,
@@ -172,7 +183,7 @@ def get_abnormal_skills(aid: int) -> List[AbnormalSkill]:
             
         return skills
     except Exception as e:
-        print(f"Error in get_abnormal_skills: {e}")
+        logger.error("Ошибка в get_abnormal_skills: %s", e, exc_info=True)
         return []
 
 def get_abnormal_items(aid: int) -> List[AbnormalItem]:
@@ -208,7 +219,7 @@ def get_abnormal_items(aid: int) -> List[AbnormalItem]:
             
         return items
     except Exception as e:
-        print(f"Error in get_abnormal_items: {e}")
+        logger.error("Ошибка в get_abnormal_items: %s", e, exc_info=True)
         return []
 
 def get_abnormal_in_skill(aid: int) -> Optional[Tuple]:
@@ -254,5 +265,5 @@ def get_abnormal_in_skill(aid: int) -> Optional[Tuple]:
         return abnormaltype_data, atype_pic_data
 
     except Exception as e:
-        print(f"Error in get_abnormal_in_skill: {e}")
+        logger.error("Ошибка в get_abnormal_in_skill: %s", e, exc_info=True)
         return None

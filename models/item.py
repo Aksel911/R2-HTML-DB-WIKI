@@ -2,7 +2,12 @@ from dataclasses import dataclass
 from os.path import splitext
 from flask import current_app
 
-@dataclass
+# slots=True: объекты моделей живут тысячами в TTL-кэшах списочных выборок.
+# Без __dict__ экземпляр занимает заметно меньше (нет отдельного словаря
+# атрибутов на объект). Динамических атрибутов вне полей нигде не навешивается —
+# единственное исключение (DT_ItemResource.file_path) объявлено полем явно.
+
+@dataclass(slots=True)
 class DT_Item:
     """Data class for items"""
     IID: int
@@ -97,13 +102,15 @@ class DT_Item:
         # Преобразование URL класса
         self.IUseClass = f"{current_app.config['GITHUB_URL']}class/{self.IUseClass}.png"
 
-@dataclass
+@dataclass(slots=True)
 class DT_ItemResource:
     """Data class for item resources"""
     ROwnerID: int
     RFileName: str
     RPosX: int
     RPosY: int
+    # Вычисляется в __post_init__; при __slots__ атрибут обязан быть объявлен
+    file_path: str = None
 
     def __post_init__(self):
         self.RFileName = splitext(self.RFileName)[0]
@@ -112,7 +119,7 @@ class DT_ItemResource:
             f"{self.RFileName}_{self.RPosX}_{self.RPosY}.png"
         )
         
-@dataclass
+@dataclass(slots=True)
 class TblSpecificProcItem:
     """Data class for TblSpecificProcItem"""
     mIID: int
@@ -129,7 +136,7 @@ class TblSpecificProcItem:
     mDParamDesc: str
 
 
-@dataclass
+@dataclass(slots=True)
 class DT_ItemAbnormalResist:
     """Data class for item abnormal resist"""
     IID: int
@@ -148,7 +155,7 @@ class DT_ItemAbnormalResist:
     mSpriteY: int
     
 
-@dataclass
+@dataclass(slots=True)
 class DT_Bead:
     """Data class for beads"""
     mBeadNo: int
@@ -183,7 +190,7 @@ class DT_Bead:
 
 
 
-@dataclass
+@dataclass(slots=True)
 class DT_ItemBeadModule:
     """Data class for beads"""
     MID: int
@@ -199,7 +206,7 @@ class DT_ItemBeadModule:
     MCParamName: str
     
     
-@dataclass
+@dataclass(slots=True)
 class TblBeadHoleProb:
     """Data class for beads"""
     IName: str
@@ -208,7 +215,7 @@ class TblBeadHoleProb:
     mProb: float
     
 
-@dataclass
+@dataclass(slots=True)
 class DT_ItemAttributeAdd:
     AID: int
     AType: int
@@ -218,7 +225,7 @@ class DT_ItemAttributeAdd:
     ADamage: int
     
     
-@dataclass
+@dataclass(slots=True)
 class DT_ItemAttributeResist:
     AID: int
     AType: int
@@ -228,7 +235,7 @@ class DT_ItemAttributeResist:
     ADamage: int
     
 
-@dataclass
+@dataclass(slots=True)
 class DT_ItemProtect:
     PID: int
     SID: int
@@ -243,7 +250,7 @@ class DT_ItemProtect:
 
     
 
-@dataclass
+@dataclass(slots=True)
 class DT_ItemSlain:
     SID: int
     SType: int
@@ -255,7 +262,7 @@ class DT_ItemSlain:
     SRDDPlus: int
     
 
-@dataclass
+@dataclass(slots=True)
 class DT_ItemPanalty:
     IUseClass: int
     PanaltyClassPic: str
