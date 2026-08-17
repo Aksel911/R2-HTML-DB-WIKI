@@ -153,7 +153,10 @@ button:disabled {
     align-items: center;
     justify-content: center;
     gap: 12px;
-    min-height: 220px;
+    /* Отступ сверху — чтобы спиннер не перекрывал кнопки Show Menu / Unlock
+       (они на top: 50px) и панель управления (.controls на top: 100px) */
+    padding-top: 170px;
+    min-height: 340px;
     color: #6b7280;
     font-family: system-ui, -apple-system, sans-serif;
     font-size: 14px;
