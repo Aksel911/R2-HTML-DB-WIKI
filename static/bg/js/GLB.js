@@ -63,16 +63,68 @@ const classMapping = {
 };
 
 // Utility functions
-async function checkFileExists(url) {
-    if (state.modelCache.has(url)) return true;
+
+// Поиск моделей — это десятки HEAD-запросов к raw.githubusercontent.com, из которых
+// почти все отдают 404. Ограничиваем параллельность (иначе забивается пул соединений
+// браузера) и запоминаем результат на вкладке, чтобы возврат на страницу был мгновенным.
+const PROBE_CONCURRENCY = 6;
+let activeProbes = 0;
+const probeQueue = [];
+
+function readProbeCache(url) {
+    try {
+        const cached = sessionStorage.getItem(`glb:${url}`);
+        return cached === null ? null : cached === '1';
+    } catch {
+        return null;
+    }
+}
+
+function writeProbeCache(url, exists) {
+    try {
+        sessionStorage.setItem(`glb:${url}`, exists ? '1' : '0');
+    } catch {
+        /* приватный режим или переполнение — обходимся без кэша */
+    }
+}
+
+async function probe(url) {
     try {
         const response = await fetch(url, { method: 'HEAD' });
-        const exists = response.status === 200;
-        if (exists) state.modelCache.set(url, true);
-        return exists;
+        return response.status === 200;
     } catch {
         return false;
     }
+}
+
+function drainProbeQueue() {
+    while (activeProbes < PROBE_CONCURRENCY && probeQueue.length > 0) {
+        const { url, resolve } = probeQueue.shift();
+        activeProbes++;
+        probe(url).then(exists => {
+            writeProbeCache(url, exists);
+            if (exists) state.modelCache.set(url, true);
+            resolve(exists);
+        }).finally(() => {
+            activeProbes--;
+            drainProbeQueue();
+        });
+    }
+}
+
+async function checkFileExists(url) {
+    if (state.modelCache.has(url)) return true;
+
+    const cached = readProbeCache(url);
+    if (cached !== null) {
+        if (cached) state.modelCache.set(url, true);
+        return cached;
+    }
+
+    return new Promise(resolve => {
+        probeQueue.push({ url, resolve });
+        drainProbeQueue();
+    });
 }
 
 function getCaseVariants(prefix, number) {
@@ -335,25 +387,73 @@ async function findAvailableModels() {
     }
 }
 
+// Библиотека просмотрщика подключается только когда модель реально понадобилась
+let viewerLibPromise = null;
+function loadViewerLib() {
+    if (viewerLibPromise) return viewerLibPromise;
+    viewerLibPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = window.CONFIG.viewerLib;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+    return viewerLibPromise;
+}
+
 async function initialize() {
     try {
-        console.log('Starting initialization...');
-        console.log('Base URL:', baseUrl);
-        
+        elements.modelInfo.textContent = 'Scanning for models...';
+
+        // Поиск моделей и загрузка библиотеки идут параллельно
+        const libLoading = loadViewerLib().catch(e =>
+            console.error('Не удалось загрузить model-viewer:', e));
+
         state.availableModels = await findAvailableModels();
-        console.log('Found models:', state.availableModels);
-        
+
         if (state.availableModels.length > 0) {
             elements.container.classList.remove('hidden');
-            console.log('Loading first model...');
+            await libLoading;
             await loadModel(0);
         } else {
             elements.container.classList.add('hidden');
-            console.log('No models found - hiding viewer');
         }
     } catch (error) {
         console.error('Error during initialization:', error);
         elements.modelInfo.textContent = 'Error loading models';
+    }
+}
+
+// Старт откладываем до полной отрисовки страницы: раньше десятки HEAD-запросов
+// к GitHub уходили сразу и конкурировали с загрузкой самой страницы.
+function scheduleInitialize() {
+    let started = false;
+    const start = () => {
+        if (started) return;
+        started = true;
+        initialize();
+    };
+
+    const afterPaint = () => {
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(start, { timeout: 2000 });
+        } else {
+            setTimeout(start, 200);
+        }
+    };
+
+    // Если блок с моделью далеко внизу — ждём, пока до него доскроллят
+    if ('IntersectionObserver' in window && elements.container) {
+        const observer = new IntersectionObserver(entries => {
+            if (entries.some(e => e.isIntersecting)) {
+                observer.disconnect();
+                afterPaint();
+            }
+        }, { rootMargin: '200px' });
+        observer.observe(elements.container);
+    } else {
+        afterPaint();
     }
 }
 
@@ -393,4 +493,8 @@ elements.menuToggle.addEventListener('click', toggleMenu);
 elements.lockToggle.addEventListener('click', toggleLock);
 
 // Start the application
-initialize();
+if (document.readyState === 'complete') {
+    scheduleInitialize();
+} else {
+    window.addEventListener('load', scheduleInitialize);
+}
