@@ -13,6 +13,10 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Секреты и запуск — только через environment "production"
+    # (required reviewer в настройках окружения = деплой стартует
+    # только после ручного одобрения владельца)
+    environment: production
 
     steps:
       - name: Checkout code
