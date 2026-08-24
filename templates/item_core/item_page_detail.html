@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     {% include "favicon.html" %}
 
     <!-- Analytics -->
     {% include "analytics.html" %}
     
-    <title>[{{ item.IID }}] {{ item.IName }}</title>
+    <meta charset="UTF-8">
+    <title>{{ item.IName }} — предмет R2 Online | R2 Wiki</title>
+    {% set seo_title = item.IName ~ ' — предмет R2 Online' %}
+    {% set seo_description = 'Предмет ' ~ item.IName ~ ' (ID ' ~ item.IID ~ ', уровень ' ~ item.ILevel ~ ') в базе знаний R2 Online: характеристики, крафт, где выпадает, связанные навыки.' %}
+    {% include "seo.html" %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">

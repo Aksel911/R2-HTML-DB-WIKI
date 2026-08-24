@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     {% include "favicon.html" %}
 
     <!-- Analytics -->
     {% include "analytics.html" %}
 
-    <title>[{{ skill.skill_type }}] {{ skill.name }}</title>
+    <meta charset="UTF-8">
+    <title>{{ skill.name }} — навык R2 Online | R2 Wiki</title>
+    {% set seo_title = skill.name ~ ' — навык R2 Online' %}
+    {% set seo_description = 'Навык ' ~ skill.name ~ ' (' ~ skill.skill_type ~ ') в базе знаний R2 Online: параметры, требования, связанные предметы и эффекты.' %}
+    {% include "seo.html" %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">

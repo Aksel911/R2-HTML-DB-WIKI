@@ -100,7 +100,8 @@ def inject_analytics_config():
         'enable_analytics': app.config['ENABLE_FIREBASE_ANALYTICS'],
         'firebase_config': app.config['FIREBASE_CONFIG'],
         'enable_umami': app.config['ENABLE_UMAMI_ANALYTICS'],
-        'umami_config': app.config['UMAMI_CONFIG']
+        'umami_config': app.config['UMAMI_CONFIG'],
+        'site_url': app.config['SITE_URL']
     }
 
 
@@ -116,6 +117,15 @@ def client_ip():
 @app.before_request
 def start_request_timer():
     g._started_at = perf_counter()
+
+
+@app.after_request
+def mark_service_endpoints_noindex(response):
+    # Служебные JSON/фрагменты не должны попадать в поисковый индекс,
+    # даже если на них где-то появится прямая ссылка
+    if request.path.startswith(('/api/', '/ajax/', '/render_template/')):
+        response.headers['X-Robots-Tag'] = 'noindex'
+    return response
 
 
 @app.after_request

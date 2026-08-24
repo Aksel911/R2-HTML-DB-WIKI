@@ -1,0 +1,22 @@
+{# SEO-блок: подключать внутри <head> после analytics.html.
+   Настройка со страницы — через {% set %} ДО include:
+     seo_title       — заголовок для соцсетей/OG (по умолчанию берётся title страницы)
+     seo_description — описание страницы
+     seo_noindex     — true, чтобы закрыть страницу от индексации #}
+{%- set _seo_title = seo_title | default(title) | default('R2 Online Knowledge Base') -%}
+{%- if not seo_description and header is defined and header -%}
+    {%- set seo_description = header ~ ' — база знаний R2 Online: характеристики, дроп, крафт и связи между предметами, монстрами и навыками.' -%}
+{%- endif -%}
+{%- set _seo_description = seo_description | default('База знаний R2 Online (Reign of Revolution): предметы, монстры, навыки, эффекты, торговцы, крафт, квесты и слуги. Полная игровая база данных с 3D-моделями.') -%}
+<meta name="description" content="{{ _seo_description }}">
+{% if seo_noindex %}<meta name="robots" content="noindex, nofollow">
+{% else %}<link rel="canonical" href="{{ site_url }}{{ request.path }}">
+{% endif -%}
+<meta property="og:site_name" content="R2 Wiki">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="{{ _seo_title }}">
+<meta property="og:description" content="{{ _seo_description }}">
+<meta property="og:url" content="{{ site_url }}{{ request.path }}">
+<meta property="og:image" content="{{ site_url }}/static/favicon/web-app-manifest-512x512.png">
+<meta name="twitter:card" content="summary">

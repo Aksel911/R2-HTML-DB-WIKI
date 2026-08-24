@@ -66,3 +66,6 @@ def load_config(app):
         'script_url': umami_script_url,
         'website_id': umami_website_id,
     }
+
+    # Публичный адрес сайта — для canonical, sitemap и og:url
+    app.config['SITE_URL'] = os.getenv('SITE_URL', 'https://wiki.r2genius.com').rstrip('/')

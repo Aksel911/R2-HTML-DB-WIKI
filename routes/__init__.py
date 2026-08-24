@@ -10,6 +10,7 @@ from routes.craft_routes import bp as craft_bp
 from routes.skill_tree_routes import bp as skill_tree_bp
 from routes.doll_routes import bp as doll_bp
 from routes.servant_routes import bp as servant_bp
+from routes.seo_routes import bp as seo_bp
 
 
 __all__ = ['register_routes']
@@ -27,3 +28,4 @@ def register_routes(app: Flask):
     app.register_blueprint(skill_tree_bp)
     app.register_blueprint(doll_bp)
     app.register_blueprint(servant_bp)
+    app.register_blueprint(seo_bp)

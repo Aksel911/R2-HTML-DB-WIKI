@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>R2 Online Knowledge Base</title>
+    <title>R2 Wiki — база знаний R2 Online: предметы, монстры, навыки</title>
+    {% set seo_title = 'R2 Wiki — база знаний R2 Online' %}
     
     <!-- Viewport and Mobile Optimizations -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -23,6 +24,14 @@
 
     <!-- Analytics -->
     {% include "analytics.html" %}
+
+    <!-- SEO -->
+    {% include "seo.html" %}
+    <script type="application/ld+json">
+    {"@context": "https://schema.org", "@type": "WebSite", "name": "R2 Wiki",
+     "url": "{{ site_url }}", "inLanguage": "ru",
+     "description": "База знаний R2 Online: предметы, монстры, навыки, эффекты, торговцы, крафт, квесты и слуги."}
+    </script>
 
     <style>
       /* Global Styles */

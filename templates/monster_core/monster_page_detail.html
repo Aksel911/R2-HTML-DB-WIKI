@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     {% include "favicon.html" %}
 
     <!-- Analytics -->
     {% include "analytics.html" %}
-    <title>[{{ item.MID }}] {{ item.MName }}</title>
+    <meta charset="UTF-8">
+    <title>{{ item.MName }} — монстр R2 Online | R2 Wiki</title>
+    {% set seo_title = item.MName ~ ' — монстр R2 Online' %}
+    {% set seo_description = 'Монстр ' ~ item.MName ~ ' (ID ' ~ item.MID ~ ', уровень ' ~ item.mLevel ~ ') в базе знаний R2 Online: характеристики, дроп, места появления.' %}
+    {% include "seo.html" %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Didact+Gothic&display=swap" rel="stylesheet">

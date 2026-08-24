@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     {% include "favicon.html" %}
 
     <!-- Analytics -->
     {% include "analytics.html" %}
     
-    <title>[{{ abnormal.abnormal_data.AType }}] {{ abnormal.abnormal_data.AName }}</title>
+    <meta charset="UTF-8">
+    <title>{{ abnormal.abnormal_data.AName }} — эффект R2 Online | R2 Wiki</title>
+    {% set seo_title = abnormal.abnormal_data.AName ~ ' — эффект R2 Online' %}
+    {% set seo_description = 'Эффект ' ~ abnormal.abnormal_data.AName ~ ' в базе знаний R2 Online: тип, длительность, какие навыки и предметы его накладывают.' %}
+    {% include "seo.html" %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
