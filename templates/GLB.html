@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>R2Genius 3D Model Viewer</title>
+{# Фрагмент 3D-вьюера: подключается через include внутрь страниц,
+   поэтому здесь нет <html>/<head> — только скрипты, стили и разметка #}
     <script>
         window.CONFIG = {
             monsterModelNo: "{{ monstermodelno_result }}", // номер модели
@@ -19,8 +15,6 @@
 
     <script src="/static/bg/js/GLB.js" defer></script>
     <link rel="stylesheet" href="/static/bg/css/GLB.css">
-</head>
-<body>
     <div class="container" id="modelContainer">
         <div class="model-loader" id="modelLoader">
             <div class="model-loader-spinner"></div>
@@ -60,5 +54,3 @@
             <div class="info" id="modelInfo">Animation: Loading...</div>
         </div>
     </div>
-</body>
-</html>
