@@ -93,12 +93,14 @@ load_config(app)
 setup_logging(app)
 
 
-# Setup Firebase Analytics
+# Setup analytics (Firebase + Umami)
 @app.context_processor
 def inject_analytics_config():
     return {
         'enable_analytics': app.config['ENABLE_FIREBASE_ANALYTICS'],
-        'firebase_config': app.config['FIREBASE_CONFIG']
+        'firebase_config': app.config['FIREBASE_CONFIG'],
+        'enable_umami': app.config['ENABLE_UMAMI_ANALYTICS'],
+        'umami_config': app.config['UMAMI_CONFIG']
     }
 
 

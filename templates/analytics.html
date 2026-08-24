@@ -26,3 +26,6 @@
     });
 </script>
 {% endif %}
+{% if enable_umami %}
+<script defer src="{{ umami_config.script_url }}" data-website-id="{{ umami_config.website_id }}"></script>
+{% endif %}

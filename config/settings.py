@@ -52,3 +52,17 @@ def load_config(app):
         'storageBucket': os.getenv('FIREBASE_STORAGE_BUCKET'),
         'messagingSenderId': os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
     }
+
+    # Umami Analytics: включаем только при взведённом флаге и полной конфигурации,
+    # иначе получили бы битый <script src="None">
+    umami_script_url = os.getenv('UMAMI_SCRIPT_URL')
+    umami_website_id = os.getenv('UMAMI_WEBSITE_ID')
+    app.config['ENABLE_UMAMI_ANALYTICS'] = (
+        os.getenv('ENABLE_UMAMI_ANALYTICS', 'false') == 'true'
+        and bool(umami_script_url)
+        and bool(umami_website_id)
+    )
+    app.config['UMAMI_CONFIG'] = {
+        'script_url': umami_script_url,
+        'website_id': umami_website_id,
+    }

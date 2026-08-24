@@ -58,6 +58,10 @@ services:
       FIREBASE_AUTH_DOMAIN: "${FIREBASE_AUTH_DOMAIN:-}"
       FIREBASE_STORAGE_BUCKET: "${FIREBASE_STORAGE_BUCKET:-}"
       FIREBASE_MESSAGING_SENDER_ID: "${FIREBASE_MESSAGING_SENDER_ID:-}"
+      # Umami Analytics — аналогично, значения только в серверном .env
+      ENABLE_UMAMI_ANALYTICS: "${ENABLE_UMAMI_ANALYTICS:-false}"
+      UMAMI_SCRIPT_URL: "${UMAMI_SCRIPT_URL:-}"
+      UMAMI_WEBSITE_ID: "${UMAMI_WEBSITE_ID:-}"
     healthcheck:
       # curl остался в образе после установки msodbcsql17
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:5000/"]
