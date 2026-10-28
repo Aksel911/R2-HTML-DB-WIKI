@@ -62,6 +62,8 @@ services:
       ENABLE_UMAMI_ANALYTICS: "${ENABLE_UMAMI_ANALYTICS:-false}"
       UMAMI_SCRIPT_URL: "${UMAMI_SCRIPT_URL:-}"
       UMAMI_WEBSITE_ID: "${UMAMI_WEBSITE_ID:-}"
+      # Яндекс.Метрика — номер счётчика только в серверном .env
+      YANDEX_METRIKA_ID: "${YANDEX_METRIKA_ID:-}"
     healthcheck:
       # curl остался в образе после установки msodbcsql17
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:5000/"]

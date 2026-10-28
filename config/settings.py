@@ -67,6 +67,15 @@ def load_config(app):
         'website_id': umami_website_id,
     }
 
+    # Яндекс.Метрика: номер счётчика живёт только в серверном .env;
+    # пустое значение — код счётчика не выводится
+    yandex_metrika_id = os.getenv('YANDEX_METRIKA_ID', '').strip()
+    if yandex_metrika_id and not yandex_metrika_id.isdigit():
+        # Номер подставляется прямо в JS: всё, кроме цифр, сломало бы скрипт
+        print(f"Warning: YANDEX_METRIKA_ID must be numeric, got {yandex_metrika_id!r} — counter disabled")
+        yandex_metrika_id = ''
+    app.config['YANDEX_METRIKA_ID'] = yandex_metrika_id
+
     # Публичный адрес сайта — для canonical, sitemap и og:url
     app.config['SITE_URL'] = os.getenv('SITE_URL', 'https://wiki.r2genius.com').rstrip('/')
 

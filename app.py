@@ -102,6 +102,7 @@ def inject_analytics_config():
         'firebase_config': app.config['FIREBASE_CONFIG'],
         'enable_umami': app.config['ENABLE_UMAMI_ANALYTICS'],
         'umami_config': app.config['UMAMI_CONFIG'],
+        'yandex_metrika_id': app.config['YANDEX_METRIKA_ID'],
         'site_url': app.config['SITE_URL'],
         'seo_verification': {
             'google': app.config['GOOGLE_SITE_VERIFICATION'],
