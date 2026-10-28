@@ -8,7 +8,6 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from time import perf_counter
 from config.color_logging import *
-from services.site_stats import get_site_stats
 
 
 def check_version():
@@ -152,15 +151,6 @@ register_routes(app)
 def remove_extension(value):
     return splitext(value)[0]
 
-
-@app.template_filter('num')
-def format_number(value):
-    """12345 -> '12 345' (неразрывный пробел между разрядами)"""
-    try:
-        return f'{int(value):,}'.replace(',', '\u00a0')
-    except (TypeError, ValueError):
-        return value
-
 FAVICON_DIR = join(app.root_path, 'static', 'favicon')
 FAVICON_FALLBACK_URL = (
     'https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/'
@@ -208,8 +198,7 @@ def method_not_allowed(error):
 
 @app.route('/')
 def home():
-    # Счётчики разделов берутся из кэша и считаются в фоне: главная не ждёт БД
-    return render_template('main_page.html', site_stats=get_site_stats())
+    return render_template('main_page.html')
 
 
 if __name__ == '__main__':
