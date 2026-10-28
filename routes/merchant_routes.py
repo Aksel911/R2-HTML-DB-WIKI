@@ -93,7 +93,9 @@ def merchant_detail(merchant_list_id: int):
     if not merchants:
         return "Merchant not found", 404
     
-    merchant_name = merchants[0].MName or f'Магазин {merchant_list_id}'
+    first = merchants[0]
+    merchant_name = (first.get('MName') if isinstance(first, dict) else getattr(first, 'MName', None)) \
+        or f'Магазин {merchant_list_id}'
     return render_template(
         'merchant_core/merchant_page_detail.html',
         merchants=merchants,

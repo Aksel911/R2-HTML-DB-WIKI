@@ -260,10 +260,11 @@ def monster_detail(monster_id: int):
             return "Monster not found", 404
 
         # Базовая проверка наличия данных
+        # У части монстров эти поля NULL в базе — сравнивать через (x or 0)
         has_data = {
-            'has_protect': monster.MRaceType > 0,  # Если есть раса, могут быть защиты
-            'has_merchant': monster.mSellMerchanID > 0 or monster.mBuyMerchanID > 0,  # Есть ID торговли
-            'has_ai': monster.MAiType > 0,  # Есть тип AI
+            'has_protect': (monster.MRaceType or 0) > 0,  # Если есть раса, могут быть защиты
+            'has_merchant': (monster.mSellMerchanID or 0) > 0 or (monster.mBuyMerchanID or 0) > 0,  # Есть ID торговли
+            'has_ai': (monster.MAiType or 0) > 0,  # Есть тип AI
             'has_abnormal': False,  # По умолчанию false, проверим позже
             'has_attributes': False  # По умолчанию false, проверим позже
         }
@@ -322,11 +323,11 @@ def monster_detail(monster_id: int):
             'MSameRace3': monster.MSameRace3,
             'MSameRace4': monster.MSameRace4,
             'mBodySize': monster.mBodySize,
-            'mDetectTransF': int(monster.mDetectTransF),
-            'mDetectTransP': int(monster.mDetectTransP),
-            'mDetectChao': int(monster.mDetectChao),
+            'mDetectTransF': int(monster.mDetectTransF or 0),
+            'mDetectTransP': int(monster.mDetectTransP or 0),
+            'mDetectChao': int(monster.mDetectChao or 0),
             'mAiEx': monster.mAiEx,
-            'mIsResistTransF': int(monster.mIsResistTransF),
+            'mIsResistTransF': int(monster.mIsResistTransF or 0),
             'mHPNew': monster.mHPNew,
             'mMPNew': monster.mMPNew,
             'mBuyMerchanID': monster.mBuyMerchanID,
@@ -335,10 +336,10 @@ def monster_detail(monster_id: int):
             'mTransformWeight': monster.mTransformWeight,
             'mNationOp': monster.mNationOp,
             'IContentsLv': monster.IContentsLv,
-            'mIsEventTest': int(monster.mIsEventTest),
+            'mIsEventTest': int(monster.mIsEventTest or 0),
             'mSupportType': monster.mSupportType,
             'mWMapIconType': monster.mWMapIconType,
-            'mIsAmpliableTermOfValidity': int(monster.mIsAmpliableTermOfValidity),
+            'mIsAmpliableTermOfValidity': int(monster.mIsAmpliableTermOfValidity or 0),
             'mTransType': monster.mTransType,
             'mDPV': monster.mDPV,
             'mMPV': monster.mMPV,
@@ -348,7 +349,7 @@ def monster_detail(monster_id: int):
             'mRDV': monster.mRDV,
             'mSubDDWhenCritical': monster.mSubDDWhenCritical,
             'mEnemySubCriticalHit': monster.mEnemySubCriticalHit,
-            'mEventQuest': int(monster.mEventQuest),
+            'mEventQuest': int(monster.mEventQuest or 0),
             'mEScale': monster.mEScale
         }
         
@@ -444,7 +445,7 @@ def monster_detail(monster_id: int):
             respawn_info_normal=respawn_info_normal,
             respawn_info_event=respawn_info_event,
             mgbj_desc=mgbj_desc,
-            related_links=monster_related_links(monster_id, monster.mSellMerchanID > 0),
+            related_links=monster_related_links(monster_id, (monster.mSellMerchanID or 0) > 0),
             prefix='m',
             has_data=has_data  # Передаем информацию о наличии данных
         )

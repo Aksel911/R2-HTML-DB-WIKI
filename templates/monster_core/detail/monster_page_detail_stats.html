@@ -9,7 +9,7 @@
 				<span style="width: 80px; text-align: left;">Опыт:</span>
 				<div class="progress fadeIn" style="flex-grow: 1;">
 					<div class="progress-bar exp-bar" role="progressbar"
-						 style="width: {{ item.mExp / 10 }}%;"
+						 style="width: {{ (item.mExp or 0) / 10 }}%;"
 						 aria-valuenow="{{ item.mExp }}"
 						 aria-valuemin="0"
 						 aria-valuemax="{{ item.mExp }}">
@@ -22,7 +22,7 @@
 				<span style="width: 80px; text-align: left;">HP:</span>
 				<div class="progress fadeIn" style="flex-grow: 1;">
 					<div class="progress-bar health-bar" role="progressbar"
-						 style="width: {{ item.MHP / 10 }}%;"
+						 style="width: {{ (item.MHP or 0) / 10 }}%;"
 						 aria-valuenow="{{ item.MHP }}"
 						 aria-valuemin="0"
 						 aria-valuemax="{{ item.MHP }}">
@@ -35,7 +35,7 @@
 				<span style="width: 80px; text-align: left;">MP:</span>
 				<div class="progress fadeIn" style="flex-grow: 1;">
 					<div class="progress-bar mana-bar" role="progressbar"
-						 style="width: {{ item.MMP / 10 }}%;"
+						 style="width: {{ (item.MMP or 0) / 10 }}%;"
 						 aria-valuenow="{{ item.MMP }}"
 						 aria-valuemin="0"
 						 aria-valuemax="{{ item.MMP }}">
