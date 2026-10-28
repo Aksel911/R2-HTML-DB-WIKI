@@ -1,0 +1,14 @@
+{# Серверный указатель ссылок на детальные страницы раздела.
+   Таблицу/сетку выше заполняет JS через XHR (а /ajax и JSON закрыты в robots.txt),
+   поэтому без этого блока поисковик не видит с раздела ни одной ссылки
+   на /item/<id>, /monster/<id> и т.д. Заодно работает без JavaScript.
+   Переменные: link_index — список (url, name); link_index_title — заголовок. #}
+{% if link_index %}
+<section class="link-index" aria-label="{{ link_index_title | default('Все записи раздела') }}">
+    <h2 class="link-index-title">{{ link_index_title | default('Все записи раздела') }} <span class="link-index-count">({{ link_index | length }})</span></h2>
+    <ul class="link-index-list">
+        {% for url, name in link_index %}<li><a href="{{ url }}">{{ name }}</a></li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}

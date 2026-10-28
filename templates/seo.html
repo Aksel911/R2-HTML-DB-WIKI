@@ -1,14 +1,23 @@
 {# SEO-блок: подключать внутри <head> после analytics.html.
-   Настройка со страницы — через {% set %} ДО include:
+   Настройка со страницы — через {% set %} ДО include (или переменными из render_template):
      seo_title       — заголовок для соцсетей/OG (по умолчанию берётся title страницы)
      seo_description — описание страницы
+     seo_keywords    — meta keywords (Google игнорирует, Яндекс учитывает слабо; имеет смысл только на главной)
+     seo_breadcrumb  — хлебные крошки для JSON-LD: [{'name': 'Монстры', 'path': '/monster_all'}, {'name': 'Имя'}];
+                       первый элемент «R2 Wiki → /» добавляется сам
      seo_noindex     — true, чтобы закрыть страницу от индексации #}
-{%- set _seo_title = seo_title | default(title) | default('R2 Online Knowledge Base') -%}
+{%- set _seo_title = seo_title | default(title) | default('R2 Wiki — база знаний R2 Online') -%}
 {%- if not seo_description and header is defined and header -%}
-    {%- set seo_description = header ~ ' — база знаний R2 Online: характеристики, дроп, крафт и связи между предметами, монстрами и навыками.' -%}
+    {%- set seo_description = header ~ ' в R2 Wiki — базе знаний R2 Online: характеристики, дроп, крафт и связи между предметами, монстрами и навыками.' -%}
 {%- endif -%}
-{%- set _seo_description = seo_description | default('База знаний R2 Online (Reign of Revolution): предметы, монстры, навыки, эффекты, торговцы, крафт, квесты и слуги. Полная игровая база данных с 3D-моделями.') -%}
+{%- set _seo_description = seo_description | default('R2 Wiki (Р2 вики) — база знаний R2 Online (Reign of Revolution): предметы, монстры, навыки, эффекты, торговцы, крафт, квесты и питомцы. Данные из игровой базы, 3D-модели, поиск по названию и ID.') -%}
 <meta name="description" content="{{ _seo_description }}">
+{% if seo_keywords %}<meta name="keywords" content="{{ seo_keywords }}">
+{% endif -%}
+{% if seo_verification is defined and seo_verification.google %}<meta name="google-site-verification" content="{{ seo_verification.google }}">
+{% endif -%}
+{% if seo_verification is defined and seo_verification.yandex %}<meta name="yandex-verification" content="{{ seo_verification.yandex }}">
+{% endif -%}
 {% if seo_noindex %}<meta name="robots" content="noindex, nofollow">
 {% else %}<link rel="canonical" href="{{ site_url }}{{ request.path }}">
 {% endif -%}
@@ -19,4 +28,11 @@
 <meta property="og:description" content="{{ _seo_description }}">
 <meta property="og:url" content="{{ site_url }}{{ request.path }}">
 <meta property="og:image" content="{{ site_url }}/static/favicon/web-app-manifest-512x512.png">
+<meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ _seo_title }}">
+<meta name="twitter:description" content="{{ _seo_description }}">
+{% if seo_breadcrumb -%}
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"R2 Wiki","item":{{ (site_url ~ '/')|tojson }}}{% for crumb in seo_breadcrumb %},{"@type":"ListItem","position":{{ loop.index + 1 }},"name":{{ crumb.name|tojson }}{% if crumb.path %},"item":{{ (site_url ~ crumb.path)|tojson }}{% endif %}}{% endfor %}]}</script>
+{% endif -%}

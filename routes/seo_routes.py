@@ -139,6 +139,9 @@ Disallow: /api/
 Disallow: /ajax/
 Disallow: /render_template/
 
+# Яндекс: параметры поиска и пагинации списков не образуют отдельных страниц
+Clean-param: search&page&per_page&all
+
 # SEO-скрейперы и агрессивные краулеры: контента для вас здесь нет
 User-agent: AhrefsBot
 User-agent: SemrushBot
@@ -168,6 +171,7 @@ LLMS_TXT = """\
 > База знаний по MMORPG R2 Online (Reign of Revolution): предметы, монстры,
 > навыки, эффекты, торговцы, крафт, квесты и слуги (питомцы). Данные извлечены
 > из игровой базы данных и связаны перекрёстными ссылками. Язык сайта — русский.
+> Другие названия проекта: R2 Вики, Р2 вики, база знаний R2, R2 Online Wiki.
 
 Сайт: {site_url}
 Полный список страниц: {site_url}/sitemap.xml

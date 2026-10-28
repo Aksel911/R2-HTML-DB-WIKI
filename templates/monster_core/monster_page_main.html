@@ -46,6 +46,9 @@
     </div>
     <div class="pagination-container pagination-bottom"></div>
 
+    {# Серверный указатель ссылок на детальные страницы — для поисковиков и без JS #}
+    {% include 'seo_link_index.html' %}
+
     <!-- Required JS -->
     {% block scripts %}
         <!-- jQuery -->

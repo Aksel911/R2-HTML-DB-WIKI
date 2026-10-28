@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <meta charset="UTF-8">
     {% include "favicon.html" %}
 
     <!-- Analytics -->
     {% include "analytics.html" %}
-    <meta charset="UTF-8">
     <title>{{ item.MName }} — монстр R2 Online | R2 Wiki</title>
     {% set seo_title = item.MName ~ ' — монстр R2 Online' %}
     {% set seo_description = 'Монстр ' ~ item.MName ~ ' (ID ' ~ item.MID ~ ', уровень ' ~ item.mLevel ~ ') в базе знаний R2 Online: характеристики, дроп, места появления.' %}
+    {% set seo_breadcrumb = [{'name': 'Монстры', 'path': '/monster_all'}, {'name': item.MName}] %}
     {% include "seo.html" %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

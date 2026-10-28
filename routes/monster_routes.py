@@ -62,37 +62,37 @@ def get_monster_gif_url(monster_id: int) -> str | None:
 MONSTER_ROUTES = {
     'monster_all': {
         'classes': list(range(1, 39)),  # Все классы монстров
-        'title': '[Монстры] Все монстры',
+        'title': 'Все монстры R2 Online — полный бестиарий',
         'header': 'Все монстры'
     },
     'monster_regular': {
         'classes': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
-        'title': '[Монстры] Обычные монстры',
+        'title': 'Обычные монстры R2 Online — уровни, локации и дроп',
         'header': 'Обычные монстры'
     },
     'monster_boss': {
         'classes': [29, 38, 37, 36, 34],
-        'title': '[Монстры] Боссы',
+        'title': 'Боссы R2 Online — список боссов, респаун и дроп',
         'header': 'Боссы'
     },
     'monster_raidboss': {
     'classes': [26],
-    'title': '[Монстры] Рейд-Боссы',
+    'title': 'Рейд-боссы R2 Online — список, респаун и дроп',
     'header': 'Рейд-Боссы'
     },
     'monster_imennoy': {
     'classes': [28],
-    'title': '[Монстры] Именные-Боссы',
+    'title': 'Именные боссы R2 Online — список и дроп',
     'header': 'Именные-Боссы'
     },
     'monster_npc': {
         'classes': [23],
-        'title': '[Монстры] NPC',
+        'title': 'NPC R2 Online — список неигровых персонажей',
         'header': 'NPC'
     },
     'monster_event': {
         'classes': [27],
-        'title': '[Монстры] Монстры события',
+        'title': 'Ивентовые монстры R2 Online — список и дроп',
         'header': 'Монстры события'
     }
 }
@@ -200,13 +200,24 @@ def monster_page(type):
                 logger.error("Ошибка обработки запроса списка монстров: %s", e, exc_info=True)
                 return jsonify({'error': str(e)}), 500
         
+        # Таблицу заполняет JS — ссылки на детальные страницы отдаём ещё и серверным
+        # указателем (поисковикам и без JS). «Все монстры» дублирует подразделы.
+        link_index = None
+        if route_key != 'monster_all':
+            link_index = [
+                (f'/monster/{m.MID}', m.MName.replace('/n', ' '))
+                for m in items if m.MName
+            ]
+
         # For normal page load
         return render_template(
             'monster_core/monster_page_route.html',
             items=items,
             item_resources=item_resources,
             title=config["title"],
-            header=config['header']
+            header=config['header'],
+            link_index=link_index,
+            link_index_title=f'{config["header"]}: все монстры раздела'
         )
     
     return handle_monster_page()

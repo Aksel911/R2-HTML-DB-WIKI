@@ -66,12 +66,25 @@ def with_merchant_filters(view_func):
 @with_merchant_filters
 def merchants_list(items=None, item_resources=None):
     """List all merchants and their items"""
+    # Сетку магазинов рисует JS — для поисковиков отдаём серверный указатель,
+    # по одной ссылке на магазин (в items по строке на каждый товар)
+    shops = {}
+    for m in items or []:
+        shops.setdefault(m.ListID, m.MName or f'Магазин {m.ListID}')
+    link_index = [
+        (f'/merchant/{list_id}', f'{name} (магазин {list_id})')
+        for list_id, name in shops.items()
+    ]
+
     return render_template(
         'merchant_core/merchant_page_route.html',
         items=items,
         item_resources=item_resources,
-        title='[Торговцы] Список торговцев',
-        header='Список торговцев'
+        title='Торговцы R2 Online — магазины NPC, ассортимент и цены',
+        header='Список торговцев',
+        seo_description='Все торговцы R2 Online в одном списке: какой NPC что продаёт, по какой цене и за какую валюту. База знаний R2 Wiki.',
+        link_index=link_index,
+        link_index_title='Все магазины'
     )
 
 @bp.route('/merchant/<int:merchant_list_id>')
@@ -80,9 +93,12 @@ def merchant_detail(merchant_list_id: int):
     if not merchants:
         return "Merchant not found", 404
     
+    merchant_name = merchants[0].MName or f'Магазин {merchant_list_id}'
     return render_template(
         'merchant_core/merchant_page_detail.html',
         merchants=merchants,
-        title=f'[Торговцы] Магазин {merchant_list_id}',
-        header=f'[Торговцы] Магазин {merchant_list_id}'
+        title=f'{merchant_name} — торговец R2 Online, магазин {merchant_list_id} | R2 Wiki',
+        header=f'[Торговцы] Магазин {merchant_list_id}',
+        seo_title=f'{merchant_name} — торговец R2 Online',
+        seo_description=f'Торговец {merchant_name} в R2 Online: ассортимент магазина {merchant_list_id}, цены и валюта покупки. База знаний R2 Wiki.'
     )

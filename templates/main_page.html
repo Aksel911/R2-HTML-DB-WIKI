@@ -2,8 +2,10 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>R2 Wiki — база знаний R2 Online: предметы, монстры, навыки</title>
-    {% set seo_title = 'R2 Wiki — база знаний R2 Online' %}
+    <title>R2 Wiki (Р2 Вики) — база знаний по игре R2 Online</title>
+    {% set seo_title = 'R2 Wiki (Р2 Вики) — база знаний R2 Online' %}
+    {% set seo_description = 'R2 Wiki (Р2 вики) — бесплатная база знаний по R2 Online: все предметы, монстры и боссы, навыки, эффекты, торговцы, крафт, квесты и питомцы. Данные из игровой базы, 3D-модели, поиск по названию и ID.' %}
+    {% set seo_keywords = 'r2 wiki, r2 вики, р2 вики, r2 база знаний, р2 база знаний, r2 online, р2 онлайн, reign of revolution, база данных r2 online' %}
     
     <!-- Viewport and Mobile Optimizations -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -28,9 +30,17 @@
     <!-- SEO -->
     {% include "seo.html" %}
     <script type="application/ld+json">
-    {"@context": "https://schema.org", "@type": "WebSite", "name": "R2 Wiki",
-     "url": "{{ site_url }}", "inLanguage": "ru",
-     "description": "База знаний R2 Online: предметы, монстры, навыки, эффекты, торговцы, крафт, квесты и слуги."}
+    {"@context": "https://schema.org",
+     "@type": "WebSite",
+     "@id": "{{ site_url }}/#website",
+     "name": "R2 Wiki",
+     "alternateName": ["R2 Вики", "Р2 Вики", "R2 база знаний", "База знаний R2 Online", "R2 Online Wiki"],
+     "url": "{{ site_url }}/",
+     "inLanguage": "ru",
+     "description": "База знаний по игре R2 Online: предметы, монстры, навыки, эффекты, торговцы, крафт, квесты и питомцы.",
+     "about": {"@type": "VideoGame", "name": "R2 Online", "alternateName": "Reign of Revolution"},
+     "publisher": {"@type": "Organization", "name": "R2Genius", "url": "https://r2genius.com",
+                   "sameAs": ["https://vk.com/r2genius", "https://github.com/Aksel911/R2-HTML-DB-WIKI"]}}
     </script>
 
     <style>
@@ -51,7 +61,7 @@
       }
       
       .dark-theme h1 {
-          color: transparent !important;
+          color: #f5f5f5 !important;
       }
       
       /* Paragraph Styles */
@@ -103,11 +113,135 @@
       /* Container Styles */
       .container {
           width: 100%;
-          height: 100%;
+          min-height: 100%;
           display: flex;
           flex-direction: column;
-          justify-content: center;
+          justify-content: flex-start;
           align-items: center;
+          padding: 36px 16px 90px;
+          box-sizing: border-box;
+      }
+
+      /* Описание сайта и разделы */
+      .site-intro {
+          width: 100%;
+          max-width: 920px;
+          margin-top: 28px;
+          padding: 26px 30px 28px;
+          box-sizing: border-box;
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.93);
+          color: #222;
+          box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+          text-align: center;
+      }
+
+      .dark-theme .site-intro {
+          background: rgba(28, 28, 28, 0.9);
+          color: #ececec;
+      }
+
+      .site-intro h1 {
+          margin: 0 0 12px;
+          font-size: 1.9rem;
+          font-weight: 400;
+          text-transform: none;
+          color: #1f1f1f;
+      }
+
+      .site-intro h2 {
+          margin: 26px 0 10px;
+          font-size: 1.15rem;
+          font-weight: 600;
+          color: inherit;
+      }
+
+      .site-intro p {
+          font-size: 15px;
+          line-height: 1.6;
+          color: inherit;
+          margin: 0 0 10px;
+      }
+
+      .site-intro a {
+          color: #0b5ed7;
+      }
+
+      .dark-theme .site-intro a {
+          color: #7cc4ff;
+      }
+
+      .section-grid {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 10px;
+          text-align: left;
+      }
+
+      .section-grid a {
+          display: block;
+          height: 100%;
+          padding: 10px 12px;
+          border-radius: 9px;
+          background: rgba(0, 0, 0, 0.045);
+          color: inherit !important;
+          text-decoration: none !important;
+          transition: background 0.2s ease, transform 0.2s ease;
+          box-sizing: border-box;
+      }
+
+      .section-grid a:hover {
+          background: rgba(0, 174, 255, 0.16);
+          transform: translateY(-2px);
+      }
+
+      .dark-theme .section-grid a {
+          background: rgba(255, 255, 255, 0.07);
+      }
+
+      .section-grid strong {
+          display: block;
+          font-size: 15px;
+          margin-bottom: 2px;
+      }
+
+      .section-grid .section-count {
+          float: right;
+          font-size: 12px;
+          font-weight: 400;
+          opacity: 0.7;
+          margin-left: 8px;
+      }
+
+      .section-grid span.section-desc {
+          display: block;
+          font-size: 12.5px;
+          line-height: 1.4;
+          opacity: 0.8;
+      }
+
+      .site-intro .social-links span a {
+          color: #555;
+      }
+
+      .dark-theme .site-intro .social-links span a {
+          color: #bbb;
+      }
+
+      .site-intro .social-links span a:hover {
+          color: #00aeff;
+      }
+
+      @media (max-width: 600px) {
+          .site-intro {
+              padding: 20px 16px 22px;
+          }
+          .site-intro h1 {
+              font-size: 1.45rem;
+          }
       }
       
       /* Avatar Styles */
@@ -196,11 +330,8 @@
       
       /* Responsive Adjustments */
       @media (max-width: 768px) {
-          h2 {
-              margin-top: 130px;
-          }
           .avatar {
-              margin-bottom: -60px;
+              margin-top: 60px;
           }
       }
   </style>
@@ -214,7 +345,7 @@
         <i class="fas fa-adjust"></i>
     </button>
 
-    <div class="container">
+    <main class="container">
         <!-- Avatar Section -->
         <div class="avatar">
             <a href="https://vk.com/akselrus/">
@@ -222,26 +353,72 @@
             </a>
         </div>
 
-        <!-- Content Section -->
-        <div class="content">
-            <center><h1 class="author-credit">Добро пожаловать в базу знаний R2 Online</h1></center>
-            <p class="author-social">Social:</p>
+        {# Разделы главной. Счётчики (site_stats) считаются в фоне — при пустом кэше просто не показываются #}
+        {% set sections = [
+            ('/item_all',   'Предметы',        'Оружие, броня, бижутерия, зелья, материалы и сферы: характеристики, крафт и где выпадает', site_stats.get('items')),
+            ('/monster_all','Монстры',         'Обычные монстры, именные и рейд-боссы, NPC: уровни, статы, дроп и респаун',                   site_stats.get('monsters')),
+            ('/skills',     'Навыки',          'Умения всех классов: параметры, требования и накладываемые эффекты',                            site_stats.get('skills')),
+            ('/abnormals',  'Эффекты',         'Баффы и дебаффы (абнормалы): кто накладывает и что дают',                                         site_stats.get('abnormals')),
+            ('/merchants',  'Торговцы',        'Магазины NPC: ассортимент, цены и валюта покупки',                                                site_stats.get('merchants')),
+            ('/craft_list', 'Крафт',           'Рецепты крафта и необходимые материалы',                                                          none),
+            ('/quests',     'Квесты',          'Список квестов R2 Online',                                                                        none),
+            ('/servants',   'Питомцы',         'Слуги: навыки по уровням и ветки эволюции',                                                       site_stats.get('servants')),
+            ('/chests',     'Золотой сундук',  'Наполнение золотых сундуков',                                                                     none),
+            ('/skill_tree', 'Древо навыков',   'Схема прокачки умений по классам',                                                                none),
+            ('/doll',       'Кукла персонажа', 'Кукла персонажа и экипировка',                                                                    none),
+        ] %}
+
+        <div class="site-intro">
+            <h1>R2 Wiki — база знаний R2 Online</h1>
+            <p>
+                R2 Wiki (Р2 вики) — бесплатная база знаний по MMORPG R2 Online (Reign of Revolution).
+                Все предметы, монстры и боссы, навыки, эффекты, торговцы, рецепты крафта, квесты и питомцы
+                собраны в одном месте и связаны перекрёстными ссылками.
+            </p>
+
+            <h2>Разделы базы знаний</h2>
+            <nav aria-label="Разделы базы знаний">
+                <ul class="section-grid">
+                    {% for url, name, desc, count in sections %}
+                    <li>
+                        <a href="{{ url }}">
+                            <strong>{{ name }}{% if count %}<span class="section-count">{{ count | num }}</span>{% endif %}</strong>
+                            <span class="section-desc">{{ desc }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+
+            <h2>Что такое R2 Wiki</h2>
+            <p>
+                Это вики по R2 Online, собранная не вручную, а напрямую из игровой базы данных: характеристики,
+                дроп и цены совпадают с тем, что есть в игре. У монстров и предметов есть 3D-модели, у каждой
+                записи — свой ID и прямая ссылка, а в каждом разделе работает поиск по названию.
+            </p>
+            <p>
+                Проект развивает сообщество <a href="https://vk.com/r2genius/" target="_blank" rel="noopener">R2Genius</a>,
+                исходный код открыт на <a href="https://github.com/Aksel911/R2-HTML-DB-WIKI" target="_blank" rel="noopener noreferrer">GitHub</a>.
+                Нашли ошибку в данных или хотите помочь — пишите в группу.
+            </p>
+
+            <p class="author-social" style="margin-top: 18px;">Social:</p>
             <div class="social-links">
-                <span><a href="https://github.com/Aksel911/" target="_blank"><i class="fa-brands fa-github"></i></a></span>
-                <span><a href="https://vk.com/r2genius/" target="_blank"><i class="fa-solid fa-compass"></i></a></span>
+                <span><a href="https://github.com/Aksel911/" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fa-brands fa-github"></i></a></span>
+                <span><a href="https://vk.com/r2genius/" target="_blank" rel="noopener" aria-label="R2Genius во ВКонтакте"><i class="fa-solid fa-compass"></i></a></span>
             </div>
-            <div class="acknowledgments" style="margin-top: 20px;">
+            <div class="acknowledgments" style="margin-top: 16px;">
                 <p class="author-social">Особая благодарность:</p>
                 <p class="author-social">
-                    <a href="https://vk.com/trolll67" class="author-credit" target="_blank">Trolll</a> и 
-                    <a href="https://vk.com/id46414942" class="author-credit" target="_blank">Никите Медведеву</a>
+                    <a href="https://vk.com/trolll67" class="author-credit" target="_blank" rel="noopener">Trolll</a> и
+                    <a href="https://vk.com/id46414942" class="author-credit" target="_blank" rel="noopener">Никите Медведеву</a>
                 </p>
             </div>
         </div>
-    </div>
+    </main>
 
     <div class="author-box">
-        <h2 class="author-credit">ᶜʳᵉᵃᵗᵉᵈ ᵇʸ <a href="https://vk.com/akselrus" target="_blank">ⱽᴾ</a></h2>
+        <h2 class="author-credit">ᶜʳᵉᵃᵗᵉᵈ ᵇʸ <a href="https://vk.com/akselrus" target="_blank" rel="noopener">ⱽᴾ</a></h2>
     </div>
 
     <!-- Required JS -->

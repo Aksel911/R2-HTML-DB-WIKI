@@ -651,6 +651,9 @@
         {% endfor %}
     </div>
 
+    {# Карточки выше открываются по onclick, без <a href> — указатель даёт поисковикам обычные ссылки #}
+    {% include 'seo_link_index.html' %}
+
     <script>
         function toggleSkillGroup(header) {
             const container = header.closest('.skill-group-container');

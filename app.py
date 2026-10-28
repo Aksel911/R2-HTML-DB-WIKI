@@ -8,6 +8,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from time import perf_counter
 from config.color_logging import *
+from services.site_stats import get_site_stats
 
 
 def check_version():
@@ -101,7 +102,11 @@ def inject_analytics_config():
         'firebase_config': app.config['FIREBASE_CONFIG'],
         'enable_umami': app.config['ENABLE_UMAMI_ANALYTICS'],
         'umami_config': app.config['UMAMI_CONFIG'],
-        'site_url': app.config['SITE_URL']
+        'site_url': app.config['SITE_URL'],
+        'seo_verification': {
+            'google': app.config['GOOGLE_SITE_VERIFICATION'],
+            'yandex': app.config['YANDEX_VERIFICATION'],
+        },
     }
 
 
@@ -145,6 +150,15 @@ register_routes(app)
 @app.template_filter('remove_extension')
 def remove_extension(value):
     return splitext(value)[0]
+
+
+@app.template_filter('num')
+def format_number(value):
+    """12345 -> '12 345' (неразрывный пробел между разрядами)"""
+    try:
+        return f'{int(value):,}'.replace(',', '\u00a0')
+    except (TypeError, ValueError):
+        return value
 
 FAVICON_DIR = join(app.root_path, 'static', 'favicon')
 FAVICON_FALLBACK_URL = (
@@ -193,7 +207,8 @@ def method_not_allowed(error):
 
 @app.route('/')
 def home():
-    return render_template('main_page.html')
+    # Счётчики разделов берутся из кэша и считаются в фоне: главная не ждёт БД
+    return render_template('main_page.html', site_stats=get_site_stats())
 
 
 if __name__ == '__main__':

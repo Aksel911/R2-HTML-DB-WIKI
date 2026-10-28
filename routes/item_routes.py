@@ -45,102 +45,102 @@ logger = logging.getLogger(__name__)
 ITEM_ROUTES = {
         'item_all': {
         'types': list(range(43)),
-        'title': '[Предметы] Все предметы',
+        'title': 'Все предметы R2 Online — полная база предметов',
         'header': 'Все предметы'
     },
     'weapon': {
         'types': [1, 18, 20],
-        'title': '[Предметы] Оружие',
+        'title': 'Оружие R2 Online — список и характеристики',
         'header': 'Оружие'
     },
     'armor': {
         'types': [3],
-        'title': '[Предметы] Броня',
+        'title': 'Броня R2 Online — список и характеристики',
         'header': 'Броня'
     },
     'gloves': {
         'types': [7],
-        'title': '[Предметы] Перчатки',
+        'title': 'Перчатки R2 Online — список и характеристики',
         'header': 'Перчатки'
     },
     'boots': {
         'types': [6],
-        'title': '[Предметы] Ботинки',
+        'title': 'Ботинки R2 Online — список и характеристики',
         'header': 'Ботинки'
     },
     'helmet': {
         'types': [8],
-        'title': '[Предметы] Шлема',
+        'title': 'Шлема R2 Online — список и характеристики',
         'header': 'Шлема'
     },
     'shield': {
         'types': [2],
-        'title': '[Предметы] Щиты',
+        'title': 'Щиты R2 Online — список и характеристики',
         'header': 'Щиты'
     },
     'arrows': {
         'types': [19],
-        'title': '[Предметы] Стрелы',
+        'title': 'Стрелы R2 Online — список и характеристики',
         'header': 'Стрелы'
     },
     'cloak': {
         'types': [17],
-        'title': '[Предметы] Плащи',
+        'title': 'Плащи R2 Online — список и характеристики',
         'header': 'Плащи'
     },
     'materials': {
         'types': [10, 16],
-        'title': '[Предметы] Материалы',
+        'title': 'Материалы R2 Online — список и характеристики',
         'header': 'Материалы'
     },
     'ring': {
         'types': [4],
-        'title': '[Предметы] Кольца',
+        'title': 'Кольца R2 Online — список и характеристики',
         'header': 'Кольца'
     },
     'belt': {
         'types': [9],
-        'title': '[Предметы] Ремни',
+        'title': 'Ремни R2 Online — список и характеристики',
         'header': 'Ремни'
     },
     'necklace': {
         'types': [5],
-        'title': '[Предметы] Ожерелья',
+        'title': 'Ожерелья R2 Online — список и характеристики',
         'header': 'Ожерелья'
     },
     'earrings': {
         'types': [42],
-        'title': '[Предметы] Серьги',
+        'title': 'Серьги R2 Online — список и характеристики',
         'header': 'Серьги'
     },
     'books': {
         'types': [12],
-        'title': '[Предметы] Книги',
+        'title': 'Книги R2 Online — список и характеристики',
         'header': 'Книги'
     },
     'potions': {
         'types': [10],
-        'title': '[Предметы] Зелья',
+        'title': 'Зелья R2 Online — список и характеристики',
         'header': 'Зелья'
     },
     'etc': {
         'types': [14, 16, 13, 11],
-        'title': '[Предметы] Разное',
+        'title': 'Разное R2 Online — список и характеристики',
         'header': 'Разное'
     },
     'event': {
         'types': [15],
-        'title': '[Предметы] Ивентовые предметы',
+        'title': 'Ивентовые предметы R2 Online — список и характеристики',
         'header': 'Ивентовые предметы'
     },
     'sphere': {
         'types': [22, 23, 24, 25, 26, 27, 28, 29],
-        'title': '[Предметы] Сферы',
+        'title': 'Сферы R2 Online — список и характеристики',
         'header': 'Сферы'
     },
     'quest': {
     'types': [15, 16],
-    'title': '[Предметы] Квестовые предметы',
+    'title': 'Квестовые предметы R2 Online — список и характеристики',
     'header': 'Квестовые предметы'
     }
 }
@@ -236,12 +236,21 @@ def item_page(item_type):
             search_term = request.args.get('search', '')
             items_wep, item_resources = get_items_by_type(config['types'], search_term)
         
+        # Таблицу заполняет JS, поэтому ссылки на детальные страницы отдаём ещё и
+        # серверным указателем (для поисковиков и без JS). «Все предметы» — тысячи
+        # строк и дублирует подразделы, его пропускаем.
+        link_index = None
+        if item_type != 'item_all':
+            link_index = [(f'/item/{i.IID}', i.IName) for i in items_wep if i.IName]
+
         return render_template(
             'item_core/item_page_route.html',
             items_wep=items_wep,
             item_resources=item_resources,
             title=config["title"],
-            header=config['header']
+            header=config['header'],
+            link_index=link_index,
+            link_index_title=f'{config["header"]}: все предметы раздела'
         )
     
     return handle_item_page()

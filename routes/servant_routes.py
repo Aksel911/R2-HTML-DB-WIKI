@@ -22,11 +22,20 @@ def servants_list():
                 'total': len(servants)
             })
             
+        # Карточки рисует JS — поисковикам отдаём серверный указатель ссылок
+        link_index = [
+            (f"/servant/{s['id']}", s.get('name') or f"Питомец {s['id']}")
+            for s in servants if s.get('id')
+        ]
+
         return render_template(
             'servant_core/servant_page_route.html',
             servants=servants,
-            title='[Питомцы] Список питомцев',
-            header='Список питомцев'
+            title='Питомцы R2 Online — список слуг, навыки и эволюция',
+            header='Список питомцев',
+            seo_description='Все питомцы (слуги) R2 Online: стихии, ступени эволюции и навыки по уровням. База знаний R2 Wiki.',
+            link_index=link_index,
+            link_index_title='Все питомцы'
         )
         
     except Exception as e:
@@ -79,8 +88,10 @@ def servant_detail(servant_id: int):
         return render_template(
             'servant_core/servant_page_detail.html',
             servant=servant,
-            title=f'[Питомец] {servant["name"]}',
-            header=servant['name']
+            title=f'{servant["name"]} — питомец R2 Online | R2 Wiki',
+            header=servant['name'],
+            seo_title=f'{servant["name"]} — питомец R2 Online',
+            seo_description=f'Питомец {servant["name"]} в R2 Online: стихия, навыки по уровням и ветка эволюции. База знаний R2 Wiki.'
         )
 
     except Exception as e:

@@ -69,3 +69,13 @@ def load_config(app):
 
     # Публичный адрес сайта — для canonical, sitemap и og:url
     app.config['SITE_URL'] = os.getenv('SITE_URL', 'https://wiki.r2genius.com').rstrip('/')
+
+    # Коды подтверждения сайта в Google Search Console и Яндекс Вебмастере.
+    # Пустые — тег не выводится. Задать один раз, после подтверждения можно убрать.
+    app.config['GOOGLE_SITE_VERIFICATION'] = os.getenv('GOOGLE_SITE_VERIFICATION', '').strip()
+    app.config['YANDEX_VERIFICATION'] = os.getenv('YANDEX_VERIFICATION', '').strip()
+
+    # Статика (css/js/иконки) — кэшировать в браузере сутки. По умолчанию Flask
+    # отдаёт Cache-Control: no-cache, и каждый заход перепроверяет все файлы.
+    # После деплоя со сменой css/js пользователи увидят старую версию не дольше суток.
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 24 * 3600
