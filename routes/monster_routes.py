@@ -30,6 +30,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from services.ttl_cache import TTLCache
 
+from services.related_links import monster_related_links
+
 bp = Blueprint('monsters', __name__)
 
 logger = logging.getLogger(__name__)
@@ -442,6 +444,7 @@ def monster_detail(monster_id: int):
             respawn_info_normal=respawn_info_normal,
             respawn_info_event=respawn_info_event,
             mgbj_desc=mgbj_desc,
+            related_links=monster_related_links(monster_id, monster.mSellMerchanID > 0),
             prefix='m',
             has_data=has_data  # Передаем информацию о наличии данных
         )

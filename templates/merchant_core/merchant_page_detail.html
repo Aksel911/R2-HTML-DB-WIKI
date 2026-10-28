@@ -32,6 +32,7 @@
 
 
         {% include 'main_page_menu.html' %}
+        {% include 'seo_breadcrumb.html' %}
         <div class="container">
             <h1 class="page-title">Продавцы по магазину: {{ merchants[0].ListID }}</h1>
             
@@ -53,7 +54,7 @@
                 <div class="merchant-header">
                     <div class="merchant-avatar">
                         <a href="/monster/{{ merchant.MID }}">
-                          <img src="https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/monsters/{{ merchant.MID }}.png" 
+                          <img src="https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/monsters/{{ merchant.MID }}.png" alt="{{ merchant.MName }}" 
                           alt="{{ merchant.MName }}"
                           onerror="this.src='https://raw.githubusercontent.com/Aksel911/R2-HTML-DB/main/static/no_monster/no_monster_image.png'">
                         </a>

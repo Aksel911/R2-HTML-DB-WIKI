@@ -34,6 +34,7 @@
     
     <main>
         {% include 'main_page_menu.html' %}
+        {% include 'seo_breadcrumb.html' %}
         <div class="container text-center">
             {% if monstermodelno_result or item.IDropEffect %}
                 <p class="fadeIn">{% if monstermodelno_result %}🛠️ Model: i{{ monstermodelno_result }}{% else %}💫 Drop Effect: id{{ item.IDropEffect }}{% endif %}</p>
@@ -46,11 +47,11 @@
 
             <!-- Заголовок Mobile -->
             <div class="detail-title-mobile">
-                <h1 class="monster-title-mobile fadeIn">
+                <div class="monster-title-mobile fadeIn" role="heading" aria-level="2">
                     <span class="monster-title-text">{{ item.IName }}</span>
                     <div class="monster-title-glow"></div>
-                </h1>
-                <p class="fadeIn"><img src="{{ item.IUseClass }}"></p>
+                </div>
+                <p class="fadeIn"><img src="{{ item.IUseClass }}" alt="Класс персонажа"></p>
                 <div class="skill-section fadeIn">
                     <p class="section-star">★</p>
                     <div class="skill-content">
@@ -155,7 +156,7 @@
                             <span class="monster-title-text">{{ item.IName }}</span>
                             <div class="monster-title-glow"></div>
                         </h1>
-                        <p class="fadeIn"><img src="{{ item.IUseClass }}"></p>
+                        <p class="fadeIn"><img src="{{ item.IUseClass }}" alt="Класс персонажа"></p>
                         <div class="skill-section fadeIn">
                             <p class="section-star">★</p>
                             <div class="skill-content">
@@ -322,6 +323,8 @@
                 </div>
             </div>
         </div>
+        {# Серверные ссылки на дроп/продавцов/крафт — для поисковиков #}
+        {% include 'seo_related_links.html' %}
     </main>
 
     <!-- Scripts -->

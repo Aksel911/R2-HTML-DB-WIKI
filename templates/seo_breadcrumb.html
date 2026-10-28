@@ -1,0 +1,6 @@
+{# Видимые хлебные крошки; данные те же, что для JSON-LD BreadcrumbList (seo_breadcrumb в seo.html) #}
+{% if seo_breadcrumb %}
+<nav class="breadcrumbs" aria-label="Хлебные крошки">
+    <a href="/">R2 Wiki</a>{% for crumb in seo_breadcrumb %} <span class="breadcrumbs-sep">›</span> {% if crumb.path %}<a href="{{ crumb.path }}">{{ crumb.name }}</a>{% else %}<span class="breadcrumbs-current" aria-current="page">{{ crumb.name }}</span>{% endif %}{% endfor %}
+</nav>
+{% endif %}

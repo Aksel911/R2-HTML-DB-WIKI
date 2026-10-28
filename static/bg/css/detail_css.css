@@ -1401,3 +1401,74 @@ body.dark-theme .theme-toggle:hover {
 }
 
 /* by Victor Pavlov */
+
+
+/* ============================================
+   SEO-блоки: хлебные крошки, связанные записи
+   ============================================ */
+.breadcrumbs {
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 8px 0 2px;
+    text-align: left;
+    opacity: 0.85;
+}
+
+/* На десктопе слева «липкие» кнопки «Назад» и темы (~180px): крошки идут правее, в одну строку с ними */
+@media (min-width: 769px) {
+    .breadcrumbs {
+        min-height: 46px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        padding-left: 190px;
+        margin: 0 0 6px;
+    }
+}
+
+.breadcrumbs a {
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumbs-sep {
+    opacity: 0.6;
+    margin: 0 2px;
+}
+
+.related-links {
+    margin: 24px 0 16px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.75);
+    text-align: left;
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+.related-links-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+}
+
+.related-links-group {
+    margin: 0 0 4px;
+}
+
+.related-links-label {
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.dark-theme .related-links {
+    background: rgba(40, 40, 40, 0.75);
+}
+
+/* Мобильный заголовок больше не <h1>: цвет в тёмной теме задаём явно, как у h1 */
+.dark-theme .monster-title-mobile {
+    color: #fff5e6 !important;
+}

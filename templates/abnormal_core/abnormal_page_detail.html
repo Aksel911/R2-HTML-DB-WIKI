@@ -32,14 +32,15 @@
 
     <main>
         {% include 'main_page_menu.html' %}
+        {% include 'seo_breadcrumb.html' %}
         <div class="container text-center">
 
              <!-- Заголовок Mobile -->
              <div class="detail-title-mobile">
-                <h1 class="monster-title-mobile fadeIn">
+                <div class="monster-title-mobile fadeIn" role="heading" aria-level="2">
                     <span class="monster-title-text-mobile">{{ abnormal.abnormal_data.AName }}</span>
                     <div class="monster-title-glow-mobile"></div>
-                </h1>
+                </div>
             </div>
             
             <!-- Первый блок -->

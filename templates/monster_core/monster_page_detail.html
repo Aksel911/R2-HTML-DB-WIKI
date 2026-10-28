@@ -31,6 +31,7 @@
 
     <main>
         {% include 'main_page_menu.html' %}
+        {% include 'seo_breadcrumb.html' %}
         <div class="container text-center">
             {% if monstermodelno_result %}
                 <p class="fadeIn">🛠️{{ monstermodelno_result }}</p>
@@ -43,7 +44,7 @@
 
             {% if not monstermodelno_result and file_path_gif %}
                 <p class="fadeIn">
-                    <img src="{{ file_path_gif }}" style="transform: scale(0.75);">
+                    <img src="{{ file_path_gif }}" alt="{{ item.MName }}" style="transform: scale(0.75);">
                 </p>
             {% elif not monstermodelno_result %}
                 <p class="fadeIn">🏳️</p>
@@ -51,10 +52,10 @@
             
             <!-- Заголовок Mobile -->
             <div class="detail-title-mobile">
-                <h1 class="monster-title-mobile fadeIn">
+                <div class="monster-title-mobile fadeIn" role="heading" aria-level="2">
                     <span class="monster-title-text-mobile">{{ item.MName }}</span>
                     <div class="monster-title-glow-mobile"></div>
-                </h1>
+                </div>
             </div>
 
             <div class="row">
@@ -169,6 +170,8 @@
                 </div>
             </div>
         </div>
+        {# Серверные ссылки на дроп/продавцов/крафт — для поисковиков #}
+        {% include 'seo_related_links.html' %}
     </main>
 
     <!-- Scripts -->

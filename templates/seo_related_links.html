@@ -1,0 +1,14 @@
+{# Серверные ссылки на связанные записи (services/related_links.py).
+   Основные блоки (дроп, продавцы, крафт) рисует JS из /api — поисковик их не видит,
+   этот список даёт те же связи обычными <a href>. Переменная: related_links #}
+{% if related_links %}
+<section class="related-links fadeIn" aria-label="Связанные записи">
+    <h2 class="related-links-title">Связанные записи</h2>
+    {% for group in related_links %}
+    <p class="related-links-group">
+        <span class="related-links-label">{{ group.title }}:</span>
+        {% for url, name in group.links %}<a href="{{ url }}">{{ name }}</a>{{ ', ' if not loop.last }}{% endfor %}
+    </p>
+    {% endfor %}
+</section>
+{% endif %}

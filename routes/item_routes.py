@@ -35,6 +35,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 
+from services.related_links import item_related_links
+
 bp = Blueprint('items', __name__)
 
 logger = logging.getLogger(__name__)
@@ -325,10 +327,11 @@ def item_detail(item_id: int):
                 item_model_no = base
 
         # Check for data availability
+        craft_recipe = check_base_items_for_craft(item_id)
         has_data = {
             'has_bead': item.IName.startswith('Руна'),
-            'has_skill': bool(get_item_skill(item_id)),
-            'has_craft': bool(check_base_items_for_craft(item_id)),
+            'has_skill': bool(skill_data),
+            'has_craft': bool(craft_recipe),
             'has_attributes': bool(get_item_attribute_add_data(item_id)),
             'has_protect': item.IType in [1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 42],
             'has_abnormal': bool(get_itemabnormalResist_data(item_id))
@@ -342,7 +345,8 @@ def item_detail(item_id: int):
             use_class=use_class,
             prefix=prefix,
             monstermodelno_result=item_model_no,
-            has_data=has_data
+            has_data=has_data,
+            related_links=item_related_links(item_id, craft_recipe)
         )
     except Exception as e:
         logger.error("Ошибка на детальной странице предмета %s: %s", item_id, e, exc_info=True)
