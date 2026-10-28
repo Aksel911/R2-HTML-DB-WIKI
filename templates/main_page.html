@@ -203,14 +203,20 @@
           animation: bounce 1s infinite;
       }
       
-      /* Responsive Adjustments */
-      @media (max-width: 768px) {
-          h2 {
-              margin-top: 130px;
-          }
-          .avatar {
-              margin-bottom: -60px;
-          }
+      /* Подпись автора: под аватаром, в потоке, без размытого дубля-подсветки */
+      .author-box {
+          position: static;
+          width: auto;
+          margin: 14px 0 0;
+      }
+
+      .author-box h2 {
+          font-size: 1.15rem;
+          margin: 0;
+      }
+
+      .author-box .author-credit::before {
+          content: none;
       }
   </style>
 </head>
@@ -230,6 +236,9 @@
                 <img decoding="async" src="https://avatars.githubusercontent.com/u/98168047?s=400&u=d1daa76c85482e879e00c92b13496f5660ef88af&v=4" alt="Skytsunami" loading="lazy">
             </a>
         </div>
+        <div class="author-box">
+            <h2 class="author-credit">ᶜʳᵉᵃᵗᵉᵈ ᵇʸ <a href="https://vk.com/akselrus" target="_blank">ⱽᴾ</a></h2>
+        </div>
 
         <!-- Content Section -->
         <div class="content">
@@ -247,10 +256,6 @@
                 </p>
             </div>
         </div>
-    </div>
-
-    <div class="author-box">
-        <h2 class="author-credit">ᶜʳᵉᵃᵗᵉᵈ ᵇʸ <a href="https://vk.com/akselrus" target="_blank">ⱽᴾ</a></h2>
     </div>
 
     <!-- Required JS -->
