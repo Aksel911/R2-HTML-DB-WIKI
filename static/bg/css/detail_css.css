@@ -1411,7 +1411,12 @@ body.dark-theme .theme-toggle:hover {
     line-height: 1.5;
     margin: 8px 0 2px;
     text-align: left;
-    opacity: 0.85;
+    /* Явный цвет: у страниц питомцев свой цвет текста body, крошки на нём терялись */
+    color: #3a3a3a;
+}
+
+.dark-theme .breadcrumbs {
+    color: rgba(255, 255, 255, 0.85);
 }
 
 /* На десктопе слева «липкие» кнопки «Назад» и темы (~180px): крошки идут правее, в одну строку с ними */
